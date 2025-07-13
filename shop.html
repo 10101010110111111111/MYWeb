@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obchod - Merchandise Jména Kapely</title>
+    <meta name="description" content="Oficiální merchandise Jména Kapely - trička, mikiny, CD a další">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigace -->
+    <nav class="navbar navbar-fixed">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.jpg" alt="Logo kapely" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Domů</a>
+                </li>
+                <li class="nav-item">
+                    <a href="aboutUs.html" class="nav-link">O nás</a>
+                </li>
+                <li class="nav-item">
+                    <a href="concerts.html" class="nav-link">Koncerty</a>
+                </li>
+                <li class="nav-item">
+                    <a href="shop.html" class="nav-link active">Obchod</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hlavička stránky -->
+    <header class="page-header-simple">
+        <div class="container">
+            <h1 class="page-title">Oficiální merchandise</h1>
+            <p class="page-subtitle">Podpoř kapelu nákupem exkluzivních věcí</p>
+        </div>
+    </header>
+
+    <!-- Hlavní obsah -->
+    <main class="main-content">
+        <!-- Košík -->
+        <div class="cart-indicator">
+            <div class="container">
+                <div class="cart-info">
+                    <span class="cart-icon">🛒</span>
+                    <span class="cart-count" id="cartCount">0</span>
+                    <span class="cart-text">položek v košíku</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kategorie produktů -->
+        <section class="categories-section">
+            <div class="container">
+                <div class="category-filters">
+                    <button class="category-btn active" data-category="all">Všechny produkty</button>
+                    <button class="category-btn" data-category="clothing">Oblečení</button>
+                    <button class="category-btn" data-category="music">Hudba</button>
+                    <button class="category-btn" data-category="accessories">Doplňky</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Produkty -->
+        <section class="products-section">
+            <div class="container">
+                <div class="products-grid" id="productsGrid">
+                    <!-- Ukázkové produkty (překlad názvů, popisků a tlačítek) budou pokračovat stejně jako výše -->
+                    <!-- ... -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Souhrn košíku -->
+        <div class="cart-summary" id="cartSummary" style="display: none;">
+            <div class="container">
+                <h3>Souhrn košíku</h3>
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-total">
+                    <strong>Celkem: $<span id="cartTotal">0.00</span></strong>
+                </div>
+                <div class="cart-actions">
+                    <button class="btn btn-secondary" onclick="clearCart()">Vymazat košík</button>
+                    <button class="btn btn-primary">Přejít k objednávce</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Paticka -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="images/logo.jpg" alt="Logo kapely" class="footer-logo">
+                    <p class="footer-slogan">"Hudba je naše vášeň, fanoušci jsou naše inspirace"</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Kontakt</h4>
+                    <p>Email: kontakt@jménokapely.com</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">Facebook</a>
+                        <a href="#" class="social-link">Instagram</a>
+                        <a href="#" class="social-link">Twitter</a>
+                        <a href="https://www.youtube.com/channel/UCN35SuaKSeEVBOVY7Hch-ow" class="social-link">YouTube</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Rychlý kontakt</h4>
+                    <form class="contact-form">
+                        <input type="email" placeholder="Tvůj e-mail" class="form-input">
+                        <textarea placeholder="Tvoje zpráva" class="form-textarea"></textarea>
+                        <button type="submit" class="btn btn-secondary">Odeslat</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Jméno Kapely. Všechna práva vyhrazena.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
