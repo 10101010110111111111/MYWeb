@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concerts - Band Name</title>
+    <meta name="description" content="Upcoming concerts and tour dates for Band Name">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-fixed">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.jpg" alt="Band Logo" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="aboutUs.html" class="nav-link">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a href="concerts.html" class="nav-link active">Concerts</a>
+                </li>
+                <li class="nav-item">
+                    <a href="shop.html" class="nav-link">Shop</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page header -->
+    <header class="page-header-simple">
+        <div class="container">
+            <h1 class="page-title">Concerts & Tours</h1>
+            <p class="page-subtitle">Join us live for an unforgettable experience</p>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <!-- Filters section -->
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters">
+                    <h3>Filter Concerts</h3>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+                        <button class="filter-btn" data-filter="past">Past</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upcoming concerts section -->
+        <section class="concerts-section">
+            <div class="container">
+                <h2 class="section-title">Upcoming Shows</h2>
+                <div class="concerts-list" id="concertsList">
+                    <!-- Upcoming concerts -->
+                    <div class="concert-card upcoming" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">15</span>
+                            <span class="date-month">JAN</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Madison Square Garden</h3>
+                            <p class="concert-location">New York, NY, USA</p>
+                            <p class="concert-time">8:00 PM</p>
+                            <p class="concert-description">Special guest: Opening Band Name</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Buy Tickets</button>
+                            <span class="concert-status available">Available</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card upcoming" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">22</span>
+                            <span class="date-month">JAN</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">The Forum</h3>
+                            <p class="concert-location">Los Angeles, CA, USA</p>
+                            <p class="concert-time">7:30 PM</p>
+                            <p class="concert-description">Album release tour</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Buy Tickets</button>
+                            <span class="concert-status available">Available</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card upcoming" data-location="europe">
+                        <div class="concert-date">
+                            <span class="date-day">05</span>
+                            <span class="date-month">FEB</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">O2 Arena</h3>
+                            <p class="concert-location">London, UK</p>
+                            <p class="concert-time">8:00 PM</p>
+                            <p class="concert-description">European tour kickoff</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Buy Tickets</button>
+                            <span class="concert-status limited">Limited</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card upcoming" data-location="canada">
+                        <div class="concert-date">
+                            <span class="date-day">18</span>
+                            <span class="date-month">FEB</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Rogers Centre</h3>
+                            <p class="concert-location">Toronto, ON, Canada</p>
+                            <p class="concert-time">7:00 PM</p>
+                            <p class="concert-description">Canadian tour finale</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Buy Tickets</button>
+                            <span class="concert-status available">Available</span>
+                        </div>
+                    </div>
+
+                    <!-- Past concerts -->
+                    <div class="concert-card past" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">10</span>
+                            <span class="date-month">DEC</span>
+                            <span class="date-year">2024</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Red Rocks Amphitheatre</h3>
+                            <p class="concert-location">Morrison, CO, USA</p>
+                            <p class="concert-time">8:00 PM</p>
+                            <p class="concert-description">Sold out show</p>
+                        </div>
+                        <div class="concert-actions">
+                            <div class="concert-media">
+                                <img src="/placeholder.svg?height=100&width=150" alt="Concert photo" class="concert-thumb">
+                            </div>
+                            <span class="concert-status completed">Completed</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card past" data-location="europe">
+                        <div class="concert-date">
+                            <span class="date-day">25</span>
+                            <span class="date-month">NOV</span>
+                            <span class="date-year">2024</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Bercy Arena</h3>
+                            <p class="concert-location">Paris, France</p>
+                            <p class="concert-time">8:30 PM</p>
+                            <p class="concert-description">European leg finale</p>
+                        </div>
+                        <div class="concert-actions">
+                            <div class="concert-media">
+                                <img src="/placeholder.svg?height=100&width=150" alt="Concert photo" class="concert-thumb">
+                            </div>
+                            <span class="concert-status completed">Completed</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card past" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">15</span>
+                            <span class="date-month">OCT</span>
+                            <span class="date-year">2024</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Chicago Theatre</h3>
+                            <p class="concert-location">Chicago, IL, USA</p>
+                            <p class="concert-time">7:30 PM</p>
+                            <p class="concert-description">Intimate acoustic set</p>
+                        </div>
+                        <div class="concert-actions">
+                            <div class="concert-media">
+                                <img src="/placeholder.svg?height=100&width=150" alt="Concert photo" class="concert-thumb">
+                            </div>
+                            <span class="concert-status completed">Completed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter signup -->
+        <section class="newsletter-section">
+            <div class="container">
+                <div class="newsletter-content">
+                    <h2>Stay Updated</h2>
+                    <p>Get notified about new tour dates and exclusive presale access</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Enter your email" class="newsletter-input">
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="images/logo.jpg" alt="Band Logo" class="footer-logo">
+                    <p class="footer-slogan">"Music is our passion, fans are our inspiration"</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Email: contact@bandname.com</p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/profile.php?id=1000874493633085" target="_blank" class="social-link">Facebook</a>
+                        <a href="https://www.instagram.com/cihyofficial" target="_blank" class="social-link">Instagram</a>
+                        <a href="#" class="social-link">Twitter</a>
+                        <a href="https://www.youtube.com/channel/UCN35SuaKSeEVBOVY7Hch-ow" target="_blank" class="social-link">YouTube</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Contact</h4>
+                    <form class="contact-form">
+                        <input type="email" placeholder="Your email" class="form-input">
+                        <textarea placeholder="Your message" class="form-textarea"></textarea>
+                        <button type="submit" class="btn btn-secondary">Send</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Band Name. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
