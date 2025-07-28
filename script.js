@@ -21,7 +21,7 @@ const projectList = [
     progress: 100
   },
   {
-    path: "./projekt3/index.html",
+    path: "./project3/index.html",
     name: "Projekt 3 - BJ Full Counter",
     description: "Top secret",
     category: "Tools",
