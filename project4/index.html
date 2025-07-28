@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker simulator Ver1</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Texas Hold'em Poker Simulator</h1>
+        
+        <!-- Settings Section -->
+        <div class="settings-section">
+            <div class="setting-group">
+                <label for="playerCount">Number of Players (2-10):</label>
+                <input type="number" id="playerCount" min="2" max="10" value="6">
+            </div>
+            
+            <div class="setting-group">
+                <label for="speedControl">Speed (1-500x):</label>
+                <input type="range" id="speedControl" min="1" max="500" value="1">
+                <span id="speedValue">1x</span>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn">Start Simulation</button>
+                <button id="pauseBtn" disabled>Pause</button>
+                <button id="stopBtn" disabled>Stop</button>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <div class="status-item">
+                <span>Game #</span>
+                <span id="gameNumber">0</span>
+            </div>
+            <div class="status-item">
+                <span>Status:</span>
+                <span id="gameStatus">Ready</span>
+            </div>
+        </div>
+
+        <!-- Game Visualization -->
+        <div class="game-section">
+            <div class="board-section">
+                <h3>Community Cards</h3>
+                <div id="communityCards" class="community-cards"></div>
+            </div>
+            
+            <div class="players-section">
+                <h3>Players</h3>
+                <div id="playersGrid" class="players-grid"></div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <div class="stats-controls">
+                <h3>Hand Format Display</h3>
+                <div class="format-toggles">
+                    <label>
+                        <input type="checkbox" id="showFull" checked>
+                        Full Format (A♦ A♥)
+                    </label>
+                    <label>
+                        <input type="checkbox" id="showSuited">
+                        Suited/Offsuit (AKs, AKo)
+                    </label>
+                    <label>
+                        <input type="checkbox" id="showMerged">
+                        Merged (AK)
+                    </label>
+                </div>
+                
+                <div class="top-filter">
+                    <label for="topFilter">Show Top:</label>
+                    <select id="topFilter">
+                        <option value="10">10</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                        <option value="all" selected>All</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tables-container">
+                <div class="table-section">
+                    <h3>Winning Hands</h3>
+                    <div class="table-container">
+                        <table id="winsTable">
+                            <thead>
+                                <tr>
+                                    <th>Hand</th>
+                                    <th>Wins</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <h3>Tie Hands</h3>
+                    <div class="table-container">
+                        <table id="tiesTable">
+                            <thead>
+                                <tr>
+                                    <th>Hand</th>
+                                    <th>Ties</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Extended Statistics Tables -->
+            <div class="extended-stats">
+                <h3>Extended Statistics</h3>
+                <div class="tables-container-extended">
+                    <div class="table-section">
+                        <h4>Hand Appearances</h4>
+                        <div class="table-controls">
+                            <button onclick="sortTable('appearancesTable', 'count')">Sort by Count</button>
+                            <button onclick="sortTable('appearancesTable', 'hand')">Sort by Hand</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="appearancesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Hand</th>
+                                        <th>Appearances</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="table-section">
+                        <h4>Win Score</h4>
+                        <div class="table-controls">
+                            <button onclick="sortTable('winScoreTable', 'score')">Sort by Score</button>
+                            <button onclick="sortTable('winScoreTable', 'hand')">Sort by Hand</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="winScoreTable">
+                                <thead>
+                                    <tr>
+                                        <th>Hand</th>
+                                        <th>Win Score</th>
+                                        <th>Wins/Apps</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="table-section">
+                        <h4>Tie Score</h4>
+                        <div class="table-controls">
+                            <button onclick="sortTable('tieScoreTable', 'score')">Sort by Score</button>
+                            <button onclick="sortTable('tieScoreTable', 'hand')">Sort by Hand</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="tieScoreTable">
+                                <thead>
+                                    <tr>
+                                        <th>Hand</th>
+                                        <th>Tie Score</th>
+                                        <th>Ties/Apps</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-section" id="exportSection" style="display: none;">
+            <h3>Download Results</h3>
+            <div class="export-buttons">
+                <div class="export-group">
+                    <h4>Statistics</h4>
+                    <button onclick="exportData('wins', 'csv')">Wins CSV</button>
+                    <button onclick="exportData('wins', 'json')">Wins JSON</button>
+                    <button onclick="exportData('ties', 'csv')">Ties CSV</button>
+                    <button onclick="exportData('ties', 'json')">Ties JSON</button>
+                </div>
+                
+                <div class="export-group">
+                    <h4>Complete Logs</h4>
+                    <button onclick="exportData('log', 'csv')">Complete Log CSV</button>
+                    <button onclick="exportData('log', 'txt')">Complete Log TXT</button>
+                </div>
+                
+                <div class="export-group">
+                    <h4>Filtered Logs</h4>
+                    <button onclick="exportFilteredLog('flush')">Flush Hands</button>
+                    <button onclick="exportFilteredLog('straight')">Straight Hands</button>
+                    <button onclick="exportFilteredLog('fullhouse')">Full House Hands</button>
+                    <button onclick="exportFilteredLog('fourofakind')">Four of a Kind</button>
+                    <button onclick="exportFilteredLog('royalflush')">Royal Flush</button>
+                </div>
+
+                <div class="export-group">
+                    <h4>Extended Statistics</h4>
+                    <button onclick="exportData('appearances', 'csv')">Appearances CSV</button>
+                    <button onclick="exportData('appearances', 'json')">Appearances JSON</button>
+                    <button onclick="exportData('winScore', 'csv')">Win Score CSV</button>
+                    <button onclick="exportData('winScore', 'json')">Win Score JSON</button>
+                    <button onclick="exportData('tieScore', 'csv')">Tie Score CSV</button>
+                    <button onclick="exportData('tieScore', 'json')">Tie Score JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
