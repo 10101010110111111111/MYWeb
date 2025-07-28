@@ -1,0 +1,247 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.nav-arrows {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin: 30px 0 20px 0;
+    font-size: 1.5em;
+}
+
+#navLeft, #navRight {
+    background: linear-gradient(145deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.8em;
+    font-weight: bold;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#navLeft:hover, #navRight:hover {
+    background: linear-gradient(145deg, #764ba2, #667eea);
+    transform: scale(1.15);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+#navLeft:active, #navRight:active {
+    transform: scale(1.05);
+}
+
+#navLeft::before, #navRight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+#navLeft:hover::before, #navRight:hover::before {
+    left: 100%;
+}
+
+#pageLabel {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #4a5568;
+    background: #fff;
+    padding: 8px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+    letter-spacing: 1px;
+}
+
+#mainContent {
+    margin: 0 auto 40px auto;
+    max-width: 900px;
+    min-height: 400px;
+    background: rgba(255,255,255,0.97);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 20px 0 0 0;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+table:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+th {
+    background: linear-gradient(145deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px 8px;
+    font-weight: 600;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    position: relative;
+}
+
+th:first-child {
+    background: linear-gradient(145deg, #4a5568, #2d3748);
+}
+
+td {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:nth-child(odd) {
+    background: white;
+}
+
+tr:hover {
+    background: linear-gradient(145deg, #f0f4ff, #e6f3ff);
+    transform: scale(1.01);
+}
+
+/* Action-based colors - Fixed selectors */
+td:contains("H"), 
+td:contains("Hit"),
+td:contains("H") {
+    background: linear-gradient(145deg, #fed7d7, #feb2b2) !important;
+    color: #c53030 !important;
+    font-weight: bold !important;
+}
+
+td:contains("S"), 
+td:contains("Stand"),
+td:contains("S") {
+    background: linear-gradient(145deg, #c6f6d5, #9ae6b4) !important;
+    color: #2f855a !important;
+    font-weight: bold !important;
+}
+
+td:contains("D"), 
+td:contains("Double"),
+td:contains("D") {
+    background: linear-gradient(145deg, #fef5e7, #fbd38d) !important;
+    color: #d69e2e !important;
+    font-weight: bold !important;
+}
+
+td:contains("P"), 
+td:contains("Split"),
+td:contains("P") {
+    background: linear-gradient(145deg, #e9d8fd, #d6bcfa) !important;
+    color: #553c9a !important;
+    font-weight: bold !important;
+}
+
+/* Index values styling */
+td:contains("+") {
+    background: linear-gradient(145deg, #c6f6d5, #9ae6b4) !important;
+    color: #38a169 !important;
+    font-weight: bold !important;
+}
+
+td:contains("-") {
+    background: linear-gradient(145deg, #fed7d7, #feb2b2) !important;
+    color: #e53e3e !important;
+    font-weight: bold !important;
+}
+
+td:contains("0") {
+    background: linear-gradient(145deg, #e2e8f0, #cbd5e0) !important;
+    color: #718096 !important;
+    font-weight: bold !important;
+}
+
+/* Specific cell targeting for better color application */
+td:first-child {
+    background: linear-gradient(145deg, #f7fafc, #edf2f7) !important;
+    color: #4a5568 !important;
+    font-weight: bold !important;
+}
+
+/* Headers styling */
+h1 {
+    text-align: center;
+    color: #2d3748;
+    font-size: 2.5em;
+    margin: 30px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(145deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h2 {
+    color: #4a5568;
+    font-size: 1.8em;
+    margin: 25px 0 15px 0;
+    padding: 10px 0;
+    border-bottom: 3px solid #667eea;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Legend styling */
+p {
+    background: linear-gradient(145deg, #ebf8ff, #bee3f8);
+    padding: 15px 20px;
+    border-radius: 10px;
+    border-left: 5px solid #3182ce;
+    margin: 20px 0;
+    color: #2c5282;
+    font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    table {
+        font-size: 0.9em;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    h2 {
+        font-size: 1.5em;
+    }
+}

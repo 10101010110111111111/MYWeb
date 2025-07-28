@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Marian's Portfolio - Profesionální portfolio s projekty a dovednostmi">
+    <meta name="keywords" content="portfolio, web development, JavaScript, React, CSS, HTML">
+    <meta name="author" content="Marian">
+    <title>Marian's Portfolio - Profesionální Projekty</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="title">
+                <span class="title-icon">🚀</span>
+                <span class="title-text">Marian's</span>
+                <span class="title-highlight">Portfolio</span>
+            </h1>
+            <p class="subtitle">Web Developer & Creative Coder</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- About Section -->
+        <section class="about-section">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="section-title">O mně</h2>
+                    <p class="about-description">
+                        Jsem vášnivý webový vývojář s láskou k moderním technologiím a kreativnímu programování. 
+                        Specializuji se na frontend vývoj s React, ale rád se učím nové technologie a přístupy. 
+                        Každý projekt je pro mě příležitostí vytvořit něco unikátního a užitečného.
+                    </p>
+                    
+                    <div class="skills-container">
+                        <h3 class="skills-title">Technologie & Dovednosti</h3>
+                        <div class="skills-grid">
+                            <div class="skill-item">
+                                <i class="fab fa-html5"></i>
+                                <span>HTML5</span>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-css3-alt"></i>
+                                <span>CSS3</span>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-js"></i>
+                                <span>JavaScript</span>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-react"></i>
+                                <span>React</span>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-node-js"></i>
+                                <span>Node.js</span>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-git-alt"></i>
+                                <span>Git</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-image">
+                    <div class="profile-card">
+                        <div class="profile-image">
+                            <img src="images/profile.jpg" alt="Marian" id="profileImage">
+                            <div class="profile-overlay">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="profile-info">
+                            <h3>Marian</h3>
+                            <p>Web Developer</p>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <div class="stat-number" id="totalProjects">0</div>
+                                <div class="stat-label">Projektů</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">3+</div>
+                                <div class="stat-label">Roky zkušeností</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-number">100%</div>
+                                <div class="stat-label">Spokojenost</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section class="projects-section">
+            <div class="projects-header">
+                <h2 class="section-title">Moje Projekty</h2>
+                <div class="projects-controls">
+                    <div class="search-container">
+                        <input type="text" id="projectSearch" class="search-input" placeholder="Hledat projekty...">
+                    </div>
+                    <div class="filter-container">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">Všechny kategorie</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Project Preview -->
+        <section class="project-preview" id="projectPreview" style="display: none;">
+            <div class="preview-header">
+                <h3 class="preview-title">
+                    <i class="fas fa-eye"></i>
+                    <span id="previewProjectName">Náhled projektu</span>
+                </h3>
+                <div class="preview-controls">
+                    <button class="control-btn" id="refreshBtn" title="Obnovit">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="control-btn" id="fullscreenBtn" title="Celá obrazovka">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="control-btn" id="closePreviewBtn" title="Zavřít">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="iframe-container">
+                <iframe id="preview" src="" frameborder="0"></iframe>
+                <div class="iframe-placeholder">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Načítám projekt...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Stats -->
+        <div class="project-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div class="stat-number" id="totalProjects">0</div>
+                <div class="stat-label">Celkem projektů</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Dokončené</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-number">75%</div>
+                <div class="stat-label">Ve vývoji</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <div class="stat-number">Dark</div>
+                <div class="stat-label">Téma</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Vytvořeno s <i class="fas fa-heart"></i> Marianem</p>
+            <div class="social-links">
+                <a href="#" class="social-link" title="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" class="social-link" title="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="#" class="social-link" title="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="mailto:marian@example.com" class="social-link" title="Email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

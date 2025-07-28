@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>20x20 Tic-Tac-Toe AI</h1>
+            <div class="game-controls">
+                <button id="newGameBtn" class="btn primary">New Game</button>
+                <button id="aiNormalBtn" class="btn secondary">Normal</button>
+                <button id="aiHardBtn" class="btn secondary">Hard</button>
+                <button id="aiInsaneBtn" class="btn secondary">Insane</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Game Status -->
+            <div class="game-status">
+                <div class="current-player">
+                    <span id="currentPlayerText">Click "New Game" to start</span>
+                </div>
+                <div class="game-info">
+                    <span id="gameInfo"></span>
+                </div>
+            </div>
+
+            <!-- Game Board -->
+            <div class="game-board-container">
+                <div id="gameBoard" class="game-board"></div>
+            </div>
+
+            <!-- AI Thinking Indicator -->
+            <div id="aiThinking" class="ai-thinking hidden">
+                <div class="thinking-spinner"></div>
+                <span>AI is thinking...</span>
+            </div>
+        </main>
+
+        <!-- Wheel of Fortune Modal -->
+        <div id="wheelModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Who Goes First?</h2>
+                <div class="wheel-container">
+                    <div id="wheel" class="wheel">
+                        <div class="wheel-section player">Player</div>
+                        <div class="wheel-section ai">AI</div>
+                    </div>
+                    <div class="wheel-pointer"></div>
+                </div>
+                <button id="spinWheel" class="btn primary">Spin the Wheel!</button>
+                <div id="wheelResult" class="wheel-result hidden"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="gameOverModal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="gameOverTitle">Game Over</h2>
+                <p id="gameOverMessage"></p>
+                <div class="modal-footer">
+                    <button id="playAgain" class="btn primary">Play Again</button>
+                    <button id="exitGameOver" class="btn secondary">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
