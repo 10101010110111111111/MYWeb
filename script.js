@@ -80,6 +80,7 @@ function initializePortfolio() {
       this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjMDA2NmNjIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNjAiIHI9IjIwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjUgMTMwQzI1IDExMCA0NSA5MCA3NSA5MEMxMDUgOTAgMTI1IDExMCAxMjUgMTMwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K';
     };
   }
+  updateProjectStats();
 }
 
 // Check which projects actually exist
@@ -150,6 +151,7 @@ function setTheme(theme) {
   if (activeThemeElement) {
     activeThemeElement.textContent = 'Dark';
   }
+  updateProjectStats();
 }
 
 // Render projects grid
@@ -495,6 +497,7 @@ function checkPassword(index) {
     // Close modal and refresh grid
     closePasswordModal();
     renderProjectsGrid();
+    updateProjectStats();
     
     // Auto-open project
     setTimeout(() => {
@@ -918,3 +921,32 @@ console.log('🚀 Marian\'s Portfolio loaded successfully!');
 console.log('💡 Keyboard shortcuts: Ctrl+Enter (open), Ctrl+R (refresh), F11 (fullscreen), Esc (close)');
 console.log('🌙 Theme: Dark mode only');
 console.log('🔐 Unlocked projects: ' + unlockedProjects.length);
+
+// Update statistics in .project-stats
+function updateProjectStats() {
+  const totalProjectsStat = document.getElementById('totalProjectsStat');
+  const unlockedProjectsStat = document.getElementById('unlockedProjectsStat');
+  const lockedProjectsStat = document.getElementById('lockedProjectsStat');
+  const activeThemeStat = document.getElementById('activeThemeStat');
+  const totalProjectsLabel = document.querySelector('#totalProjectsStat')?.parentElement?.querySelector('.stat-label');
+
+  if (totalProjectsStat) {
+    totalProjectsStat.textContent = projectList.length;
+    if (totalProjectsLabel) {
+      let label = 'projektů';
+      if (projectList.length === 1) label = 'projekt';
+      else if (projectList.length >= 2 && projectList.length <= 5) label = 'projekty';
+      totalProjectsLabel.textContent = `Celkem ${label}`;
+    }
+  }
+  if (unlockedProjectsStat) {
+    unlockedProjectsStat.textContent = unlockedProjects.length;
+  }
+  if (lockedProjectsStat) {
+    const lockedCount = projectList.filter(p => p.password && !unlockedProjects.includes(p.path)).length;
+    lockedProjectsStat.textContent = lockedCount;
+  }
+  if (activeThemeStat) {
+    activeThemeStat.textContent = currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1);
+  }
+}
