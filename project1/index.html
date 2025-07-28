@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ČIHY - Oficiální web</title>
+    <meta name="description" content="Oficiální web Jména Kapely - rocková kapela s nadcházejícími koncerty a merchandisem">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Hlavička s pozadím -->
+    <header class="hero-header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <img src="images/logo.jpg" alt="Logo kapely" class="logo-img">
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link active">Domů</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="aboutus.html" class="nav-link">O nás</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="concerts.html" class="nav-link">Koncerty</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="shop.html" class="nav-link">Obchod</a>
+                    </li>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Logo a úvodní zpráva -->
+        <div class="hero-content">
+            <div class="main-logo">
+                <img src="images/logo.jpg" alt="Logo Jména Kapely" class="hero-logo">
+            </div>
+            <h1 class="hero-title">Vítej na naší hudební cestě</h1>
+            <p class="hero-subtitle">Zažij sílu rockové hudby</p>
+        </div>
+    </header>
+
+    <!-- Hlavní obsah -->
+    <main class="main-content">
+        <!-- Rychlá navigace -->
+        <section class="quick-nav">
+            <div class="container">
+                <h2 class="section-title">Prozkoumej</h2>
+                <div class="quick-nav-grid">
+                    <a href="aboutUs.html" class="quick-nav-card">
+                        <h3>O nás</h3>
+                        <p>Poznej náš příběh a členy</p>
+                    </a>
+                    <a href="concerts.html" class="quick-nav-card">
+                        <h3>Koncerty</h3>
+                        <p>Podívej se na naše nadcházející vystoupení</p>
+                    </a>
+                    <a href="shop.html" class="quick-nav-card">
+                        <h3>Obchod</h3>
+                        <p>Získej exkluzivní merch</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sekce videí z YouTube -->
+        <section class="videos-section">
+            <div class="container">
+                <h2 class="section-title">Doporučená videa</h2>
+                <div class="videos-grid">
+                    <div class="video-container">
+                        <iframe 
+                            src="https://www.youtube.com/embed/h3Qt_k1iaDY" 
+                            title="Video kapely 1"
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="video-container">
+                        <iframe 
+                            src="https://www.youtube.com/embed/0hxTg7HzQBU" 
+                            title="Video kapely 2"
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+                <div class="youtube-channel-link">
+                    <a href="https://www.youtube.com/channel/UCN35SuaKSeEVBOVY7Hch-ow" target="_blank" class="btn btn-primary">
+                        Navštiv náš YouTube kanál
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Novinky -->
+        <section class="news-section">
+            <div class="container">
+                <h2 class="section-title">Nejnovější zprávy</h2>
+                <div class="news-grid">
+                    <article class="news-card">
+                        <h3>Vydání nového alba</h3>
+                        <p class="news-date">15. prosince 2024</p>
+                        <p>S radostí oznamujeme vydání našeho nového alba. Sleduj nás pro více informací!</p>
+                    </article>
+                    <article class="news-card">
+                        <h3>Oznámení světového turné</h3>
+                        <p class="news-date">10. prosince 2024</p>
+                        <p>Připrav se na naše největší turné! Vstupenky budou k dispozici příští měsíc.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Paticka -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="images/logo.jpg" alt="Logo kapely" class="footer-logo">
+                    <p class="footer-slogan">"Hudba je naše vášeň, fanoušci jsou naše inspirace"</p>
+                </div>
+               <div class="footer-section">
+                    <h4>Kontakt</h4>
+                    <p>Email: cihy@gmail.com</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">Facebook</a>
+                        <a href="https://www.instagram.com/cihyofficial/" class="social-link">Instagram</a>
+                        <a href="#" class="social-link">Twitter</a>
+                        <a href="https://www.youtube.com/channel/UCN35SuaKSeEVBOVY7Hch-ow" class="social-link">YouTube</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Rychlý kontakt</h4>
+                    <form class="contact-form">
+                        <input type="email" placeholder="Tvůj e-mail" class="form-input">
+                        <textarea placeholder="Tvoje zpráva" class="form-textarea"></textarea>
+                        <button type="submit" class="btn btn-secondary">Odeslat</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

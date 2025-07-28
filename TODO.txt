@@ -1,0 +1,255 @@
+🚀 MARIAN'S PORTFOLIO - TODO LIST
+=====================================
+
+📸 FOTOGRAFIE A OBRÁZKY
+------------------------
+
+1. PROFILOVÁ FOTKA
+   ✅ Složka: images/
+   📁 Soubor: images/profile.jpg
+   📏 Rozměry: 300x300px (minimálně)
+   💡 Tip: Použij čtvercový obrázek s dobrým osvětlením
+   🎯 Účel: Profilová fotka v sekci "O mně"
+
+2. PROJEKT SCREENSHOTY (volitelné)
+   📁 Složka: images/projects/
+   📏 Rozměry: 800x600px
+   💡 Tip: Screenshoty vašich projektů pro lepší prezentaci
+   🎯 Účel: Náhledy projektů v kartách
+
+3. BACKGROUND OBRÁZKY (volitelné)
+   📁 Složka: images/backgrounds/
+   📏 Rozměry: 1920x1080px
+   💡 Tip: Tmavé/abstraktní obrázky pro pozadí
+   🎯 Účel: Custom pozadí místo gradientů
+
+🔐 HESLA PRO PROJEKTY
+---------------------
+
+1. CHRÁNĚNÉ PROJEKTY
+   ✅ Systém hesel implementován
+   📝 Hesla jsou uložena v script.js
+   💾 Odemčené projekty se ukládají do localStorage
+   🎯 Účel: Některé projekty vyžadují heslo
+
+2. AKTUÁLNÍ HESLA:
+   - Projekt 3 (Dashboard): dashboard2024
+   - Projekt 5 (Blog): blog123
+   - Projekt 6 (API): api2024
+   - Projekt 7 (Game): game2024
+   - Projekt 10 (Weather): weather123
+   - Projekt 13 (Quiz): quiz2024
+   - Projekt 15 (Music): music123
+   - Projekt 16 (Map): map2024
+   - Projekt 18 (Notes): notes2024
+   - Projekt 20 (Animation): anim2024
+
+3. JAK ZMĚNIT HESLA:
+   📁 Soubor: script.js
+   🔍 Najdi: projectList array
+   ✏️ Uprav: password property pro každý projekt
+   💡 Tip: Hesla by měla být logická (název + rok)
+
+📊 STATUS PROGRESS
+------------------
+
+1. STATUS TYPY:
+   ✅ "done" - Dokončeno (zelená)
+   ✅ "in-progress" - V práci (žlutá)
+   ✅ "not-finished" - Nedokončeno (oranžová)
+
+2. PROGRESS BARY:
+   ✅ Vizuální progress bary pro každý projekt
+   ✅ Animované shimmer efekty
+   ✅ Procentuální zobrazení
+
+3. JAK UPRAVIT STATUS:
+   📁 Soubor: script.js
+   🔍 Najdi: projectList array
+   ✏️ Uprav: status a progress properties
+   📊 Progress: 0-100 (procenta)
+
+🎨 OSOBNÍ ÚPRAVY
+-----------------
+
+1. TEXTY A POPISY
+   ✅ Upravte: "O mně" sekci v index..html
+   ✅ Změňte: Jméno, popis, zkušenosti
+   ✅ Přidejte: Vlastní dovednosti a technologie
+
+2. PROJEKTY
+   ✅ Upravte: projectList v script.js
+   ✅ Přidejte: Vlastní projekty s cestami
+   ✅ Změňte: Názvy, popisy, kategorie
+   ✅ Nastavte: Hesla, status, progress
+
+3. KONTAKTNÍ INFORMACE
+   ✅ Upravte: Social links v index..html
+   ✅ Přidejte: GitHub, LinkedIn, Twitter odkazy
+   ✅ Změňte: Email, telefon, adresu
+
+4. BARVY A TÉMA
+   ✅ Upravte: CSS proměnné v styles.css
+   ✅ Změňte: Primary, secondary, accent barvy
+   ✅ Přidejte: Vlastní gradienty
+
+🔧 TECHNICKÉ ÚPRAVY
+-------------------
+
+1. SEO OPTIMALIZACE
+   ✅ Přidejte: Meta description, keywords
+   ✅ Upravte: Title tag
+   ✅ Přidejte: Open Graph tagy
+
+2. PERFORMANCE
+   ✅ Optimalizujte: Obrázky (WebP formát)
+   ✅ Minifikujte: CSS a JavaScript
+   ✅ Přidejte: Lazy loading pro obrázky
+
+3. ACCESSIBILITY
+   ✅ Přidejte: ARIA labels
+   ✅ Upravte: Kontrast barev
+   ✅ Testujte: Keyboard navigation
+
+📱 RESPONSIVE DESIGN
+--------------------
+
+1. MOBILNÍ OPTIMALIZACE
+   ✅ Testujte: Na různých zařízeních
+   ✅ Upravte: Touch targets
+   ✅ Optimalizujte: Loading times
+
+2. TABLET OPTIMALIZACE
+   ✅ Testujte: Na tabletech
+   ✅ Upravte: Grid layout
+   ✅ Optimalizujte: Touch gestures
+
+🚀 DEPLOYMENT
+-------------
+
+1. GITHUB PAGES
+   ✅ Vytvořte: GitHub repository
+   ✅ Pushněte: Všechny soubory
+   ✅ Aktivujte: GitHub Pages
+
+2. NETLIFY/VERCEL
+   ✅ Připojte: Repository
+   ✅ Nastavte: Build settings
+   ✅ Deployněte: Automaticky
+
+3. CUSTOM DOMAIN
+   ✅ Kupte: Domain name
+   ✅ Nastavte: DNS records
+   ✅ Připojte: K hosting službě
+
+📋 KONTROLNÍ SEZNAM
+-------------------
+
+BEFORE DEPLOYMENT:
+□ Profilová fotka nahraná
+□ Osobní texty upravené
+□ Projekty přidané
+□ Hesla nastavena
+□ Status progress nastaven
+□ Kontaktní info aktualizované
+□ Barvy upravené
+□ SEO tagy přidané
+□ Testováno na mobilech
+□ Testováno na tabletech
+□ Keyboard navigation funguje
+□ Dark/light mode funguje
+□ Search a filter funguje
+□ Password system funguje
+□ Progress bary fungují
+□ Projekty se načítají
+□ Animace fungují
+□ Performance je dobrá
+
+AFTER DEPLOYMENT:
+□ Stránka se načítá rychle
+□ Všechny odkazy fungují
+□ Obrázky se zobrazují
+□ Formuláře fungují
+□ Hesla fungují
+□ Analytics nastavené
+□ Backup vytvořený
+
+🎯 DALŠÍ NÁPADY
+---------------
+
+1. PŘIDAT FUNKCE:
+   - Download CV button
+   - Contact form
+   - Blog sekce
+   - Testimonials
+   - Timeline zkušeností
+   - Skills progress bars
+   - Project filters by tech
+   - Dark/light mode toggle
+   - Language switcher
+   - Animations on scroll
+   - Password hints system
+   - Project difficulty levels
+   - Time estimates
+   - Technology tags
+
+2. VYLEPŠIT DESIGN:
+   - Parallax scrolling
+   - 3D effects
+   - Particle.js background
+   - Custom cursors
+   - Loading animations
+   - Smooth transitions
+   - Hover effects
+   - Micro-interactions
+   - Progress animations
+   - Lock/unlock animations
+
+3. PŘIDAT OBSAH:
+   - Blog posts
+   - Case studies
+   - Video demos
+   - Code snippets
+   - Tutorials
+   - Resources
+   - Newsletter signup
+   - Project walkthroughs
+
+💡 TIPY PRO ÚSPĚCH
+------------------
+
+1. KEEP IT SIMPLE: Nechte design čistý a profesionální
+2. SHOW YOUR WORK: Přidejte skutečné projekty
+3. TELL YOUR STORY: Osobní příběh je důležitý
+4. MAKE IT FAST: Optimalizujte pro rychlost
+5. TEST EVERYTHING: Testujte na všech zařízeních
+6. UPDATE REGULARLY: Pravidelně aktualizujte obsah
+7. GET FEEDBACK: Požádejte o zpětnou vazbu
+8. TRACK PERFORMANCE: Sledujte analytics
+9. SECURE PASSWORDS: Používejte logická hesla
+10. SHOW PROGRESS: Progress bary motivují
+
+🔐 PASSWORD TIPS
+----------------
+
+1. LOGICKÁ HESLA:
+   - Název projektu + rok (dashboard2024)
+   - Kategorie + číslo (blog123)
+   - Technologie + rok (react2024)
+
+2. BEZPEČNOST:
+   - Hesla jsou uložena lokálně
+   - Odemčené projekty se pamatují
+   - Možnost resetovat hesla
+
+3. UX TIPY:
+   - Poskytněte nápovědy
+   - Animované feedback
+   - Snadné odemykání
+
+🎉 HOTOVO!
+-----------
+Po dokončení všech úprav budete mít profesionální portfolio,
+které vás bude reprezentovat a pomůže získat nové příležitosti!
+
+Hodně štěstí! 🚀 
