@@ -28,6 +28,24 @@ const projectList = [
     status: "done",
     password: "tools2024",
     progress: 100
+  },
+  {
+    path: "./project4/index.html",
+    name: "Projekt 4 - Texas Hold'em Simulator",
+    description: "Simulátor handu v pokeru Texas Hold'em",
+    category: "Gaming",
+    status: "done",
+    password: null,
+    progress: 100
+  },
+  {
+    path: "./project5/index.html",
+    name: "Projekt 5 - Black Jack Simulator",
+    description: "Simulace Black Jacku",
+    category: "Gaming",
+    status: "done",
+    password: "blackjack2024",
+    progress: 100
   }
 ];
 
