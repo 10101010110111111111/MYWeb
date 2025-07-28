@@ -933,7 +933,7 @@ body {
 }
 
 .footer .fa-heart {
-  color: var(--secondary);
+  color: #ff0000;
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
