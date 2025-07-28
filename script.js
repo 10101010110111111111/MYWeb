@@ -79,30 +79,10 @@ function initializePortfolio() {
 
 // Check which projects actually exist
 function checkExistingProjects() {
-  const existingProjects = [];
-  
-  projectList.forEach(project => {
-    // Check if the project folder exists by trying to load the path
-    const testImg = new Image();
-    testImg.onload = function() {
-      existingProjects.push(project);
-      if (existingProjects.length === projectList.length) {
-        finishProjectCheck(existingProjects);
-      }
-    };
-    testImg.onerror = function() {
-      // Project doesn't exist, skip it
-      if (existingProjects.length === projectList.length - 1) {
-        finishProjectCheck(existingProjects);
-      }
-    };
-    testImg.src = project.path;
-  });
-  
-  // Fallback if no projects exist
-  if (projectList.length === 0) {
-    finishProjectCheck([]);
-  }
+  // For now, just use all projects from projectList
+  // In the future, you can add actual file checking here
+  const existingProjects = projectList;
+  finishProjectCheck(existingProjects);
 }
 
 // Finish project check and render
@@ -553,15 +533,16 @@ function handleFilter() {
 
 // Filter projects
 function filterProjects(searchTerm, category) {
-  const allProjects = projectList.filter(project => {
-    // Check if project exists (basic check)
-    return true; // For now, show all projects
+  // Use the original projectList but filter by existing projects first
+  const existingProjects = projectList.filter(project => {
+    // For now, show all projects from our list
+    return true;
   });
   
-  filteredProjects = allProjects.filter(project => {
+  filteredProjects = existingProjects.filter(project => {
     const matchesSearch = project.name.toLowerCase().includes(searchTerm) ||
                          project.description.toLowerCase().includes(searchTerm);
-    const matchesCategory = !category || project.category === category;
+    const matchesCategory = !category || category === "" || project.category === category;
     
     return matchesSearch && matchesCategory;
   });
