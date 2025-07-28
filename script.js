@@ -80,7 +80,6 @@ function initializePortfolio() {
       this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjMDA2NmNjIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNjAiIHI9IjIwIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMjUgMTMwQzI1IDExMCA0NSA5MCA3NSA5MEMxMDUgOTAgMTI1IDExMCAxMjUgMTMwIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K';
     };
   }
-  updateProjectStats();
 }
 
 // Check which projects actually exist
@@ -151,7 +150,6 @@ function setTheme(theme) {
   if (activeThemeElement) {
     activeThemeElement.textContent = 'Dark';
   }
-  updateProjectStats();
 }
 
 // Render projects grid
@@ -493,7 +491,6 @@ function checkPassword(index) {
     // Close modal and refresh grid
     closePasswordModal();
     renderProjectsGrid();
-    updateProjectStats();
     
     // Auto-open project
     setTimeout(() => {
@@ -918,47 +915,7 @@ console.log('💡 Keyboard shortcuts: Ctrl+Enter (open), Ctrl+R (refresh), F11 (
 console.log('🌙 Theme: Dark mode only');
 console.log('🔐 Unlocked projects: ' + unlockedProjects.length);
 
-// Update statistics in .project-stats
+// Skills section - no longer need project stats
 function updateProjectStats() {
-  const totalProjectsStat = document.getElementById('totalProjectsStat');
-  const unlockedProjectsStat = document.getElementById('unlockedProjectsStat');
-  const lockedProjectsStat = document.getElementById('lockedProjectsStat');
-  const latestProjectStat = document.getElementById('latestProjectStat');
-  const totalProjectsLabel = document.getElementById('totalProjectsLabel');
-  const unlockedProjectsLabel = document.getElementById('unlockedProjectsLabel');
-  const lockedProjectsLabel = document.getElementById('lockedProjectsLabel');
-
-  // Celkem projektů
-  if (totalProjectsStat) {
-    totalProjectsStat.textContent = projectList.length > 0 ? projectList.length : '—';
-    if (totalProjectsLabel) {
-      if (projectList.length === 0) totalProjectsLabel.textContent = 'Žádné projekty';
-      else if (projectList.length === 1) totalProjectsLabel.textContent = '1 projekt';
-      else if (projectList.length >= 2 && projectList.length <= 5) totalProjectsLabel.textContent = `${projectList.length} projekty`;
-      else totalProjectsLabel.textContent = `${projectList.length} projektů`;
-    }
-  }
-  // Odemčené projekty
-  if (unlockedProjectsStat) {
-    unlockedProjectsStat.textContent = unlockedProjects.length > 0 ? unlockedProjects.length : '—';
-    if (unlockedProjectsLabel) {
-      unlockedProjectsLabel.textContent = unlockedProjects.length === 0 ? 'Žádný odemčený projekt' : 'Odemčené projekty';
-    }
-  }
-  // Zamčené projekty
-  if (lockedProjectsStat) {
-    const lockedCount = projectList.filter(p => p.password && !unlockedProjects.includes(p.path)).length;
-    lockedProjectsStat.textContent = lockedCount > 0 ? lockedCount : '—';
-    if (lockedProjectsLabel) {
-      lockedProjectsLabel.textContent = lockedCount === 0 ? 'Žádný zamčený projekt' : 'Zamčené projekty';
-    }
-  }
-  // Nejnovější projekt
-  if (latestProjectStat) {
-    if (projectList.length > 0) {
-      latestProjectStat.textContent = projectList[projectList.length - 1].name;
-    } else {
-      latestProjectStat.textContent = '—';
-    }
-  }
+  // Function removed - replaced with skills section
 }
