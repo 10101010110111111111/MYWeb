@@ -4,17 +4,17 @@
 const projectList = [
   {
     path: "./project1/index.html",
-    name: "Projekt 1 - Webová Aplikace",
-    description: "Moderní webová aplikace s React",
+    name: "Projekt 1 - WEB Skupiny Čihy",
+    description: "Moderní webová aplikace/obchodní web",
     category: "Web Development",
-    status: "done",
+    status: "in-progress",
     password: null,
-    progress: 100
+    progress: 21
   },
   {
     path: "./project2/index.html", 
-    name: "Projekt 2 - Game",
-    description: "HTML5 hra s Canvas",
+    name: "Projekt 2 - conect 5 piškvorky",
+    description: "cvičení ai a programování ai",
     category: "Gaming",
     status: "done",
     password: null,
@@ -22,12 +22,12 @@ const projectList = [
   },
   {
     path: "./projekt3/index.html",
-    name: "Projekt 3 - Tools",
-    description: "Sada užitečných nástrojů",
+    name: "Projekt 3 - BJ Full Counter",
+    description: "Top secret",
     category: "Tools",
-    status: "in-progress",
+    status: "done",
     password: "tools2024",
-    progress: 75
+    progress: 100
   }
 ];
 
@@ -232,10 +232,6 @@ function createProjectCard(project, index) {
         <button class="project-btn locked" onclick="showPasswordModal(${index})">
           <i class="fas fa-lock"></i>
           Zadej heslo
-        </button>
-        <button class="project-btn" onclick="previewProject(${index})">
-          <i class="fas fa-eye"></i>
-          Náhled
         </button>
       `}
     </div>
@@ -927,26 +923,42 @@ function updateProjectStats() {
   const totalProjectsStat = document.getElementById('totalProjectsStat');
   const unlockedProjectsStat = document.getElementById('unlockedProjectsStat');
   const lockedProjectsStat = document.getElementById('lockedProjectsStat');
-  const activeThemeStat = document.getElementById('activeThemeStat');
-  const totalProjectsLabel = document.querySelector('#totalProjectsStat')?.parentElement?.querySelector('.stat-label');
+  const latestProjectStat = document.getElementById('latestProjectStat');
+  const totalProjectsLabel = document.getElementById('totalProjectsLabel');
+  const unlockedProjectsLabel = document.getElementById('unlockedProjectsLabel');
+  const lockedProjectsLabel = document.getElementById('lockedProjectsLabel');
 
+  // Celkem projektů
   if (totalProjectsStat) {
-    totalProjectsStat.textContent = projectList.length;
+    totalProjectsStat.textContent = projectList.length > 0 ? projectList.length : '—';
     if (totalProjectsLabel) {
-      let label = 'projektů';
-      if (projectList.length === 1) label = 'projekt';
-      else if (projectList.length >= 2 && projectList.length <= 5) label = 'projekty';
-      totalProjectsLabel.textContent = `Celkem ${label}`;
+      if (projectList.length === 0) totalProjectsLabel.textContent = 'Žádné projekty';
+      else if (projectList.length === 1) totalProjectsLabel.textContent = '1 projekt';
+      else if (projectList.length >= 2 && projectList.length <= 5) totalProjectsLabel.textContent = `${projectList.length} projekty`;
+      else totalProjectsLabel.textContent = `${projectList.length} projektů`;
     }
   }
+  // Odemčené projekty
   if (unlockedProjectsStat) {
-    unlockedProjectsStat.textContent = unlockedProjects.length;
+    unlockedProjectsStat.textContent = unlockedProjects.length > 0 ? unlockedProjects.length : '—';
+    if (unlockedProjectsLabel) {
+      unlockedProjectsLabel.textContent = unlockedProjects.length === 0 ? 'Žádný odemčený projekt' : 'Odemčené projekty';
+    }
   }
+  // Zamčené projekty
   if (lockedProjectsStat) {
     const lockedCount = projectList.filter(p => p.password && !unlockedProjects.includes(p.path)).length;
-    lockedProjectsStat.textContent = lockedCount;
+    lockedProjectsStat.textContent = lockedCount > 0 ? lockedCount : '—';
+    if (lockedProjectsLabel) {
+      lockedProjectsLabel.textContent = lockedCount === 0 ? 'Žádný zamčený projekt' : 'Zamčené projekty';
+    }
   }
-  if (activeThemeStat) {
-    activeThemeStat.textContent = currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1);
+  // Nejnovější projekt
+  if (latestProjectStat) {
+    if (projectList.length > 0) {
+      latestProjectStat.textContent = projectList[projectList.length - 1].name;
+    } else {
+      latestProjectStat.textContent = '—';
+    }
   }
 }
