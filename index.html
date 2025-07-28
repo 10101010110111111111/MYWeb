@@ -165,6 +165,165 @@
             </div>
         </section>
 
+        <!-- Interactive Demo Section -->
+        <section class="demo-section">
+            <h2 class="section-title">Interaktivní Demo</h2>
+            <p class="demo-subtitle">Vyzkoušej si moje dovednosti přímo zde!</p>
+            
+            <div class="demo-grid">
+                <!-- CSS Animations Demo -->
+                <div class="demo-card">
+                    <h3 class="demo-title">
+                        <i class="fas fa-magic"></i>
+                        CSS Animace
+                    </h3>
+                    <div class="demo-content">
+                        <div class="animation-demo">
+                            <div class="animated-box" id="animatedBox">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="demo-controls">
+                                <button class="demo-btn" onclick="playAnimation('bounce')">Bounce</button>
+                                <button class="demo-btn" onclick="playAnimation('rotate')">Rotate</button>
+                                <button class="demo-btn" onclick="playAnimation('pulse')">Pulse</button>
+                                <button class="demo-btn" onclick="playAnimation('shake')">Shake</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JavaScript Counter Demo -->
+                <div class="demo-card">
+                    <h3 class="demo-title">
+                        <i class="fab fa-js-square"></i>
+                        JavaScript Counter
+                    </h3>
+                    <div class="demo-content">
+                        <div class="counter-demo">
+                            <div class="counter-display" id="counterDisplay">0</div>
+                            <div class="counter-controls">
+                                <button class="demo-btn" onclick="updateCounter(-1)">-</button>
+                                <button class="demo-btn" onclick="resetCounter()">Reset</button>
+                                <button class="demo-btn" onclick="updateCounter(1)">+</button>
+                            </div>
+                            <div class="counter-info">
+                                <small>Klikni na tlačítka a sleduj živou aktualizaci</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Form Demo -->
+                <div class="demo-card">
+                    <h3 class="demo-title">
+                        <i class="fas fa-edit"></i>
+                        Interaktivní Formulář
+                    </h3>
+                    <div class="demo-content">
+                        <div class="form-demo">
+                            <div class="form-group">
+                                <input type="text" id="demoName" class="demo-input" placeholder="Tvé jméno">
+                                <div class="input-feedback" id="nameFeedback"></div>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" id="demoEmail" class="demo-input" placeholder="Email">
+                                <div class="input-feedback" id="emailFeedback"></div>
+                            </div>
+                            <button class="demo-btn primary" onclick="validateForm()">Odeslat</button>
+                            <div class="form-result" id="formResult"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Drawing Demo -->
+                <div class="demo-card">
+                    <h3 class="demo-title">
+                        <i class="fas fa-paint-brush"></i>
+                        Canvas Kreslení
+                    </h3>
+                    <div class="demo-content">
+                        <div class="canvas-demo">
+                            <canvas id="demoCanvas" width="200" height="150"></canvas>
+                            <div class="canvas-controls">
+                                <button class="demo-btn" onclick="clearCanvas()">Vymazat</button>
+                                <button class="demo-btn" onclick="drawRandom()">Náhodné tvary</button>
+                                <button class="demo-btn" onclick="drawGradient()">Gradient</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggle Switch Demo -->
+                <div class="demo-card">
+                    <h3 class="demo-title">
+                        <i class="fas fa-toggle-on"></i>
+                        Toggle Switche
+                    </h3>
+                    <div class="demo-content">
+                        <div class="toggle-demo">
+                            <div class="toggle-item">
+                                <span>Dark Mode</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <span>Notifications</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifToggle" onchange="toggleNotifications()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-item">
+                                <span>Auto-save</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="autoSaveToggle" onchange="toggleAutoSave()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Responsive Demo -->
+                <div class="demo-card">
+                    <h3 class="demo-title">
+                        <i class="fas fa-mobile-alt"></i>
+                        Responsive Design
+                    </h3>
+                    <div class="demo-content">
+                        <div class="responsive-demo">
+                            <div class="screen-sizes">
+                                <div class="screen-size" data-size="mobile">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>Mobile</span>
+                                </div>
+                                <div class="screen-size" data-size="tablet">
+                                    <i class="fas fa-tablet-alt"></i>
+                                    <span>Tablet</span>
+                                </div>
+                                <div class="screen-size" data-size="desktop">
+                                    <i class="fas fa-desktop"></i>
+                                    <span>Desktop</span>
+                                </div>
+                            </div>
+                            <div class="responsive-preview" id="responsivePreview">
+                                <div class="preview-content">
+                                    <div class="preview-header"></div>
+                                    <div class="preview-body">
+                                        <div class="preview-item"></div>
+                                        <div class="preview-item"></div>
+                                        <div class="preview-item"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Skills Section -->
         <section class="skills-section">
             <h2 class="section-title">Moje dovednosti</h2>
@@ -261,6 +420,6 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
