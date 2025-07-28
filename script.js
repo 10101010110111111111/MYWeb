@@ -66,6 +66,11 @@ function initializePortfolio() {
   // Set theme
   setTheme(currentTheme);
   
+  // Set initial project count
+  if (totalProjectsElement) {
+    totalProjectsElement.textContent = projectList.length;
+  }
+  
   // Check which projects actually exist
   checkExistingProjects();
   
