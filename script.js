@@ -919,3 +919,296 @@ console.log('🔐 Unlocked projects: ' + unlockedProjects.length);
 function updateProjectStats() {
   // Function removed - replaced with skills section
 }
+
+// ===== INTERACTIVE DEMO FUNCTIONS =====
+
+// Animation Demo Functions
+function playAnimation(type) {
+  const animatedBox = document.getElementById('animatedBox');
+  if (!animatedBox) return;
+  
+  // Remove all animation classes
+  animatedBox.classList.remove('bounce', 'rotate', 'pulse', 'shake');
+  
+  // Add the new animation
+  animatedBox.classList.add(type);
+  
+  // For non-infinite animations, remove class after animation ends
+  if (type !== 'rotate' && type !== 'pulse') {
+    setTimeout(() => {
+      animatedBox.classList.remove(type);
+    }, type === 'bounce' ? 1000 : 500);
+  }
+}
+
+// Counter Demo Functions
+let counterValue = 0;
+
+function updateCounter(change) {
+  counterValue += change;
+  const display = document.getElementById('counterDisplay');
+  if (!display) return;
+  
+  display.textContent = counterValue;
+  display.classList.add('updated');
+  
+  setTimeout(() => {
+    display.classList.remove('updated');
+  }, 300);
+}
+
+function resetCounter() {
+  counterValue = 0;
+  const display = document.getElementById('counterDisplay');
+  if (!display) return;
+  
+  display.textContent = '0';
+  display.classList.add('updated');
+  
+  setTimeout(() => {
+    display.classList.remove('updated');
+  }, 300);
+}
+
+// Form Demo Functions
+function validateForm() {
+  const nameInput = document.getElementById('demoName');
+  const emailInput = document.getElementById('demoEmail');
+  const nameFeedback = document.getElementById('nameFeedback');
+  const emailFeedback = document.getElementById('emailFeedback');
+  const formResult = document.getElementById('formResult');
+  
+  let isValid = true;
+  
+  // Validate name
+  if (!nameInput.value.trim()) {
+    nameInput.classList.add('invalid');
+    nameInput.classList.remove('valid');
+    nameFeedback.textContent = 'Jméno je povinné';
+    nameFeedback.className = 'input-feedback invalid';
+    isValid = false;
+  } else if (nameInput.value.trim().length < 2) {
+    nameInput.classList.add('invalid');
+    nameInput.classList.remove('valid');
+    nameFeedback.textContent = 'Jméno musí mít alespoň 2 znaky';
+    nameFeedback.className = 'input-feedback invalid';
+    isValid = false;
+  } else {
+    nameInput.classList.add('valid');
+    nameInput.classList.remove('invalid');
+    nameFeedback.textContent = '✓';
+    nameFeedback.className = 'input-feedback valid';
+  }
+  
+  // Validate email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailInput.value.trim()) {
+    emailInput.classList.add('invalid');
+    emailInput.classList.remove('valid');
+    emailFeedback.textContent = 'Email je povinný';
+    emailFeedback.className = 'input-feedback invalid';
+    isValid = false;
+  } else if (!emailRegex.test(emailInput.value)) {
+    emailInput.classList.add('invalid');
+    emailInput.classList.remove('valid');
+    emailFeedback.textContent = 'Neplatný formát emailu';
+    emailFeedback.className = 'input-feedback invalid';
+    isValid = false;
+  } else {
+    emailInput.classList.add('valid');
+    emailInput.classList.remove('invalid');
+    emailFeedback.textContent = '✓';
+    emailFeedback.className = 'input-feedback valid';
+  }
+  
+  // Show result
+  if (isValid) {
+    formResult.textContent = 'Formulář byl úspěšně odeslán! 🎉';
+    formResult.className = 'form-result success';
+    
+    // Reset form after 3 seconds
+    setTimeout(() => {
+      nameInput.value = '';
+      emailInput.value = '';
+      nameInput.classList.remove('valid', 'invalid');
+      emailInput.classList.remove('valid', 'invalid');
+      nameFeedback.textContent = '';
+      emailFeedback.textContent = '';
+      formResult.textContent = '';
+      formResult.className = 'form-result';
+    }, 3000);
+  } else {
+    formResult.textContent = 'Opravte chyby ve formuláři';
+    formResult.className = 'form-result error';
+  }
+}
+
+// Canvas Demo Functions
+let canvas, ctx;
+
+function initCanvas() {
+  canvas = document.getElementById('demoCanvas');
+  if (!canvas) return;
+  
+  ctx = canvas.getContext('2d');
+  clearCanvas();
+}
+
+function clearCanvas() {
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawRandom() {
+  if (!ctx) return;
+  
+  clearCanvas();
+  
+  // Draw random shapes
+  for (let i = 0; i < 5; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const size = Math.random() * 30 + 10;
+    
+    ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 60%)`;
+    
+    if (Math.random() > 0.5) {
+      // Circle
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Rectangle
+      ctx.fillRect(x - size/2, y - size/2, size, size);
+    }
+  }
+}
+
+function drawGradient() {
+  if (!ctx) return;
+  
+  clearCanvas();
+  
+  // Create gradient
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#0066cc');
+  gradient.addColorStop(0.5, '#ff6b35');
+  gradient.addColorStop(1, '#ffd700');
+  
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Add some shapes on top
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.beginPath();
+  ctx.arc(canvas.width/2, canvas.height/2, 40, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Toggle Demo Functions
+function toggleDarkMode() {
+  const toggle = document.getElementById('darkModeToggle');
+  if (toggle.checked) {
+    showNotification('Dark mode zapnut! 🌙', 'success');
+  } else {
+    showNotification('Dark mode vypnut! ☀️', 'info');
+  }
+}
+
+function toggleNotifications() {
+  const toggle = document.getElementById('notifToggle');
+  if (toggle.checked) {
+    showNotification('Notifikace zapnuty! 🔔', 'success');
+  } else {
+    showNotification('Notifikace vypnuty! 🔕', 'info');
+  }
+}
+
+function toggleAutoSave() {
+  const toggle = document.getElementById('autoSaveToggle');
+  if (toggle.checked) {
+    showNotification('Auto-save zapnut! 💾', 'success');
+  } else {
+    showNotification('Auto-save vypnut! ⚠️', 'warning');
+  }
+}
+
+// Responsive Demo Functions
+function initResponsiveDemo() {
+  const screenSizes = document.querySelectorAll('.screen-size');
+  const preview = document.getElementById('responsivePreview');
+  
+  if (!preview) return;
+  
+  screenSizes.forEach(size => {
+    size.addEventListener('click', () => {
+      // Remove active class from all
+      screenSizes.forEach(s => s.classList.remove('active'));
+      
+      // Add active class to clicked
+      size.classList.add('active');
+      
+      // Update preview
+      const screenType = size.dataset.size;
+      preview.className = `responsive-preview ${screenType}`;
+      
+      showNotification(`${screenType.charAt(0).toUpperCase() + screenType.slice(1)} view aktivován! 📱`, 'info');
+    });
+  });
+  
+  // Set default to desktop
+  screenSizes[2].classList.add('active');
+  preview.classList.add('desktop');
+}
+
+// Initialize demo functions when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize canvas
+  initCanvas();
+  
+  // Initialize responsive demo
+  initResponsiveDemo();
+  
+  // Add real-time form validation
+  const nameInput = document.getElementById('demoName');
+  const emailInput = document.getElementById('demoEmail');
+  
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      if (nameInput.value.trim().length >= 2) {
+        nameInput.classList.add('valid');
+        nameInput.classList.remove('invalid');
+        document.getElementById('nameFeedback').textContent = '✓';
+        document.getElementById('nameFeedback').className = 'input-feedback valid';
+      } else if (nameInput.value.trim().length > 0) {
+        nameInput.classList.add('invalid');
+        nameInput.classList.remove('valid');
+        document.getElementById('nameFeedback').textContent = 'Příliš krátké';
+        document.getElementById('nameFeedback').className = 'input-feedback invalid';
+      } else {
+        nameInput.classList.remove('valid', 'invalid');
+        document.getElementById('nameFeedback').textContent = '';
+      }
+    });
+  }
+  
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (emailRegex.test(emailInput.value)) {
+        emailInput.classList.add('valid');
+        emailInput.classList.remove('invalid');
+        document.getElementById('emailFeedback').textContent = '✓';
+        document.getElementById('emailFeedback').className = 'input-feedback valid';
+      } else if (emailInput.value.trim().length > 0) {
+        emailInput.classList.add('invalid');
+        emailInput.classList.remove('valid');
+        document.getElementById('emailFeedback').textContent = 'Neplatný email';
+        document.getElementById('emailFeedback').className = 'input-feedback invalid';
+      } else {
+        emailInput.classList.remove('valid', 'invalid');
+        document.getElementById('emailFeedback').textContent = '';
+      }
+    });
+  }
+});
