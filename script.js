@@ -3,7 +3,7 @@
 // Project data with better descriptions, passwords and status
 const projectList = [
   {
-    path: "projekt1/index.html",
+    path: "./project1/index.html",
     name: "Projekt 1 - Webová Aplikace",
     description: "Moderní webová aplikace s React",
     category: "Web Development",
@@ -12,7 +12,7 @@ const projectList = [
     progress: 100
   },
   {
-    path: "projekt2/index.html", 
+    path: "./project2/index.html", 
     name: "Projekt 2 - Game",
     description: "HTML5 hra s Canvas",
     category: "Gaming",
@@ -21,7 +21,7 @@ const projectList = [
     progress: 100
   },
   {
-    path: "projekt3/index.html",
+    path: "./projekt3/index.html",
     name: "Projekt 3 - Tools",
     description: "Sada užitečných nástrojů",
     category: "Tools",
@@ -582,7 +582,7 @@ function previewProject(index) {
   
   // Load project in iframe
   showLoadingState();
-  iframe.src = project.path;
+  loadProjectWithTimeout(project.path);
   
   // Scroll to preview
   projectPreview.scrollIntoView({ behavior: 'smooth' });
@@ -632,7 +632,7 @@ function handleRefresh() {
   
   // Add refresh animation
   refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-  iframe.src = currentProject.path;
+  loadProjectWithTimeout(currentProject.path);
   
   setTimeout(() => {
     refreshBtn.innerHTML = '<i class="fas fa-redo"></i>';
@@ -826,10 +826,86 @@ iframe.addEventListener('error', function() {
     iframePlaceholder.innerHTML = `
       <i class="fas fa-exclamation-triangle"></i>
       <p>Chyba při načítání projektu</p>
+      <small>Zkontrolujte, zda projekt existuje a má správný index.html soubor</small>
     `;
     iframePlaceholder.style.display = 'flex';
   }
 });
+
+// Add timeout for iframe loading
+function loadProjectWithTimeout(projectPath) {
+  const timeout = 10000; // 10 seconds
+  
+  const timeoutId = setTimeout(() => {
+    if (iframePlaceholder) {
+      iframePlaceholder.innerHTML = `
+        <i class="fas fa-clock"></i>
+        <p>Projekt se načítá příliš dlouho</p>
+        <small>Zkuste to znovu nebo zkontrolujte připojení</small>
+      `;
+      iframePlaceholder.style.display = 'flex';
+    }
+  }, timeout);
+  
+  iframe.onload = function() {
+    clearTimeout(timeoutId);
+    if (iframePlaceholder) {
+      iframePlaceholder.style.display = 'none';
+    }
+  };
+  
+  iframe.onerror = function() {
+    clearTimeout(timeoutId);
+    // Create fallback content
+    const fallbackContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Projekt není dostupný</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            background: #1a1a1a; 
+            color: white; 
+          }
+          .container { max-width: 600px; margin: 0 auto; }
+          .icon { font-size: 4rem; color: #0066cc; margin-bottom: 20px; }
+          h1 { color: #0066cc; }
+          .btn { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background: #0066cc; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            margin-top: 20px; 
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="icon">🚧</div>
+          <h1>Projekt není dostupný</h1>
+          <p>Tento projekt momentálně není dostupný nebo se načítá.</p>
+          <p>Zkuste to později nebo kontaktujte autora.</p>
+          <a href="javascript:history.back()" class="btn">Zpět na portfolio</a>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Set fallback content
+    iframe.srcdoc = fallbackContent;
+    
+    if (iframePlaceholder) {
+      iframePlaceholder.style.display = 'none';
+    }
+  };
+  
+  iframe.src = projectPath;
+}
 
 // Make functions globally available
 window.previewProject = previewProject;
