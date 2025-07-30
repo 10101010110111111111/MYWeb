@@ -64,6 +64,15 @@ const projectList = [
     status: "in-progress",
     password: null,
     progress: 85
+  },
+  {
+    path: "./project8/index.html",
+    name: "Projekt 8 - Image Cropper",
+    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním",
+    category: "Tools",
+    status: "done",
+    password: null,
+    progress: 100
   }
 ];
 
