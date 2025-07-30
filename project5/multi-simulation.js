@@ -11,6 +11,11 @@ class MultiSimulationManager {
     this.initializeElements()
     this.setupEventListeners()
     this.setupStrategies()
+    
+    // Initialize betting mode buttons
+    setTimeout(() => {
+      this.updateBettingModeButtons(this.mainSimulation.bettingStrategy || "basic")
+    }, 100)
   }
 
   initializeElements() {
@@ -27,29 +32,131 @@ class MultiSimulationManager {
       resultsSection: document.getElementById("resultsSection"),
       resultsSummary: document.getElementById("resultsSummary"),
       detailedResults: document.getElementById("detailedResults"),
+      // Betting mode buttons
+      basicBettingBtn: document.getElementById("basicBettingBtn"),
+      skippingBettingBtn: document.getElementById("skippingBettingBtn"),
+      customBettingBtn: document.getElementById("customBettingBtn"),
+      // Current betting mode display
+      currentBettingMode: document.getElementById("currentBettingMode"),
     }
   }
 
   setupEventListeners() {
     this.elements.startMultiSimBtn.addEventListener("click", () => this.startMultiSimulation())
     this.elements.stopMultiSimBtn.addEventListener("click", () => this.stopMultiSimulation())
+    
+    // Betting mode button event listeners
+    if (this.elements.basicBettingBtn) {
+      this.elements.basicBettingBtn.addEventListener("click", () => this.setBettingMode("basic"))
+    }
+    if (this.elements.skippingBettingBtn) {
+      this.elements.skippingBettingBtn.addEventListener("click", () => this.setBettingMode("skipping"))
+    }
+    if (this.elements.customBettingBtn) {
+      this.elements.customBettingBtn.addEventListener("click", () => this.setBettingMode("custom"))
+    }
   }
 
   setupStrategies() {
+    // Get current betting strategy from main simulation
+    const currentBettingStrategy = this.mainSimulation.bettingStrategy || "basic"
+    
     this.strategyConfigs = {
-      single: [{ name: "Hi-Lo Basic", countingSystem: "hilo", bettingStrategy: "basic" }],
+      single: [{ name: "Hi-Lo Basic", countingSystem: "hilo", bettingStrategy: currentBettingStrategy }],
       "counting-systems": [
-        { name: "Hi-Lo", countingSystem: "hilo", bettingStrategy: "basic" },
-        { name: "Wong Halves", countingSystem: "wong", bettingStrategy: "basic" },
-        { name: "KO System", countingSystem: "ko", bettingStrategy: "basic" },
-        { name: "Hi-Opt I", countingSystem: "hiopt1", bettingStrategy: "basic" },
+        { name: "Hi-Lo", countingSystem: "hilo", bettingStrategy: currentBettingStrategy },
+        { name: "Wong Halves", countingSystem: "wong", bettingStrategy: currentBettingStrategy },
+        { name: "KO System", countingSystem: "ko", bettingStrategy: currentBettingStrategy },
+        { name: "Hi-Opt I", countingSystem: "hiopt1", bettingStrategy: currentBettingStrategy },
       ],
       "betting-strategies": [
-        { name: "Spectator Betting", countingSystem: "hilo", bettingStrategy: "spectator" },
-        { name: "Conservative Betting", countingSystem: "hilo", bettingStrategy: "conservative" },
         { name: "Basic Betting", countingSystem: "hilo", bettingStrategy: "basic" },
+        { name: "Skipping Betting", countingSystem: "hilo", bettingStrategy: "skipping" },
+        { name: "Conservative Betting", countingSystem: "hilo", bettingStrategy: "conservative" },
         { name: "Aggressive Betting", countingSystem: "hilo", bettingStrategy: "aggressive" },
       ],
+    }
+  }
+
+  setBettingMode(mode) {
+    console.log(`Setting betting mode to: ${mode}`)
+    
+    // Update main simulation betting strategy
+    this.mainSimulation.bettingStrategy = mode
+    
+    // Update main simulation dropdown if it exists
+    if (this.mainSimulation.elements.bettingStrategy) {
+      this.mainSimulation.elements.bettingStrategy.value = mode
+    }
+    
+    // Update button states and display
+    this.updateBettingModeButtons(mode)
+    
+    // Update custom betting controls visibility
+    this.mainSimulation.toggleCustomBettingControls()
+    
+    // Reset main simulation
+    this.mainSimulation.resetSimulation()
+    
+    // Show feedback
+    this.showBettingModeFeedback(mode)
+    
+    console.log(`Betting mode changed to: ${mode}`)
+  }
+
+  showBettingModeFeedback(mode) {
+    const modeNames = {
+      basic: "Basic Betting (1-8 units)",
+      skipping: "Skipping Betting (0-4 units)", 
+      custom: "Custom Betting"
+    }
+    
+    const feedback = document.createElement('div')
+    feedback.className = 'betting-mode-feedback'
+    feedback.textContent = `Switched to ${modeNames[mode]}`
+    feedback.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff6b35;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    `
+    
+    document.body.appendChild(feedback)
+    
+    setTimeout(() => {
+      feedback.style.animation = 'slideOut 0.3s ease'
+      setTimeout(() => {
+        if (feedback.parentNode) {
+          feedback.parentNode.removeChild(feedback)
+        }
+      }, 300)
+    }, 2000)
+  }
+
+  updateBettingModeButtons(activeMode) {
+    const buttons = [
+      this.elements.basicBettingBtn,
+      this.elements.skippingBettingBtn,
+      this.elements.customBettingBtn
+    ]
+    
+    buttons.forEach(btn => {
+      if (btn) {
+        btn.classList.remove('active')
+        if (btn.id === `${activeMode}BettingBtn`) {
+          btn.classList.add('active')
+        }
+      }
+    })
+    
+    // Update current betting mode display
+    if (this.elements.currentBettingMode) {
+      this.elements.currentBettingMode.textContent = activeMode.charAt(0).toUpperCase() + activeMode.slice(1)
     }
   }
 
@@ -58,6 +165,8 @@ class MultiSimulationManager {
     const handsPerSim = Number.parseInt(this.elements.handsPerSim.value)
     const comparisonType = this.elements.strategyComparison.value
 
+    // Refresh strategies to get current betting strategy
+    this.setupStrategies()
     this.strategies = this.strategyConfigs[comparisonType]
     this.totalSimulations = numSims * this.strategies.length
     this.completedSimulations = 0
@@ -188,7 +297,15 @@ class MultiSimulationManager {
     }
 
     // OPRAVENO: Použití správného count pro různé systémy
-    const handCount = worker.strategy.countingSystem === "ko" ? worker.runningCount : Math.floor(worker.trueCount)
+    let handCount
+    if (worker.strategy.countingSystem === "ko") {
+      handCount = worker.runningCount
+    } else if (worker.strategy.countingSystem === "wong") {
+      // For Wong Halves, use rounded true count to preserve decimal precision
+      handCount = Math.round(worker.trueCount * 2) / 2 // Round to nearest 0.5
+    } else {
+      handCount = Math.floor(worker.trueCount)
+    }
 
     // Calculate bet
     const betSize = this.calculateWorkerBetSize(worker)
@@ -320,7 +437,15 @@ class MultiSimulationManager {
 
   calculateWorkerBetSize(worker) {
     // OPRAVENO: Použití správného count pro různé systémy
-    const count = worker.strategy.countingSystem === "ko" ? worker.runningCount : Math.floor(worker.trueCount)
+    let count
+    if (worker.strategy.countingSystem === "ko") {
+      count = worker.runningCount
+    } else if (worker.strategy.countingSystem === "wong") {
+      // For Wong Halves, use rounded true count to preserve decimal precision
+      count = Math.round(worker.trueCount * 2) / 2 // Round to nearest 0.5
+    } else {
+      count = Math.floor(worker.trueCount)
+    }
     const unitSize = 100
     let units = 1
 
@@ -329,6 +454,15 @@ class MultiSimulationManager {
         if (count < 1)
           units = 0 // Spectator mode - no betting when disadvantaged
         else if (count >= 3) units = 3
+        else if (count >= 2) units = 2
+        else if (count >= 1) units = 1
+        break
+
+      case "skipping":
+        if (count < 1)
+          units = 0 // Skip betting when count is negative
+        else if (count >= 4) units = 4
+        else if (count >= 3) units = 4
         else if (count >= 2) units = 2
         else if (count >= 1) units = 1
         break

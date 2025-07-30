@@ -34,6 +34,39 @@
                         <option value="8" selected>8 Decks</option>
                     </select>
                 </div>
+                <div class="control-group">
+                    <label>Betting Strategy:</label>
+                    <select id="bettingStrategy">
+                        <option value="basic">Basic (1-8 units)</option>
+                        <option value="skipping">Skipping (0-4 units)</option>
+                        <option value="custom">Custom Betting</option>
+                    </select>
+                </div>
+                <div class="control-group" id="customBettingControls" style="display: none;">
+                    <label>Custom Betting Units:</label>
+                    <div class="custom-betting-inputs">
+                        <div class="bet-input">
+                            <label>Count < 1:</label>
+                            <input type="number" id="betCount0" value="0" min="0" max="20">
+                        </div>
+                        <div class="bet-input">
+                            <label>Count ≥ 1:</label>
+                            <input type="number" id="betCount1" value="1" min="0" max="20">
+                        </div>
+                        <div class="bet-input">
+                            <label>Count ≥ 2:</label>
+                            <input type="number" id="betCount2" value="2" min="0" max="20">
+                        </div>
+                        <div class="bet-input">
+                            <label>Count ≥ 3:</label>
+                            <input type="number" id="betCount3" value="4" min="0" max="20">
+                        </div>
+                        <div class="bet-input">
+                            <label>Count ≥ 4:</label>
+                            <input type="number" id="betCount4" value="8" min="0" max="20">
+                        </div>
+                    </div>
+                </div>
                 <div class="control-group" id="speedControl">
                     <label>Speed:</label>
                     <select id="speed">
@@ -168,6 +201,9 @@
 
         <div class="multi-simulation-section">
             <h2>Multi-Simulation Analysis</h2>
+            <div class="current-betting-info">
+                <span>Current Betting Mode: <strong id="currentBettingMode">Basic</strong></span>
+            </div>
             <div class="multi-sim-controls">
                 <div class="control-group">
                     <label>Number of Simulations:</label>
@@ -198,6 +234,14 @@
                         <option value="counting-systems">Compare Counting Systems</option>
                         <option value="betting-strategies">Compare Betting Strategies</option>
                     </select>
+                </div>
+                <div class="control-group">
+                    <label>Quick Betting Mode:</label>
+                    <div class="betting-mode-buttons">
+                        <button id="basicBettingBtn" class="betting-mode-btn active">Basic</button>
+                        <button id="skippingBettingBtn" class="betting-mode-btn">Skipping</button>
+                        <button id="customBettingBtn" class="betting-mode-btn">Custom</button>
+                    </div>
                 </div>
                 <button id="startMultiSimBtn">Start Multi-Simulation</button>
                 <button id="stopMultiSimBtn" disabled>Stop All</button>
