@@ -36,7 +36,7 @@ class ImageCropper {
     this.settings = {
       lockAspectRatio: true,
       aspectRatio: 1,
-      minCropSize: 50
+      minCropSize: 10
     };
     
     this.init();
@@ -222,14 +222,17 @@ class ImageCropper {
     const container = document.getElementById('imageContainer');
     const containerRect = container.getBoundingClientRect();
     
-    // Calculate scale to fit image in container (with max limits)
-    const maxWidth = Math.min(containerRect.width - 40, this.imageState.width);
-    const maxHeight = Math.min(containerRect.height - 40, this.imageState.height);
-    
-    // Calculate scale to fit image in container
-    const scaleX = maxWidth / this.imageState.width;
-    const scaleY = maxHeight / this.imageState.height;
-    this.imageState.scale = Math.min(scaleX, scaleY, 1);
+    // Only calculate initial scale if scale is 1 (first load)
+    if (this.imageState.scale === 1) {
+      // Calculate scale to fit image in container (with max limits)
+      const maxWidth = Math.min(containerRect.width - 40, this.imageState.width * 1.5);
+      const maxHeight = Math.min(containerRect.height - 40, this.imageState.height * 1.5);
+      
+      // Calculate scale to fit image in container
+      const scaleX = maxWidth / this.imageState.width;
+      const scaleY = maxHeight / this.imageState.height;
+      this.imageState.scale = Math.min(scaleX, scaleY, 1.5);
+    }
     
     // Set canvas size to actual image size (scaled)
     this.canvas.width = this.imageState.width * this.imageState.scale;
@@ -301,12 +304,12 @@ class ImageCropper {
   
   updateCropDimensions(dimension, value) {
     if (dimension === 'width') {
-      this.cropArea.width = Math.max(this.settings.minCropSize, value);
+      this.cropArea.width = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.width));
       if (this.settings.lockAspectRatio) {
         this.cropArea.height = this.cropArea.width / this.settings.aspectRatio;
       }
     } else if (dimension === 'height') {
-      this.cropArea.height = Math.max(this.settings.minCropSize, value);
+      this.cropArea.height = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.height));
       if (this.settings.lockAspectRatio) {
         this.cropArea.width = this.cropArea.height * this.settings.aspectRatio;
       }
@@ -342,8 +345,8 @@ class ImageCropper {
     const cropAreaRect = document.getElementById('cropArea').getBoundingClientRect();
     
     this.dragStart = {
-      x: e.clientX - (cropAreaRect.left - canvasRect.left),
-      y: e.clientY - (cropAreaRect.top - canvasRect.top)
+      x: e.clientX - cropAreaRect.left + canvasRect.left,
+      y: e.clientY - cropAreaRect.top + canvasRect.top
     };
     
     // Check if clicking on resize handle
@@ -361,8 +364,8 @@ class ImageCropper {
     if (this.isDragging && !this.isResizing) {
       // Move crop area
       const canvasRect = this.canvas.getBoundingClientRect();
-      const newX = e.clientX - this.dragStart.x - canvasRect.left;
-      const newY = e.clientY - this.dragStart.y - canvasRect.top;
+      const newX = e.clientX - this.dragStart.x;
+      const newY = e.clientY - this.dragStart.y;
       
       // Constrain to canvas bounds
       this.cropArea.x = Math.max(0, Math.min(newX, this.canvas.width - this.cropArea.width));
@@ -587,8 +590,8 @@ class ImageCropper {
     const cropAreaRect = document.getElementById('cropArea').getBoundingClientRect();
     
     this.dragStart = {
-      x: touch.clientX - (cropAreaRect.left - canvasRect.left),
-      y: touch.clientY - (cropAreaRect.top - canvasRect.top)
+      x: touch.clientX - cropAreaRect.left + canvasRect.left,
+      y: touch.clientY - cropAreaRect.top + canvasRect.top
     };
     
     const handle = e.target.closest('.crop-handle');
@@ -605,8 +608,8 @@ class ImageCropper {
     const touch = e.touches[0];
     if (this.isDragging && !this.isResizing) {
       const canvasRect = this.canvas.getBoundingClientRect();
-      const newX = touch.clientX - this.dragStart.x - canvasRect.left;
-      const newY = touch.clientY - this.dragStart.y - canvasRect.top;
+      const newX = touch.clientX - this.dragStart.x;
+      const newY = touch.clientY - this.dragStart.y;
       
       // Constrain to canvas bounds
       this.cropArea.x = Math.max(0, Math.min(newX, this.canvas.width - this.cropArea.width));
@@ -639,12 +642,18 @@ class ImageCropper {
   
   zoomIn() {
     this.imageState.scale = Math.min(this.imageState.scale * 1.2, 3);
-    this.setupCanvas();
+    // Update canvas size and re-render without calling setupCanvas
+    this.canvas.width = this.imageState.width * this.imageState.scale;
+    this.canvas.height = this.imageState.height * this.imageState.scale;
+    this.renderImage();
   }
   
   zoomOut() {
     this.imageState.scale = Math.max(this.imageState.scale / 1.2, 0.1);
-    this.setupCanvas();
+    // Update canvas size and re-render without calling setupCanvas
+    this.canvas.width = this.imageState.width * this.imageState.scale;
+    this.canvas.height = this.imageState.height * this.imageState.scale;
+    this.renderImage();
   }
   
   // Export functions
