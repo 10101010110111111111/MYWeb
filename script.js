@@ -46,6 +46,24 @@ const projectList = [
     status: "done",
     password: "blackjack2024",
     progress: 100
+  },
+  {
+    path: "./project6/index.html",
+    name: "Projekt 6 - DropShop E-commerce",
+    description: "Dropshipping e-shop s moderním designem",
+    category: "Web Development",
+    status: "done",
+    password: "dropshop2024",
+    progress: 100
+  },
+  {
+    path: "./project7/index.html",
+    name: "Projekt 7 - Time Coin Tracker",
+    description: "Aplikace pro sledování a správu času pomocí coin systému",
+    category: "Productivity",
+    status: "in-progress",
+    password: null,
+    progress: 85
   }
 ];
 

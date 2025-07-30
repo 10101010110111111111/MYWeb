@@ -16,6 +16,9 @@ class AdvancedBlackjackSimulation {
     this.speed = 50
     this.gameMode = "simulation"
     this.countingSystem = "hilo"
+    this.bettingStrategy = "basic"
+    
+    console.log("Initial betting strategy:", this.bettingStrategy)
 
     // OPRAVENÝ BETTING SYSTEM
     this.chips = 1000 // Starting chips
@@ -35,12 +38,24 @@ class AdvancedBlackjackSimulation {
     // Statistics tracking
     this.trueCountStats = {}
 
-    this.initializeElements()
-    this.setupEventListeners()
-    this.setupCountingSystems()
-    this.setupIllustrious18()
-    this.initializeShoe()
-    this.updateDisplay()
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        this.initializeElements()
+        this.setupEventListeners()
+        this.setupCountingSystems()
+        this.setupIllustrious18()
+        this.initializeShoe()
+        this.updateDisplay()
+      })
+    } else {
+      this.initializeElements()
+      this.setupEventListeners()
+      this.setupCountingSystems()
+      this.setupIllustrious18()
+      this.initializeShoe()
+      this.updateDisplay()
+    }
 
     // Add test button for debugging
     const testBtn = document.createElement("button")
@@ -49,42 +64,78 @@ class AdvancedBlackjackSimulation {
     testBtn.style.margin = "10px"
     document.querySelector(".controls").appendChild(testBtn)
 
+    // Add betting strategy test button
+    const bettingTestBtn = document.createElement("button")
+    bettingTestBtn.textContent = "Test Betting"
+    bettingTestBtn.onclick = () => this.testBettingStrategy()
+    bettingTestBtn.style.margin = "10px"
+    document.querySelector(".controls").appendChild(bettingTestBtn)
+
     // Initialize multi-simulation manager
     this.multiSimManager = new MultiSimulationManager(this)
   }
 
   // OPRAVENÁ FUNKCE PRO VÝPOČET SÁZKY
   calculateBetSize() {
-    const tc = this.countingSystem === "ko" ? this.runningCount : Math.floor(this.trueCount)
+    let tc
+    if (this.countingSystem === "ko") {
+      tc = this.runningCount
+    } else if (this.countingSystem === "wong") {
+      // For Wong Halves, use rounded true count to preserve decimal precision
+      tc = Math.round(this.trueCount * 2) / 2 // Round to nearest 0.5
+    } else {
+      tc = Math.floor(this.trueCount)
+    }
     let units = 1 // Default bet
 
-    // Pro KO systém používáme running count místo true count
-    if (this.countingSystem === "ko") {
-      // KO systém - používáme running count
-      if (tc < 1) {
-        units = 1 // Spectator mode - jen 1 unit když jsme ve nevýhodě
-      } else if (tc >= 4) {
-        units = 8
-      } else if (tc >= 3) {
-        units = 6
-      } else if (tc >= 2) {
-        units = 4
-      } else if (tc >= 1) {
-        units = 2
-      }
-    } else {
-      // Vyvážené systémy - používáme true count
-      if (tc < 1) {
-        units = 1 // Spectator mode - jen 1 unit když jsme ve nevýhodě
-      } else if (tc >= 4) {
-        units = 8
-      } else if (tc >= 3) {
-        units = 6
-      } else if (tc >= 2) {
-        units = 4
-      } else if (tc >= 1) {
-        units = 2
-      }
+    // Get custom betting values if using custom strategy
+    const customBetting = this.getCustomBettingValues()
+
+    switch (this.bettingStrategy) {
+      case "basic":
+        // Original basic betting strategy
+        if (tc < 1) {
+          units = 1 // Always bet at least 1 unit
+        } else if (tc >= 4) {
+          units = 8
+        } else if (tc >= 3) {
+          units = 6
+        } else if (tc >= 2) {
+          units = 4
+        } else if (tc >= 1) {
+          units = 2
+        }
+        break
+
+      case "skipping":
+        // New skipping strategy - skip when count is unfavorable
+        if (tc < 1) {
+          units = 0 // Skip betting when count is negative
+        } else if (tc >= 4) {
+          units = 4
+        } else if (tc >= 3) {
+          units = 4
+        } else if (tc >= 2) {
+          units = 2
+        } else if (tc >= 1) {
+          units = 1
+        }
+        break
+
+      case "custom":
+        // Custom betting strategy using user-defined values
+        if (tc < 1) {
+          units = customBetting.count0
+        } else if (tc >= 4) {
+          units = customBetting.count4
+        } else if (tc >= 3) {
+          units = customBetting.count3
+        } else if (tc >= 2) {
+          units = customBetting.count2
+        } else if (tc >= 1) {
+          units = customBetting.count1
+        }
+        break
     }
 
     const betAmount = units * this.unitSize
@@ -94,7 +145,24 @@ class AdvancedBlackjackSimulation {
       this.rebuy()
     }
 
+    console.log(`Betting calculation: ${this.bettingStrategy}, count: ${tc}, units: ${units}, bet: ${betAmount}`)
+    
+    // Check if betting strategy is working
+    if (this.bettingStrategy === "skipping" && tc < 1 && units !== 0) {
+      console.warn("WARNING: Skipping strategy should bet 0 units when count < 1!")
+    }
+    
     return betAmount
+  }
+
+  getCustomBettingValues() {
+    return {
+      count0: parseInt(document.getElementById('betCount0')?.value || 0),
+      count1: parseInt(document.getElementById('betCount1')?.value || 1),
+      count2: parseInt(document.getElementById('betCount2')?.value || 2),
+      count3: parseInt(document.getElementById('betCount3')?.value || 4),
+      count4: parseInt(document.getElementById('betCount4')?.value || 8)
+    }
   }
 
   rebuy() {
@@ -224,6 +292,7 @@ class AdvancedBlackjackSimulation {
     this.elements = {
       gameMode: document.getElementById("gameMode"),
       countingSystem: document.getElementById("countingSystem"),
+      bettingStrategy: document.getElementById("bettingStrategy"),
       startBtn: document.getElementById("startBtn"),
       pauseBtn: document.getElementById("pauseBtn"),
       resetBtn: document.getElementById("resetBtn"),
@@ -278,6 +347,37 @@ class AdvancedBlackjackSimulation {
       this.resetSimulation()
     })
 
+    // Add betting strategy event listeners
+    const customBettingControls = document.getElementById("customBettingControls")
+    
+    if (this.elements.bettingStrategy) {
+      console.log("Betting strategy element found:", this.elements.bettingStrategy.value)
+      this.elements.bettingStrategy.addEventListener("change", (e) => {
+        console.log("Betting strategy changed to:", e.target.value)
+        this.bettingStrategy = e.target.value
+        this.toggleCustomBettingControls()
+        this.resetSimulation()
+        
+        // Update multi-simulation buttons if they exist
+        if (this.multiSimManager) {
+          this.multiSimManager.updateBettingModeButtons(this.bettingStrategy)
+        }
+      })
+    } else {
+      console.error("Betting strategy element not found!")
+    }
+
+    // Add event listeners for custom betting inputs
+    const customInputs = ['betCount0', 'betCount1', 'betCount2', 'betCount3', 'betCount4']
+    customInputs.forEach(id => {
+      const input = document.getElementById(id)
+      if (input) {
+        input.addEventListener("change", () => {
+          this.resetSimulation()
+        })
+      }
+    })
+
     this.elements.startBtn.addEventListener("click", () => this.startGame())
     this.elements.pauseBtn.addEventListener("click", () => this.pauseSimulation())
     this.elements.resetBtn.addEventListener("click", () => this.resetSimulation())
@@ -321,6 +421,26 @@ class AdvancedBlackjackSimulation {
     })
 
     this.updateModeDisplay()
+    this.toggleCustomBettingControls() // Initialize custom betting controls visibility
+  }
+
+  toggleCustomBettingControls() {
+    const customBettingControls = document.getElementById("customBettingControls")
+    
+    console.log("Toggle custom betting controls:")
+    console.log("- Custom betting controls element:", customBettingControls)
+    console.log("- Betting strategy element:", this.elements.bettingStrategy)
+    console.log("- Current betting strategy value:", this.elements.bettingStrategy?.value)
+    
+    if (customBettingControls && this.elements.bettingStrategy) {
+      if (this.elements.bettingStrategy.value === "custom") {
+        customBettingControls.style.display = "block"
+        console.log("Custom betting controls shown")
+      } else {
+        customBettingControls.style.display = "none"
+        console.log("Custom betting controls hidden")
+      }
+    }
   }
 
   updateModeDisplay() {
@@ -1173,7 +1293,15 @@ class AdvancedBlackjackSimulation {
     }
 
     this.currentHandNumber++
-    const handCount = this.countingSystem === "ko" ? this.runningCount : Math.floor(this.trueCount)
+    let handCount
+    if (this.countingSystem === "ko") {
+      handCount = this.runningCount
+    } else if (this.countingSystem === "wong") {
+      // For Wong Halves, use rounded true count to preserve decimal precision
+      handCount = Math.round(this.trueCount * 2) / 2 // Round to nearest 0.5
+    } else {
+      handCount = Math.floor(this.trueCount)
+    }
 
     if (!this.trueCountStats[handCount]) {
       this.trueCountStats[handCount] = {
@@ -1199,9 +1327,15 @@ class AdvancedBlackjackSimulation {
     this.displaySimulationHands([{ hand: playerHand, bet: betSize }], dealerHand, true)
 
     const countType = this.countingSystem === "ko" ? "RC" : "TC"
-    this.log(
-      `Hand ${this.currentHandNumber}: ${countType}=${handCount}, Player: ${this.getHandString(playerHand)}, Dealer: ${dealerHand[0].rank}${dealerHand[0].suit}`,
-    )
+    if (betSize === 0) {
+      this.log(
+        `Hand ${this.currentHandNumber}: ${countType}=${handCount}, SKIPPED (no bet)`,
+      )
+    } else {
+      this.log(
+        `Hand ${this.currentHandNumber}: ${countType}=${handCount}, Player: ${this.getHandString(playerHand)}, Dealer: ${dealerHand[0].rank}${dealerHand[0].suit}`,
+      )
+    }
 
     // Přidat kontrolu deviací v simulaci
     const playerValue = this.calculateHandValue(playerHand)
@@ -1242,6 +1376,13 @@ class AdvancedBlackjackSimulation {
 
     // Handle payouts for simulation mode
     let simulationPayout = 0
+
+    // If bet is 0, skip the hand entirely
+    if (betSize === 0) {
+      this.log("Hand skipped - no bet placed")
+      this.chips += 0 // No change to bankroll
+      return
+    }
 
     if (playerBJ && dealerBJ) {
       // Push - return bet
@@ -1437,7 +1578,12 @@ class AdvancedBlackjackSimulation {
       }
 
       const title = document.createElement("h4")
-      title.textContent = `Hand ${handIndex + 1} (Bet: ${handObj.bet})`
+      if (handObj.bet === 0) {
+        title.textContent = `Hand ${handIndex + 1} (SKIPPED)`
+        title.style.color = "#ff6b6b"
+      } else {
+        title.textContent = `Hand ${handIndex + 1} (Bet: ${handObj.bet})`
+      }
       handDiv.appendChild(title)
 
       const handElement = document.createElement("div")
@@ -1505,8 +1651,13 @@ class AdvancedBlackjackSimulation {
       }
 
       const title = document.createElement("h4")
-      title.textContent = `Hand ${handIndex + 1} (Bet: ${handObj.bet} chips)`
-      if (handObj.doubled) title.textContent += " - DOUBLED"
+      if (handObj.bet === 0) {
+        title.textContent = `Hand ${handIndex + 1} (SKIPPED)`
+        title.style.color = "#ff6b6b"
+      } else {
+        title.textContent = `Hand ${handIndex + 1} (Bet: ${handObj.bet} chips)`
+        if (handObj.doubled) title.textContent += " - DOUBLED"
+      }
       handDiv.appendChild(title)
 
       const handElement = document.createElement("div")
@@ -1543,6 +1694,10 @@ class AdvancedBlackjackSimulation {
     // Pro KO systém zobrazujeme running count i jako true count
     if (this.countingSystem === "ko") {
       this.elements.trueCount.textContent = `${this.runningCount.toFixed(1)} (RC)`
+    } else if (this.countingSystem === "wong") {
+      // For Wong Halves, show rounded true count
+      const roundedTC = Math.round(this.trueCount * 2) / 2
+      this.elements.trueCount.textContent = `${roundedTC.toFixed(1)} (TC)`
     } else {
       this.elements.trueCount.textContent = this.trueCount.toFixed(1)
     }
@@ -1567,7 +1722,11 @@ class AdvancedBlackjackSimulation {
     document.getElementById("rebuyCount").textContent = this.rebuyCount
 
     const units = this.currentBet / this.unitSize
-    this.elements.currentBet.textContent = `${units} units (${this.currentBet} chips)`
+    if (this.currentBet === 0) {
+      this.elements.currentBet.textContent = `SKIPPED (0 units) - ${this.bettingStrategy}`
+    } else {
+      this.elements.currentBet.textContent = `${units} units (${this.currentBet} chips) - ${this.bettingStrategy}`
+    }
 
     let totalGames = 0
     let totalPoints = 0
@@ -1863,9 +2022,43 @@ class AdvancedBlackjackSimulation {
     // Also show results in the action log
     this.log(`Deviation tests completed - check console for results`)
   }
+
+  testBettingStrategy() {
+    console.log("=== TESTING BETTING STRATEGY ===")
+    console.log("Current betting strategy:", this.bettingStrategy)
+    console.log("Betting strategy element:", this.elements.bettingStrategy)
+    console.log("Element value:", this.elements.bettingStrategy?.value)
+    
+    // Test different counts
+    const testCounts = [-2, -1, 0, 1, 2, 3, 4]
+    
+    for (const count of testCounts) {
+      this.trueCount = count
+      const bet = this.calculateBetSize()
+      console.log(`Count ${count}: Bet ${bet} chips`)
+    }
+    
+    this.log(`Betting strategy test completed - check console for results`)
+  }
 }
 
 // Initialize the simulation when the page loads
 document.addEventListener("DOMContentLoaded", () => {
-  new AdvancedBlackjackSimulation()
+  const simulation = new AdvancedBlackjackSimulation()
+  
+  // Ensure betting strategy is properly initialized
+  setTimeout(() => {
+    if (simulation.elements.bettingStrategy) {
+      console.log("Betting strategy initialized:", simulation.elements.bettingStrategy.value)
+      simulation.bettingStrategy = simulation.elements.bettingStrategy.value
+      
+      // Add manual event listener as backup
+      simulation.elements.bettingStrategy.addEventListener("change", (e) => {
+        console.log("Manual betting strategy change detected:", e.target.value)
+        simulation.bettingStrategy = e.target.value
+        simulation.toggleCustomBettingControls()
+        simulation.resetSimulation()
+      })
+    }
+  }, 100)
 })

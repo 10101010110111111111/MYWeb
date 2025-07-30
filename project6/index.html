@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VapeZone - Cool Vaping & Smoking Gear</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <div class="announcement">
+                    <i class="fas fa-fire"></i>
+                    <span>🔥 DOPRAVA ZDARMA nad 999 Kč | 18+ ONLY | DISKRÉTNÍ BALENÍ 🔥</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-main">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <h1>VapeZone</h1>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Hledej cool gear...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="header-actions">
+                        <button class="user-btn" id="userBtn">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="wishlist-btn" id="wishlistBtn">
+                            <i class="fas fa-heart"></i>
+                            <span class="badge" id="wishlistCount">0</span>
+                        </button>
+                        <button class="cart-btn" id="cartBtn">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge" id="cartCount">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="navbar">
+            <div class="container">
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link active">Domů</a></li>
+                    <li><a href="#products" class="nav-link">Produkty</a></li>
+                    <li><a href="#categories" class="nav-link">Kategorie</a></li>
+                    <li><a href="#about" class="nav-link">O nás</a></li>
+                    <li><a href="#contact" class="nav-link">Kontakt</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Hero Banner -->
+        <section class="hero" id="home">
+            <div class="hero-slider">
+                <div class="slide active">
+                    <div class="container">
+                        <div class="hero-content">
+                            <h2>🔥 COOL VAPING GEAR 2024 🔥</h2>
+                            <p>Nejlepší zařízení pro ultimate vaping experience</p>
+                            <button class="cta-btn">SHOP NOW</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories -->
+        <section class="categories" id="categories">
+            <div class="container">
+                <h2 class="section-title">Kategorie</h2>
+                <div class="categories-grid">
+                    <div class="category-card" data-category="vapes">
+                        <i class="fas fa-smoking"></i>
+                        <h3>Vapes</h3>
+                        <p>Cool vaping zařízení</p>
+                    </div>
+                    <div class="category-card" data-category="accessories">
+                        <i class="fas fa-tools"></i>
+                        <h3>Accessories</h3>
+                        <p>Doplňky a náhradní díly</p>
+                    </div>
+                    <div class="category-card" data-category="liquids">
+                        <i class="fas fa-tint"></i>
+                        <h3>Liquids</h3>
+                        <p>Cool e-liquids</p>
+                    </div>
+                    <div class="category-card" data-category="grinders">
+                        <i class="fas fa-cog"></i>
+                        <h3>Grinders</h3>
+                        <p>Profesionální grindery</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section class="products" id="products">
+            <div class="container">
+                <div class="products-header">
+                    <h2 class="section-title">🔥 HOT PRODUCTS 🔥</h2>
+                    <div class="filters">
+                        <select id="sortSelect">
+                            <option value="newest">Nejnovější</option>
+                            <option value="popular">Nejprodávanější</option>
+                            <option value="price-low">Cena: od nejnižší</option>
+                            <option value="price-high">Cena: od nejvyšší</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="products-grid" id="productsGrid">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section class="newsletter">
+            <div class="container">
+                <div class="newsletter-content">
+                    <h3>🔥 JOIN THE VAPE GANG 🔥</h3>
+                    <p>Získej 15% slevu na první nákup a buď první, kdo se dozví o nových produktech!</p>
+                    <div class="newsletter-form">
+                        <input type="email" id="newsletterEmail" placeholder="Váš e-mail">
+                        <button id="newsletterBtn">Přihlásit</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>VapeZone</h4>
+                    <p>🔥 Cool vaping gear pro true vapers 🔥</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Informace</h4>
+                    <ul>
+                        <li><a href="#">O nás</a></li>
+                        <li><a href="#">Doprava</a></li>
+                        <li><a href="#">Reklamace</a></li>
+                        <li><a href="#">GDPR</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Zákaznický servis</h4>
+                    <ul>
+                        <li><a href="#">Kontakt</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Sledování objednávky</a></li>
+                        <li><a href="#">Návrat zboží</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Kontakt</h4>
+                    <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> info@dropshop.cz</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Praha, Česká republika</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 DropShop. Všechna práva vyhrazena.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="product-detail" id="productDetail">
+                <!-- Product detail content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="cart-content">
+                <h3>Košík</h3>
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart items -->
+                </div>
+                <div class="cart-total">
+                    <p>Celkem: <span id="cartTotal">0 Kč</span></p>
+                    <button class="checkout-btn">Pokračovat k objednávce</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="user-content">
+                <div class="login-form" id="loginForm">
+                    <h3>Přihlášení</h3>
+                    <input type="email" placeholder="E-mail" id="loginEmail">
+                    <input type="password" placeholder="Heslo" id="loginPassword">
+                    <button id="loginBtn">Přihlásit</button>
+                    <p>Nemáte účet? <a href="#" id="showRegister">Registrovat</a></p>
+                </div>
+                
+                <div class="register-form" id="registerForm" style="display: none;">
+                    <h3>Registrace</h3>
+                    <input type="text" placeholder="Jméno" id="registerName">
+                    <input type="email" placeholder="E-mail" id="registerEmail">
+                    <input type="password" placeholder="Heslo" id="registerPassword">
+                    <button id="registerBtn">Registrovat</button>
+                    <p>Máte účet? <a href="#" id="showLogin">Přihlásit</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

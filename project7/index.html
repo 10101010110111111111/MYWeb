@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Coin Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>⏰ Time Coin Tracker</h1>
+                <div class="header-controls">
+                    <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Daily Quote -->
+        <div id="dailyQuote" class="daily-quote">
+            <p id="quoteText">"Time is what we want most, but what we use worst." - William Penn</p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="today">Today</button>
+            <button class="nav-tab" data-tab="history">History</button>
+            <button class="nav-tab" data-tab="goals">Goals</button>
+            <button class="nav-tab" data-tab="challenges">Challenges</button>
+            <button class="nav-tab" data-tab="stats">Statistics</button>
+            <button class="nav-tab" data-tab="planning">Planning</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Today Tab -->
+            <div id="today-tab" class="tab-content active">
+                <div class="coin-counter">
+                    <div class="coins-display">
+                        <span class="coin-icon">🪙</span>
+                        <span id="remainingCoins">24</span>
+                        <span class="coins-text">coins remaining</span>
+                    </div>
+                    <div class="date-display" id="currentDate"></div>
+                    <div class="day-status" id="dayStatus"></div>
+                </div>
+
+                <div class="activities-section">
+                    <div class="section-header">
+                        <h2>Allocate Your Time</h2>
+                        <div class="header-actions">
+                            <button id="autoFillBtn" class="secondary-btn">Auto-fill from Pattern</button>
+                            <button id="addActivityBtn" class="add-btn">+ Add Activity</button>
+                        </div>
+                    </div>
+                    <div id="activitiesList" class="activities-list"></div>
+                </div>
+
+                <div class="notes-section">
+                    <h3>Daily Notes</h3>
+                    <textarea id="dailyNotes" placeholder="Write your thoughts about today..." rows="3"></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="resetDayBtn" class="secondary-btn">Reset Day</button>
+                    <button id="finishDayBtn" class="primary-btn" disabled>Finish Day</button>
+                </div>
+
+                <div id="warningsContainer" class="warnings-container"></div>
+                <div id="recordsContainer" class="records-container"></div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="history-tab" class="tab-content">
+                <div class="history-controls">
+                    <select id="historyPeriod">
+                        <option value="week">Last 7 Days</option>
+                        <option value="month">Last 30 Days</option>
+                        <option value="season">Last 3 Months</option>
+                        <option value="all">All Time</option>
+                    </select>
+                    <button id="seasonalOverviewBtn" class="secondary-btn">Seasonal Overview</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+                <div id="calendarView" class="calendar-view"></div>
+                <div id="trendsAnalysis" class="trends-analysis"></div>
+            </div>
+
+            <!-- Goals Tab -->
+            <div id="goals-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Your Goals</h2>
+                    <button id="addGoalBtn" class="add-btn">+ Add Goal</button>
+                </div>
+                <div id="goalsList" class="goals-list"></div>
+                <div class="streaks-section">
+                    <h3>Current Streaks</h3>
+                    <div id="streaksList" class="streaks-list"></div>
+                </div>
+                <div class="predictions-section">
+                    <h3>Goal Predictions</h3>
+                    <div id="predictionsList" class="predictions-list"></div>
+                </div>
+            </div>
+
+            <!-- Challenges Tab -->
+            <div id="challenges-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Active Challenges</h2>
+                    <button id="addChallengeBtn" class="add-btn">+ Create Challenge</button>
+                </div>
+                <div id="challengesList" class="challenges-list"></div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div id="stats-tab" class="tab-content">
+                <div class="stats-controls">
+                    <button id="chartViewBtn" class="view-btn active">Chart View</button>
+                    <button id="tableViewBtn" class="view-btn">Table View</button>
+                    <select id="statsTimeRange">
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <button id="exportDataBtn" class="secondary-btn">Export Data</button>
+                    <button id="importDataBtn" class="secondary-btn">Import Data</button>
+                </div>
+                <div id="statsContent" class="stats-content">
+                    <canvas id="statsChart"></canvas>
+                    <div id="statsTable" class="stats-table hidden"></div>
+                </div>
+                <div class="category-distribution">
+                    <h3>Time Distribution by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="mood-analysis">
+                    <h3>Mood Analysis & Patterns</h3>
+                    <div id="moodInsights"></div>
+                </div>
+                <div class="daily-summary">
+                    <h3>Today's Summary</h3>
+                    <div id="dailySummary"></div>
+                </div>
+            </div>
+
+            <!-- Planning Tab -->
+            <div id="planning-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Planning Tools</h2>
+                    <button id="addTargetBtn" class="add-btn">+ Set Target</button>
+                </div>
+                <div id="targetsList" class="targets-list"></div>
+                <div class="planning-recommendations">
+                    <h3>Daily Recommendations</h3>
+                    <div id="recommendationsList"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div id="surveyModal" class="modal">
+            <div class="modal-content">
+                <h2>How was your day?</h2>
+                <div id="surveyContent"></div>
+                <div class="modal-actions">
+                    <button id="submitSurveyBtn" class="primary-btn">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="close-btn" data-modal="settingsModal">×</button>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <h3>Activities & Categories</h3>
+                        <div id="settingsActivitiesList"></div>
+                        <button id="addCategoryBtn" class="secondary-btn">+ Add Category</button>
+                    </div>
+                    <div class="setting-group">
+                        <h3>Reminders</h3>
+                        <label>
+                            <input type="checkbox" id="enableReminders"> Enable daily reminders
+                        </label>
+                        <label>
+                            Reminder time: <input type="time" id="reminderTime" value="20:00">
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <h3>Data Management</h3>
+                        <button id="clearDataBtn" class="danger-btn">Clear All Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addActivityModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Activity</h2>
+                    <button class="close-btn" data-modal="addActivityModal">×</button>
+                </div>
+                <form id="addActivityForm">
+                    <div class="form-group">
+                        <label for="activityName">Activity Name</label>
+                        <input type="text" id="activityName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="activityIcon">Icon</label>
+                        <input type="text" id="activityIcon" placeholder="🎯" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="activityColor">Color</label>
+                        <input type="color" id="activityColor" value="#3b82f6">
+                    </div>
+                    <div class="form-group">
+                        <label for="activityCategory">Category</label>
+                        <select id="activityCategory" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="activityMinCoins">Minimum Coins (optional)</label>
+                        <input type="number" id="activityMinCoins" min="0" max="24">
+                    </div>
+                    <div class="form-group">
+                        <label for="activityMaxCoins">Maximum Coins (optional)</label>
+                        <input type="number" id="activityMaxCoins" min="0" max="24">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="activityRecurring"> Recurring activity
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="secondary-btn" data-modal="addActivityModal">Cancel</button>
+                        <button type="submit" class="primary-btn">Add Activity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="addGoalModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Goal</h2>
+                    <button class="close-btn" data-modal="addGoalModal">×</button>
+                </div>
+                <form id="addGoalForm">
+                    <div class="form-group">
+                        <label for="goalActivity">Activity</label>
+                        <select id="goalActivity" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalType">Goal Type</label>
+                        <select id="goalType" required>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goalTarget">Target Coins</label>
+                        <input type="number" id="goalTarget" min="1" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="secondary-btn" data-modal="addGoalModal">Cancel</button>
+                        <button type="submit" class="primary-btn">Add Goal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="addChallengeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create Challenge</h2>
+                    <button class="close-btn" data-modal="addChallengeModal">×</button>
+                </div>
+                <form id="addChallengeForm">
+                    <div class="form-group">
+                        <label for="challengeName">Challenge Name</label>
+                        <input type="text" id="challengeName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeActivity">Activity</label>
+                        <select id="challengeActivity" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeTarget">Weekly Target (coins)</label>
+                        <input type="number" id="challengeTarget" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="challengeDuration">Duration (weeks)</label>
+                        <input type="number" id="challengeDuration" min="1" max="52" value="4" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="secondary-btn" data-modal="addChallengeModal">Cancel</button>
+                        <button type="submit" class="primary-btn">Create Challenge</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="addTargetModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Set Planning Target</h2>
+                    <button class="close-btn" data-modal="addTargetModal">×</button>
+                </div>
+                <form id="addTargetForm">
+                    <div class="form-group">
+                        <label for="targetActivity">Activity</label>
+                        <select id="targetActivity" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetCoins">Target Coins</label>
+                        <input type="number" id="targetCoins" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetPeriod">Time Period</label>
+                        <select id="targetPeriod" required>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="secondary-btn" data-modal="addTargetModal">Cancel</button>
+                        <button type="submit" class="primary-btn">Set Target</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="addCategoryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add Category</h2>
+                    <button class="close-btn" data-modal="addCategoryModal">×</button>
+                </div>
+                <form id="addCategoryForm">
+                    <div class="form-group">
+                        <label for="categoryName">Category Name</label>
+                        <input type="text" id="categoryName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryColor">Color</label>
+                        <input type="color" id="categoryColor" value="#3b82f6">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="secondary-btn" data-modal="addCategoryModal">Cancel</button>
+                        <button type="submit" class="primary-btn">Add Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="reflectionModal" class="modal">
+            <div class="modal-content">
+                <h2>Daily Reflection</h2>
+                <div id="reflectionContent"></div>
+                <div class="motivational-quote" id="motivationalQuote"></div>
+                <div class="modal-actions">
+                    <button id="closeReflectionBtn" class="primary-btn">Continue Tomorrow</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="dayDetailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="dayDetailsTitle">Day Details</h2>
+                    <button class="close-btn" data-modal="dayDetailsModal">×</button>
+                </div>
+                <div id="dayDetailsContent"></div>
+            </div>
+        </div>
+
+        <div id="seasonalModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Seasonal Overview</h2>
+                    <button class="close-btn" data-modal="seasonalModal">×</button>
+                </div>
+                <div id="seasonalContent"></div>
+            </div>
+        </div>
+
+        <!-- Hidden file input for import -->
+        <input type="file" id="importFileInput" accept=".json" style="display: none;">
+        
+        <!-- Notification container -->
+        <div id="notificationContainer" class="notification-container"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
