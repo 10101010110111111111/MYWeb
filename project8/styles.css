@@ -226,7 +226,7 @@ body {
 .editor-main {
   display: grid;
   grid-template-columns: 1fr 350px;
-  min-height: 600px;
+  min-height: 400px;
 }
 
 .image-container {
@@ -236,8 +236,9 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  min-height: 500px;
+  min-height: 200px;
   padding: 20px;
+  height: auto;
 }
 
 #imageCanvas {
