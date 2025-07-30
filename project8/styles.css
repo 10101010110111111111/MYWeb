@@ -237,6 +237,7 @@ body {
   justify-content: center;
   overflow: hidden;
   min-height: 500px;
+  padding: 20px;
 }
 
 #imageCanvas {
@@ -262,6 +263,7 @@ body {
   pointer-events: all;
   min-width: 50px;
   min-height: 50px;
+  z-index: 10;
 }
 
 .crop-handle {
