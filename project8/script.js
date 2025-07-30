@@ -62,11 +62,11 @@ class ImageCropper {
     
     // Dimension inputs
     document.getElementById('cropWidth').addEventListener('input', (e) => {
-      this.updateCropDimensions('width', parseInt(e.target.value));
+      this.updateCropDimensions('width', parseInt(e.target.value) || 0);
     });
     
     document.getElementById('cropHeight').addEventListener('input', (e) => {
-      this.updateCropDimensions('height', parseInt(e.target.value));
+      this.updateCropDimensions('height', parseInt(e.target.value) || 0);
     });
     
     // Aspect ratio controls
@@ -123,9 +123,6 @@ class ImageCropper {
         this.handleFileSelect(files[0]);
       }
     });
-    
-    // Remove click event from upload area to prevent double click
-    // Only the button should trigger file selection
   }
   
   setupCropAreaEvents() {
@@ -134,10 +131,12 @@ class ImageCropper {
     
     // Mouse events for crop area
     cropArea.addEventListener('mousedown', (e) => {
+      e.preventDefault();
       this.handleCropAreaMouseDown(e);
     });
     
     cropOverlay.addEventListener('mousemove', (e) => {
+      e.preventDefault();
       this.handleCropAreaMouseMove(e);
     });
     
@@ -222,24 +221,21 @@ class ImageCropper {
     const container = document.getElementById('imageContainer');
     const containerRect = container.getBoundingClientRect();
     
-    // Only calculate initial scale if scale is 1 (first load)
-    if (this.imageState.scale === 1) {
-      // Calculate scale to fit image in container (with max limits)
-      const maxWidth = Math.min(containerRect.width - 40, this.imageState.width * 1.5);
-      const maxHeight = Math.min(containerRect.height - 40, this.imageState.height * 1.5);
-      
-      // Calculate scale to fit image in container
-      const scaleX = maxWidth / this.imageState.width;
-      const scaleY = maxHeight / this.imageState.height;
-      this.imageState.scale = Math.min(scaleX, scaleY, 1.5);
-    }
+    // Calculate scale to fit image in container (allow up to 2x original size)
+    const maxWidth = Math.min(containerRect.width - 40, this.imageState.width * 2);
+    const maxHeight = Math.min(containerRect.height - 40, this.imageState.height * 2);
+    
+    const scaleX = maxWidth / this.imageState.width;
+    const scaleY = maxHeight / this.imageState.height;
+    this.imageState.scale = Math.min(scaleX, scaleY, 2);
     
     // Set canvas size to actual image size (scaled)
     this.canvas.width = this.imageState.width * this.imageState.scale;
     this.canvas.height = this.imageState.height * this.imageState.scale;
     
-    // Adjust container height to match canvas size
-    container.style.height = (this.canvas.height + 40) + 'px';
+    // Set container height to accommodate canvas
+    const containerHeight = Math.max(this.canvas.height + 40, 400);
+    container.style.height = containerHeight + 'px';
     
     // Center image in container
     this.imageState.offsetX = (containerRect.width - this.canvas.width) / 2;
@@ -249,9 +245,6 @@ class ImageCropper {
   }
   
   initializeCropArea() {
-    const canvasRect = this.canvas.getBoundingClientRect();
-    const containerRect = document.getElementById('imageContainer').getBoundingClientRect();
-    
     // Set initial crop area to center of image
     const cropSize = Math.min(this.canvas.width, this.canvas.height) * 0.3;
     
@@ -304,12 +297,14 @@ class ImageCropper {
   
   updateCropDimensions(dimension, value) {
     if (dimension === 'width') {
-      this.cropArea.width = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.width));
+      const newWidth = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.width));
+      this.cropArea.width = newWidth;
       if (this.settings.lockAspectRatio) {
         this.cropArea.height = this.cropArea.width / this.settings.aspectRatio;
       }
     } else if (dimension === 'height') {
-      this.cropArea.height = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.height));
+      const newHeight = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.height));
+      this.cropArea.height = newHeight;
       if (this.settings.lockAspectRatio) {
         this.cropArea.width = this.cropArea.height * this.settings.aspectRatio;
       }
@@ -338,15 +333,12 @@ class ImageCropper {
   handleCropAreaMouseDown(e) {
     this.isDragging = true;
     
-    // Get canvas position relative to viewport
     const canvasRect = this.canvas.getBoundingClientRect();
-    
-    // Calculate crop area position relative to canvas
     const cropAreaRect = document.getElementById('cropArea').getBoundingClientRect();
     
     this.dragStart = {
-      x: e.clientX - cropAreaRect.left + canvasRect.left,
-      y: e.clientY - cropAreaRect.top + canvasRect.top
+      x: e.clientX - cropAreaRect.left,
+      y: e.clientY - cropAreaRect.top
     };
     
     // Check if clicking on resize handle
@@ -363,7 +355,6 @@ class ImageCropper {
     
     if (this.isDragging && !this.isResizing) {
       // Move crop area
-      const canvasRect = this.canvas.getBoundingClientRect();
       const newX = e.clientX - this.dragStart.x;
       const newY = e.clientY - this.dragStart.y;
       
@@ -578,20 +569,17 @@ class ImageCropper {
     this.resizeHandle = null;
   }
   
-  // Touch event handlers (similar to mouse events)
+  // Touch event handlers
   handleCropAreaTouchStart(e) {
     const touch = e.touches[0];
     this.isDragging = true;
     
-    // Get canvas position relative to viewport
     const canvasRect = this.canvas.getBoundingClientRect();
-    
-    // Calculate crop area position relative to canvas
     const cropAreaRect = document.getElementById('cropArea').getBoundingClientRect();
     
     this.dragStart = {
-      x: touch.clientX - cropAreaRect.left + canvasRect.left,
-      y: touch.clientY - cropAreaRect.top + canvasRect.top
+      x: touch.clientX - cropAreaRect.left,
+      y: touch.clientY - cropAreaRect.top
     };
     
     const handle = e.target.closest('.crop-handle');
@@ -607,7 +595,6 @@ class ImageCropper {
     
     const touch = e.touches[0];
     if (this.isDragging && !this.isResizing) {
-      const canvasRect = this.canvas.getBoundingClientRect();
       const newX = touch.clientX - this.dragStart.x;
       const newY = touch.clientY - this.dragStart.y;
       
@@ -642,7 +629,6 @@ class ImageCropper {
   
   zoomIn() {
     this.imageState.scale = Math.min(this.imageState.scale * 1.2, 3);
-    // Update canvas size and re-render without calling setupCanvas
     this.canvas.width = this.imageState.width * this.imageState.scale;
     this.canvas.height = this.imageState.height * this.imageState.scale;
     this.renderImage();
@@ -650,7 +636,6 @@ class ImageCropper {
   
   zoomOut() {
     this.imageState.scale = Math.max(this.imageState.scale / 1.2, 0.1);
-    // Update canvas size and re-render without calling setupCanvas
     this.canvas.width = this.imageState.width * this.imageState.scale;
     this.canvas.height = this.imageState.height * this.imageState.scale;
     this.renderImage();

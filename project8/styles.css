@@ -226,19 +226,21 @@ body {
 .editor-main {
   display: grid;
   grid-template-columns: 1fr 350px;
-  min-height: 400px;
+  min-height: 500px;
+  gap: 20px;
 }
 
 .image-container {
-  position: relative;
-  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  min-height: 200px;
+  min-height: 400px;
   padding: 20px;
   height: auto;
+  background: #1a1a1a;
+  border-radius: 8px;
+  position: relative;
 }
 
 #imageCanvas {
