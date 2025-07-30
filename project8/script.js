@@ -222,7 +222,7 @@ class ImageCropper {
     const container = document.getElementById('imageContainer');
     const containerRect = container.getBoundingClientRect();
     
-    // Set canvas size to match image dimensions (with max limits)
+    // Calculate scale to fit image in container (with max limits)
     const maxWidth = Math.min(containerRect.width - 40, this.imageState.width);
     const maxHeight = Math.min(containerRect.height - 40, this.imageState.height);
     
@@ -234,6 +234,9 @@ class ImageCropper {
     // Set canvas size to actual image size (scaled)
     this.canvas.width = this.imageState.width * this.imageState.scale;
     this.canvas.height = this.imageState.height * this.imageState.scale;
+    
+    // Adjust container height to match canvas size
+    container.style.height = (this.canvas.height + 40) + 'px';
     
     // Center image in container
     this.imageState.offsetX = (containerRect.width - this.canvas.width) / 2;
