@@ -210,6 +210,27 @@ class ImageCropper {
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
       this.zoomAtPoint(delta, this.mousePosition);
     });
+    
+    // Click on canvas to move crop area to that position
+    this.canvas.addEventListener('click', (e) => {
+      // Only if not dragging or resizing
+      if (!this.isDragging && !this.isResizing) {
+        const canvasRect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - canvasRect.left;
+        const mouseY = e.clientY - canvasRect.top;
+        
+        // Move crop area center to mouse position
+        this.cropArea.x = mouseX - this.cropArea.width / 2;
+        this.cropArea.y = mouseY - this.cropArea.height / 2;
+        
+        // Apply constraints
+        this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(this.cropArea.x, this.canvas.width - 10));
+        this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(this.cropArea.y, this.canvas.height - 10));
+        
+        this.updateCropAreaDisplay();
+        this.updateCropInputs();
+      }
+    });
   }
   
   handleKeyDown(e) {
