@@ -1,4 +1,4 @@
-// Image Cropper Application
+// Image Cropper Application - Simplified and Working Version
 class ImageCropper {
   constructor() {
     this.image = null;
@@ -8,12 +8,12 @@ class ImageCropper {
     this.previewCanvas = document.getElementById('previewCanvas');
     this.previewCtx = this.previewCanvas.getContext('2d');
     
-    // Crop area state
+    // Simple crop area state
     this.cropArea = {
-      x: 0,
-      y: 0,
-      width: 100,
-      height: 100
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 200
     };
     
     // Image state
@@ -21,29 +21,12 @@ class ImageCropper {
       width: 0,
       height: 0,
       scale: 1,
-      rotation: 0,
-      offsetX: 0,
-      offsetY: 0
+      rotation: 0
     };
     
-         // Interaction state
-     this.isRightClickDragging = false;
-     this.dragStart = { x: 0, y: 0 };
-    
-    // Mouse movement state
-    this.isMouseMoving = false;
-    this.mousePosition = { x: 0, y: 0 };
-    
-    // Keyboard movement state
-    this.keyboardMovement = {
-      up: false,
-      down: false,
-      left: false,
-      right: false,
-      shift: false
-    };
-    this.movementSpeed = 5;
-    this.fastMovementSpeed = 20;
+    // Movement state
+    this.isDragging = false;
+    this.dragStart = { x: 0, y: 0 };
     
     // Settings
     this.settings = {
@@ -58,7 +41,6 @@ class ImageCropper {
   init() {
     this.setupEventListeners();
     this.setupDragAndDrop();
-    this.setupKeyboardControls();
     this.updateUI();
   }
   
@@ -113,11 +95,11 @@ class ImageCropper {
     document.getElementById('backToEditBtn').addEventListener('click', () => this.showEditor());
     document.getElementById('downloadBtn').addEventListener('click', () => this.downloadImage());
     
-    // Crop area interactions
-    this.setupCropAreaEvents();
+    // Simple mouse events for crop area movement
+    this.setupCropAreaMovement();
     
-    // Mouse movement tracking
-    this.setupMouseMovement();
+    // Keyboard controls
+    this.setupKeyboardControls();
   }
   
   setupDragAndDrop() {
@@ -142,218 +124,143 @@ class ImageCropper {
     });
   }
   
-  setupCropAreaEvents() {
-    const cropArea = document.getElementById('cropArea');
+  setupCropAreaMovement() {
     const cropOverlay = document.getElementById('cropOverlay');
     
-    // Right-click drag movement
+    // Prevent context menu
     cropOverlay.addEventListener('contextmenu', (e) => {
-      e.preventDefault(); // Prevent context menu
+      e.preventDefault();
     });
     
+    // Mouse events
     cropOverlay.addEventListener('mousedown', (e) => {
-      if (e.button === 2) { // Right mouse button
-        e.preventDefault();
-        this.isRightClickDragging = true;
-        this.handleRightClickMouseDown(e);
+      if (e.button === 0) { // Left click
+        this.startDrag(e);
       }
     });
     
     cropOverlay.addEventListener('mousemove', (e) => {
-      if (this.isRightClickDragging) {
-        e.preventDefault();
-        this.handleRightClickMouseMove(e);
+      if (this.isDragging) {
+        this.drag(e);
       }
     });
     
-    document.addEventListener('mouseup', (e) => {
-      if (e.button === 2) { // Right mouse button
-        this.isRightClickDragging = false;
-      }
+    document.addEventListener('mouseup', () => {
+      this.stopDrag();
     });
     
-    // Touch events for mobile (simulate right-click with long press)
-    let touchTimer = null;
+    // Touch events
     cropOverlay.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      touchTimer = setTimeout(() => {
-        this.isRightClickDragging = true;
-        this.handleRightClickTouchStart(e);
-      }, 500); // 500ms long press
+      this.startDrag(e.touches[0]);
     });
     
     cropOverlay.addEventListener('touchmove', (e) => {
-      if (this.isRightClickDragging) {
+      if (this.isDragging) {
         e.preventDefault();
-        this.handleRightClickTouchMove(e);
+        this.drag(e.touches[0]);
       }
     });
     
     cropOverlay.addEventListener('touchend', () => {
-      if (touchTimer) {
-        clearTimeout(touchTimer);
-        touchTimer = null;
+      this.stopDrag();
+    });
+    
+    // Click to move crop area
+    cropOverlay.addEventListener('click', (e) => {
+      if (!this.isDragging) {
+        this.moveCropAreaToClick(e);
       }
-      this.isRightClickDragging = false;
     });
   }
   
   setupKeyboardControls() {
-    // Keyboard event listeners for crop area movement
     document.addEventListener('keydown', (e) => {
-      this.handleKeyDown(e);
-    });
-    
-    document.addEventListener('keyup', (e) => {
-      this.handleKeyUp(e);
-    });
-    
-    // Start keyboard movement loop
-    this.startKeyboardMovement();
-  }
-  
-  setupMouseMovement() {
-    // Track mouse position over canvas for movement
-    this.canvas.addEventListener('mousemove', (e) => {
-      this.mousePosition = this.getMousePosition(e);
-      this.isMouseMoving = true;
-    });
-    
-    this.canvas.addEventListener('mouseleave', () => {
-      this.isMouseMoving = false;
-    });
-    
-    // Mouse wheel for zoom
-    this.canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      this.zoomAtPoint(delta, this.mousePosition);
-    });
-    
-    // Click on canvas to move crop area to that position
-    this.canvas.addEventListener('click', (e) => {
-      // Only if not dragging or resizing
-      if (!this.isDragging && !this.isResizing) {
-        const canvasRect = this.canvas.getBoundingClientRect();
-        const mouseX = e.clientX - canvasRect.left;
-        const mouseY = e.clientY - canvasRect.top;
-        
-        // Move crop area center to mouse position
-        this.cropArea.x = mouseX - this.cropArea.width / 2;
-        this.cropArea.y = mouseY - this.cropArea.height / 2;
-        
-        // Apply constraints
-        this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(this.cropArea.x, this.canvas.width - 10));
-        this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(this.cropArea.y, this.canvas.height - 10));
-        
-        this.updateCropAreaDisplay();
-        this.updateCropInputs();
-      }
-    });
-  }
-  
-  handleKeyDown(e) {
-    switch(e.key) {
-      case 'ArrowUp':
-        e.preventDefault();
-        this.keyboardMovement.up = true;
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        this.keyboardMovement.down = true;
-        break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        this.keyboardMovement.left = true;
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        this.keyboardMovement.right = true;
-        break;
-      case 'Shift':
-        this.keyboardMovement.shift = true;
-        break;
-      case ' ':
-        e.preventDefault();
-        // Space bar to center crop area
-        this.centerCropArea();
-        break;
-      case 'r':
-        if (e.ctrlKey || e.metaKey) {
-          e.preventDefault();
-          this.resetImage();
-        }
-        break;
-    }
-  }
-  
-  handleKeyUp(e) {
-    switch(e.key) {
-      case 'ArrowUp':
-        this.keyboardMovement.up = false;
-        break;
-      case 'ArrowDown':
-        this.keyboardMovement.down = false;
-        break;
-      case 'ArrowLeft':
-        this.keyboardMovement.left = false;
-        break;
-      case 'ArrowRight':
-        this.keyboardMovement.right = false;
-        break;
-      case 'Shift':
-        this.keyboardMovement.shift = false;
-        break;
-    }
-  }
-  
-  startKeyboardMovement() {
-    const moveCropArea = () => {
       if (!this.image) return;
       
-      let moved = false;
-      const speed = this.keyboardMovement.shift ? this.fastMovementSpeed : this.movementSpeed;
+      const speed = e.shiftKey ? 20 : 5;
       
-      if (this.keyboardMovement.up) {
-        this.moveCropArea(0, -speed);
-        moved = true;
+      switch(e.key) {
+        case 'ArrowUp':
+          e.preventDefault();
+          this.moveCropArea(0, -speed);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          this.moveCropArea(0, speed);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          this.moveCropArea(-speed, 0);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          this.moveCropArea(speed, 0);
+          break;
+        case ' ':
+          e.preventDefault();
+          this.centerCropArea();
+          break;
       }
-      if (this.keyboardMovement.down) {
-        this.moveCropArea(0, speed);
-        moved = true;
-      }
-      if (this.keyboardMovement.left) {
-        this.moveCropArea(-speed, 0);
-        moved = true;
-      }
-      if (this.keyboardMovement.right) {
-        this.moveCropArea(speed, 0);
-        moved = true;
-      }
-      
-      if (moved) {
-        this.updateCropAreaDisplay();
-        this.updateCropInputs();
-      }
-      
-      requestAnimationFrame(moveCropArea);
+    });
+  }
+  
+  startDrag(e) {
+    this.isDragging = true;
+    const rect = this.canvas.getBoundingClientRect();
+    this.dragStart = {
+      x: e.clientX - rect.left - this.cropArea.x,
+      y: e.clientY - rect.top - this.cropArea.y
     };
+  }
+  
+  drag(e) {
+    if (!this.isDragging) return;
     
-    moveCropArea();
+    const rect = this.canvas.getBoundingClientRect();
+    const newX = e.clientX - rect.left - this.dragStart.x;
+    const newY = e.clientY - rect.top - this.dragStart.y;
+    
+    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
+    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
+    
+    this.updateCropAreaDisplay();
+    this.updateCropInputs();
+  }
+  
+  stopDrag() {
+    this.isDragging = false;
+  }
+  
+  moveCropAreaToClick(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    
+    this.cropArea.x = clickX - this.cropArea.width / 2;
+    this.cropArea.y = clickY - this.cropArea.height / 2;
+    
+    // Apply constraints
+    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(this.cropArea.x, this.canvas.width - 10));
+    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(this.cropArea.y, this.canvas.height - 10));
+    
+    this.updateCropAreaDisplay();
+    this.updateCropInputs();
   }
   
   moveCropArea(deltaX, deltaY) {
-    const newX = this.cropArea.x + deltaX;
-    const newY = this.cropArea.y + deltaY;
+    this.cropArea.x += deltaX;
+    this.cropArea.y += deltaY;
     
-    // Allow movement across the entire canvas
-    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
-    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
+    // Apply constraints
+    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(this.cropArea.x, this.canvas.width - 10));
+    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(this.cropArea.y, this.canvas.height - 10));
+    
+    this.updateCropAreaDisplay();
+    this.updateCropInputs();
   }
   
   centerCropArea() {
-    if (!this.image) return;
-    
     this.cropArea.x = (this.canvas.width - this.cropArea.width) / 2;
     this.cropArea.y = (this.canvas.height - this.cropArea.height) / 2;
     
@@ -361,51 +268,14 @@ class ImageCropper {
     this.updateCropInputs();
   }
   
-  getMousePosition(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
-  }
-  
-  zoomAtPoint(factor, point) {
-    if (!this.image) return;
-    
-    const oldScale = this.imageState.scale;
-    const newScale = Math.max(0.1, Math.min(3, oldScale * factor));
-    
-    if (newScale !== oldScale) {
-      // Calculate zoom center relative to image
-      const zoomCenterX = (point.x - this.imageState.offsetX) / oldScale;
-      const zoomCenterY = (point.y - this.imageState.offsetY) / oldScale;
-      
-      // Update scale
-      this.imageState.scale = newScale;
-      
-      // Update canvas size
-      this.canvas.width = this.imageState.width * this.imageState.scale;
-      this.canvas.height = this.imageState.height * this.imageState.scale;
-      
-      // Adjust offset to keep zoom center in same position
-      this.imageState.offsetX = point.x - zoomCenterX * newScale;
-      this.imageState.offsetY = point.y - zoomCenterY * newScale;
-      
-      this.renderImage();
-      this.updateCropAreaDisplay();
-    }
-  }
-  
   handleFileSelect(file) {
     if (!file) return;
     
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       this.showError('Prosím vyberte obrázek.');
       return;
     }
     
-    // Validate file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
       this.showError('Soubor je příliš velký. Maximální velikost je 10 MB.');
       return;
@@ -447,9 +317,7 @@ class ImageCropper {
       width: this.originalImage.width,
       height: this.originalImage.height,
       scale: 1,
-      rotation: 0,
-      offsetX: 0,
-      offsetY: 0
+      rotation: 0
     };
   }
   
@@ -457,7 +325,7 @@ class ImageCropper {
     const container = document.getElementById('imageContainer');
     const containerRect = container.getBoundingClientRect();
     
-    // Calculate scale to fit image in container (allow up to 2x original size)
+    // Calculate scale to fit image in container
     const maxWidth = Math.min(containerRect.width - 40, this.imageState.width * 2);
     const maxHeight = Math.min(containerRect.height - 40, this.imageState.height * 2);
     
@@ -465,23 +333,18 @@ class ImageCropper {
     const scaleY = maxHeight / this.imageState.height;
     this.imageState.scale = Math.min(scaleX, scaleY, 2);
     
-    // Set canvas size to actual image size (scaled)
+    // Set canvas size
     this.canvas.width = this.imageState.width * this.imageState.scale;
     this.canvas.height = this.imageState.height * this.imageState.scale;
     
-    // Set container height to accommodate canvas
+    // Set container height
     const containerHeight = Math.max(this.canvas.height + 40, 400);
     container.style.height = containerHeight + 'px';
-    
-    // Center image in container
-    this.imageState.offsetX = (containerRect.width - this.canvas.width) / 2;
-    this.imageState.offsetY = (containerRect.height - this.canvas.height) / 2;
     
     this.renderImage();
   }
   
   initializeCropArea() {
-    // Set initial crop area to center of image
     const cropSize = Math.min(this.canvas.width, this.canvas.height) * 0.3;
     
     this.cropArea = {
@@ -498,10 +361,7 @@ class ImageCropper {
   renderImage() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // Save context
     this.ctx.save();
-    
-    // Apply transformations
     this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
     this.ctx.rotate(this.imageState.rotation * Math.PI / 180);
     this.ctx.scale(this.imageState.scale, this.imageState.scale);
@@ -512,8 +372,6 @@ class ImageCropper {
       this.imageState.width,
       this.imageState.height
     );
-    
-    // Restore context
     this.ctx.restore();
   }
   
@@ -566,83 +424,6 @@ class ImageCropper {
     }
   }
   
-  handleRightClickMouseDown(e) {
-    const canvasRect = this.canvas.getBoundingClientRect();
-    
-    // Calculate mouse position relative to canvas
-    const mouseX = e.clientX - canvasRect.left;
-    const mouseY = e.clientY - canvasRect.top;
-    
-    // Calculate offset from crop area center
-    this.dragStart = {
-      x: mouseX - this.cropArea.x - this.cropArea.width / 2,
-      y: mouseY - this.cropArea.y - this.cropArea.height / 2
-    };
-  }
-  
-  handleRightClickMouseMove(e) {
-    if (!this.isRightClickDragging) return;
-    
-    const canvasRect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - canvasRect.left;
-    const mouseY = e.clientY - canvasRect.top;
-    
-    // Calculate new position using the drag offset
-    const newX = mouseX - this.dragStart.x - this.cropArea.width / 2;
-    const newY = mouseY - this.dragStart.y - this.cropArea.height / 2;
-    
-    // Allow movement across the entire canvas (with small margin)
-    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
-    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-  }
-  
-
-  
-  // Touch event handlers for right-click simulation
-  handleRightClickTouchStart(e) {
-    const touch = e.touches[0];
-    
-    const canvasRect = this.canvas.getBoundingClientRect();
-    
-    // Calculate touch position relative to canvas
-    const touchX = touch.clientX - canvasRect.left;
-    const touchY = touch.clientY - canvasRect.top;
-    
-    // Calculate offset from crop area center
-    this.dragStart = {
-      x: touchX - this.cropArea.x - this.cropArea.width / 2,
-      y: touchY - this.cropArea.y - this.cropArea.height / 2
-    };
-  }
-  
-  handleRightClickTouchMove(e) {
-    if (!this.isRightClickDragging) return;
-    
-    const touch = e.touches[0];
-    const canvasRect = this.canvas.getBoundingClientRect();
-    const touchX = touch.clientX - canvasRect.left;
-    const touchY = touch.clientY - canvasRect.top;
-    
-    // Calculate new position using the drag offset
-    const newX = touchX - this.dragStart.x - this.cropArea.width / 2;
-    const newY = touchY - this.dragStart.y - this.cropArea.height / 2;
-    
-    // Allow movement across the entire canvas (with small margin)
-    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
-    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-  }
-  
-  handleRightClickTouchEnd() {
-    this.isRightClickDragging = false;
-  }
-  
-  // Control functions
   resetImage() {
     if (this.originalImage) {
       this.resetImageState();
@@ -670,20 +451,19 @@ class ImageCropper {
     this.renderImage();
   }
   
-  // Export functions
   exportImage() {
     if (!this.image) return;
     
     this.showLoading();
     
-    // Calculate actual crop coordinates in original image space
+    // Calculate crop coordinates
     const scale = this.imageState.scale;
-    const actualCropX = (this.cropArea.x - this.imageState.offsetX) / scale;
-    const actualCropY = (this.cropArea.y - this.imageState.offsetY) / scale;
+    const actualCropX = this.cropArea.x / scale;
+    const actualCropY = this.cropArea.y / scale;
     const actualCropWidth = this.cropArea.width / scale;
     const actualCropHeight = this.cropArea.height / scale;
     
-    // Create temporary canvas for cropping
+    // Create temporary canvas
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
     
@@ -749,10 +529,10 @@ class ImageCropper {
     const format = document.getElementById('exportFormat').value;
     const quality = document.getElementById('exportQuality').value / 100;
     
-    // Calculate actual crop coordinates
+    // Calculate crop coordinates
     const scale = this.imageState.scale;
-    const actualCropX = (this.cropArea.x - this.imageState.offsetX) / scale;
-    const actualCropY = (this.cropArea.y - this.imageState.offsetY) / scale;
+    const actualCropX = this.cropArea.x / scale;
+    const actualCropY = this.cropArea.y / scale;
     const actualCropWidth = this.cropArea.width / scale;
     const actualCropHeight = this.cropArea.height / scale;
     
@@ -803,7 +583,6 @@ class ImageCropper {
     }, `image/${format}`, quality);
   }
   
-  // UI functions
   showEditor() {
     document.getElementById('uploadSection').style.display = 'none';
     document.getElementById('editorSection').style.display = 'block';
@@ -853,17 +632,16 @@ class ImageCropper {
   }
   
   updateUI() {
-    // Update quality control visibility
     this.updateQualityControl(document.getElementById('exportFormat').value);
   }
 }
 
-// Global functions for HTML onclick handlers
+// Global functions
 function closeErrorModal() {
   document.getElementById('errorModal').style.display = 'none';
 }
 
-// Initialize app when DOM is loaded
+// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
   new ImageCropper();
 }); 
