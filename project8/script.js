@@ -594,21 +594,38 @@ class ImageCropper {
     const canvasCenterX = this.canvas.width / 2;
     const canvasCenterY = this.canvas.height / 2;
     
-    // Calculate the image bounds in canvas coordinates
+    // Calculate the image bounds in canvas coordinates (where the image is actually drawn)
     const imageLeft = canvasCenterX - (this.imageState.width * scale) / 2;
     const imageTop = canvasCenterY - (this.imageState.height * scale) / 2;
     const imageRight = imageLeft + this.imageState.width * scale;
     const imageBottom = imageTop + this.imageState.height * scale;
     
+    // Check if crop area intersects with the image
+    const cropRight = this.cropArea.x + this.cropArea.width;
+    const cropBottom = this.cropArea.y + this.cropArea.height;
+    
+    // Calculate the intersection between crop area and image
+    const intersectLeft = Math.max(this.cropArea.x, imageLeft);
+    const intersectTop = Math.max(this.cropArea.y, imageTop);
+    const intersectRight = Math.min(cropRight, imageRight);
+    const intersectBottom = Math.min(cropBottom, imageBottom);
+    
+    // If no intersection, show error
+    if (intersectLeft >= intersectRight || intersectTop >= intersectBottom) {
+      this.hideLoading();
+      this.showError('Crop area je mimo obrázek. Přesuňte čtverec na obrázek.');
+      return;
+    }
+    
     // Calculate crop area position relative to the image
-    const cropXInImage = this.cropArea.x - imageLeft;
-    const cropYInImage = this.cropArea.y - imageTop;
+    const cropXInImage = intersectLeft - imageLeft;
+    const cropYInImage = intersectTop - imageTop;
     
     // Convert to original image coordinates
     const actualCropX = cropXInImage / scale;
     const actualCropY = cropYInImage / scale;
-    const actualCropWidth = this.cropArea.width / scale;
-    const actualCropHeight = this.cropArea.height / scale;
+    const actualCropWidth = (intersectRight - intersectLeft) / scale;
+    const actualCropHeight = (intersectBottom - intersectTop) / scale;
     
     // Create temporary canvas
     const tempCanvas = document.createElement('canvas');
@@ -686,21 +703,37 @@ class ImageCropper {
     const canvasCenterX = this.canvas.width / 2;
     const canvasCenterY = this.canvas.height / 2;
     
-    // Calculate the image bounds in canvas coordinates
+    // Calculate the image bounds in canvas coordinates (where the image is actually drawn)
     const imageLeft = canvasCenterX - (this.imageState.width * scale) / 2;
     const imageTop = canvasCenterY - (this.imageState.height * scale) / 2;
     const imageRight = imageLeft + this.imageState.width * scale;
     const imageBottom = imageTop + this.imageState.height * scale;
     
+    // Check if crop area intersects with the image
+    const cropRight = this.cropArea.x + this.cropArea.width;
+    const cropBottom = this.cropArea.y + this.cropArea.height;
+    
+    // Calculate the intersection between crop area and image
+    const intersectLeft = Math.max(this.cropArea.x, imageLeft);
+    const intersectTop = Math.max(this.cropArea.y, imageTop);
+    const intersectRight = Math.min(cropRight, imageRight);
+    const intersectBottom = Math.min(cropBottom, imageBottom);
+    
+    // If no intersection, show error
+    if (intersectLeft >= intersectRight || intersectTop >= intersectBottom) {
+      this.showError('Crop area je mimo obrázek. Přesuňte čtverec na obrázek.');
+      return;
+    }
+    
     // Calculate crop area position relative to the image
-    const cropXInImage = this.cropArea.x - imageLeft;
-    const cropYInImage = this.cropArea.y - imageTop;
+    const cropXInImage = intersectLeft - imageLeft;
+    const cropYInImage = intersectTop - imageTop;
     
     // Convert to original image coordinates
     const actualCropX = cropXInImage / scale;
     const actualCropY = cropYInImage / scale;
-    const actualCropWidth = this.cropArea.width / scale;
-    const actualCropHeight = this.cropArea.height / scale;
+    const actualCropWidth = (intersectRight - intersectLeft) / scale;
+    const actualCropHeight = (intersectBottom - intersectTop) / scale;
     
     // Create temporary canvas
     const tempCanvas = document.createElement('canvas');
