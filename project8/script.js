@@ -26,11 +26,9 @@ class ImageCropper {
       offsetY: 0
     };
     
-    // Interaction state
-    this.isDragging = false;
-    this.isResizing = false;
-    this.dragStart = { x: 0, y: 0 };
-    this.resizeHandle = null;
+         // Interaction state
+     this.isRightClickDragging = false;
+     this.dragStart = { x: 0, y: 0 };
     
     // Mouse movement state
     this.isMouseMoving = false;
@@ -148,34 +146,55 @@ class ImageCropper {
     const cropArea = document.getElementById('cropArea');
     const cropOverlay = document.getElementById('cropOverlay');
     
-    // Mouse events for crop area
-    cropArea.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      this.handleCropAreaMouseDown(e);
+    // Right-click drag movement
+    cropOverlay.addEventListener('contextmenu', (e) => {
+      e.preventDefault(); // Prevent context menu
+    });
+    
+    cropOverlay.addEventListener('mousedown', (e) => {
+      if (e.button === 2) { // Right mouse button
+        e.preventDefault();
+        this.isRightClickDragging = true;
+        this.handleRightClickMouseDown(e);
+      }
     });
     
     cropOverlay.addEventListener('mousemove', (e) => {
-      e.preventDefault();
-      this.handleCropAreaMouseMove(e);
+      if (this.isRightClickDragging) {
+        e.preventDefault();
+        this.handleRightClickMouseMove(e);
+      }
     });
     
-    document.addEventListener('mouseup', () => {
-      this.handleCropAreaMouseUp();
+    document.addEventListener('mouseup', (e) => {
+      if (e.button === 2) { // Right mouse button
+        this.isRightClickDragging = false;
+      }
     });
     
-    // Touch events for mobile
-    cropArea.addEventListener('touchstart', (e) => {
+    // Touch events for mobile (simulate right-click with long press)
+    let touchTimer = null;
+    cropOverlay.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      this.handleCropAreaTouchStart(e);
+      touchTimer = setTimeout(() => {
+        this.isRightClickDragging = true;
+        this.handleRightClickTouchStart(e);
+      }, 500); // 500ms long press
     });
     
     cropOverlay.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      this.handleCropAreaTouchMove(e);
+      if (this.isRightClickDragging) {
+        e.preventDefault();
+        this.handleRightClickTouchMove(e);
+      }
     });
     
-    document.addEventListener('touchend', () => {
-      this.handleCropAreaTouchEnd();
+    cropOverlay.addEventListener('touchend', () => {
+      if (touchTimer) {
+        clearTimeout(touchTimer);
+        touchTimer = null;
+      }
+      this.isRightClickDragging = false;
     });
   }
   
@@ -547,9 +566,7 @@ class ImageCropper {
     }
   }
   
-  handleCropAreaMouseDown(e) {
-    this.isDragging = true;
-    
+  handleRightClickMouseDown(e) {
     const canvasRect = this.canvas.getBoundingClientRect();
     
     // Calculate mouse position relative to canvas
@@ -561,244 +578,32 @@ class ImageCropper {
       x: mouseX - this.cropArea.x - this.cropArea.width / 2,
       y: mouseY - this.cropArea.y - this.cropArea.height / 2
     };
-    
-    // Check if clicking on resize handle
-    const handle = e.target.closest('.crop-handle');
-    if (handle) {
-      this.isDragging = false;
-      this.isResizing = true;
-      this.resizeHandle = handle.className.split(' ')[1];
-    }
   }
   
-  handleCropAreaMouseMove(e) {
-    if (!this.isDragging && !this.isResizing) return;
+  handleRightClickMouseMove(e) {
+    if (!this.isRightClickDragging) return;
     
-    if (this.isDragging && !this.isResizing) {
-      // Move crop area
-      const canvasRect = this.canvas.getBoundingClientRect();
-      const mouseX = e.clientX - canvasRect.left;
-      const mouseY = e.clientY - canvasRect.top;
-      
-      // Calculate new position using the drag offset
-      const newX = mouseX - this.dragStart.x - this.cropArea.width / 2;
-      const newY = mouseY - this.dragStart.y - this.cropArea.height / 2;
-      
-      // Allow movement across the entire canvas (with small margin)
-      this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
-      this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
-    } else if (this.isResizing) {
-      // Resize crop area
-      this.handleResize(e);
-    }
+    const canvasRect = this.canvas.getBoundingClientRect();
+    const mouseX = e.clientX - canvasRect.left;
+    const mouseY = e.clientY - canvasRect.top;
+    
+    // Calculate new position using the drag offset
+    const newX = mouseX - this.dragStart.x - this.cropArea.width / 2;
+    const newY = mouseY - this.dragStart.y - this.cropArea.height / 2;
+    
+    // Allow movement across the entire canvas (with small margin)
+    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
+    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
     
     this.updateCropAreaDisplay();
     this.updateCropInputs();
   }
   
-  handleResize(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    switch (this.resizeHandle) {
-      case 'top-left':
-        this.resizeFromTopLeft(mouseX, mouseY);
-        break;
-      case 'top-right':
-        this.resizeFromTopRight(mouseX, mouseY);
-        break;
-      case 'bottom-left':
-        this.resizeFromBottomLeft(mouseX, mouseY);
-        break;
-      case 'bottom-right':
-        this.resizeFromBottomRight(mouseX, mouseY);
-        break;
-      case 'top':
-        this.resizeFromTop(mouseY);
-        break;
-      case 'right':
-        this.resizeFromRight(mouseX);
-        break;
-      case 'bottom':
-        this.resizeFromBottom(mouseY);
-        break;
-      case 'left':
-        this.resizeFromLeft(mouseX);
-        break;
-    }
-  }
+
   
-  resizeFromTopLeft(mouseX, mouseY) {
-    const newWidth = this.cropArea.x + this.cropArea.width - mouseX;
-    const newHeight = this.cropArea.y + this.cropArea.height - mouseY;
-    
-    if (newWidth >= this.settings.minCropSize && newHeight >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const ratio = this.settings.aspectRatio;
-        if (newWidth / newHeight > ratio) {
-          this.cropArea.width = newHeight * ratio;
-          this.cropArea.x = mouseX + newWidth - this.cropArea.width;
-          this.cropArea.height = newHeight;
-          this.cropArea.y = mouseY;
-        } else {
-          this.cropArea.height = newWidth / ratio;
-          this.cropArea.y = mouseY + newHeight - this.cropArea.height;
-          this.cropArea.width = newWidth;
-          this.cropArea.x = mouseX;
-        }
-      } else {
-        this.cropArea.width = newWidth;
-        this.cropArea.x = mouseX;
-        this.cropArea.height = newHeight;
-        this.cropArea.y = mouseY;
-      }
-    }
-  }
-  
-  resizeFromTopRight(mouseX, mouseY) {
-    const newWidth = mouseX - this.cropArea.x;
-    const newHeight = this.cropArea.y + this.cropArea.height - mouseY;
-    
-    if (newWidth >= this.settings.minCropSize && newHeight >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const ratio = this.settings.aspectRatio;
-        if (newWidth / newHeight > ratio) {
-          this.cropArea.width = newHeight * ratio;
-          this.cropArea.height = newHeight;
-          this.cropArea.y = mouseY;
-        } else {
-          this.cropArea.height = newWidth / ratio;
-          this.cropArea.y = mouseY + newHeight - this.cropArea.height;
-          this.cropArea.width = newWidth;
-        }
-      } else {
-        this.cropArea.width = newWidth;
-        this.cropArea.height = newHeight;
-        this.cropArea.y = mouseY;
-      }
-    }
-  }
-  
-  resizeFromBottomLeft(mouseX, mouseY) {
-    const newWidth = this.cropArea.x + this.cropArea.width - mouseX;
-    const newHeight = mouseY - this.cropArea.y;
-    
-    if (newWidth >= this.settings.minCropSize && newHeight >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const ratio = this.settings.aspectRatio;
-        if (newWidth / newHeight > ratio) {
-          this.cropArea.width = newHeight * ratio;
-          this.cropArea.x = mouseX + newWidth - this.cropArea.width;
-          this.cropArea.height = newHeight;
-        } else {
-          this.cropArea.height = newWidth / ratio;
-          this.cropArea.width = newWidth;
-          this.cropArea.x = mouseX;
-        }
-      } else {
-        this.cropArea.width = newWidth;
-        this.cropArea.x = mouseX;
-        this.cropArea.height = newHeight;
-      }
-    }
-  }
-  
-  resizeFromBottomRight(mouseX, mouseY) {
-    const newWidth = mouseX - this.cropArea.x;
-    const newHeight = mouseY - this.cropArea.y;
-    
-    if (newWidth >= this.settings.minCropSize && newHeight >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const ratio = this.settings.aspectRatio;
-        if (newWidth / newHeight > ratio) {
-          this.cropArea.width = newHeight * ratio;
-          this.cropArea.height = newHeight;
-        } else {
-          this.cropArea.height = newWidth / ratio;
-          this.cropArea.width = newWidth;
-        }
-      } else {
-        this.cropArea.width = newWidth;
-        this.cropArea.height = newHeight;
-      }
-    }
-  }
-  
-  resizeFromTop(mouseY) {
-    const newHeight = this.cropArea.y + this.cropArea.height - mouseY;
-    if (newHeight >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const newWidth = newHeight * this.settings.aspectRatio;
-        if (newWidth <= this.canvas.width) {
-          this.cropArea.width = newWidth;
-          this.cropArea.height = newHeight;
-          this.cropArea.y = mouseY;
-        }
-      } else {
-        this.cropArea.height = newHeight;
-        this.cropArea.y = mouseY;
-      }
-    }
-  }
-  
-  resizeFromRight(mouseX) {
-    const newWidth = mouseX - this.cropArea.x;
-    if (newWidth >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const newHeight = newWidth / this.settings.aspectRatio;
-        if (newHeight <= this.canvas.height) {
-          this.cropArea.width = newWidth;
-          this.cropArea.height = newHeight;
-        }
-      } else {
-        this.cropArea.width = newWidth;
-      }
-    }
-  }
-  
-  resizeFromBottom(mouseY) {
-    const newHeight = mouseY - this.cropArea.y;
-    if (newHeight >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const newWidth = newHeight * this.settings.aspectRatio;
-        if (newWidth <= this.canvas.width) {
-          this.cropArea.width = newWidth;
-          this.cropArea.height = newHeight;
-        }
-      } else {
-        this.cropArea.height = newHeight;
-      }
-    }
-  }
-  
-  resizeFromLeft(mouseX) {
-    const newWidth = this.cropArea.x + this.cropArea.width - mouseX;
-    if (newWidth >= this.settings.minCropSize) {
-      if (this.settings.lockAspectRatio) {
-        const newHeight = newWidth / this.settings.aspectRatio;
-        if (newHeight <= this.canvas.height) {
-          this.cropArea.width = newWidth;
-          this.cropArea.height = newHeight;
-          this.cropArea.x = mouseX;
-        }
-      } else {
-        this.cropArea.width = newWidth;
-        this.cropArea.x = mouseX;
-      }
-    }
-  }
-  
-  handleCropAreaMouseUp() {
-    this.isDragging = false;
-    this.isResizing = false;
-    this.resizeHandle = null;
-  }
-  
-  // Touch event handlers
-  handleCropAreaTouchStart(e) {
+  // Touch event handlers for right-click simulation
+  handleRightClickTouchStart(e) {
     const touch = e.touches[0];
-    this.isDragging = true;
     
     const canvasRect = this.canvas.getBoundingClientRect();
     
@@ -811,41 +616,30 @@ class ImageCropper {
       x: touchX - this.cropArea.x - this.cropArea.width / 2,
       y: touchY - this.cropArea.y - this.cropArea.height / 2
     };
-    
-    const handle = e.target.closest('.crop-handle');
-    if (handle) {
-      this.isDragging = false;
-      this.isResizing = true;
-      this.resizeHandle = handle.className.split(' ')[1];
-    }
   }
   
-  handleCropAreaTouchMove(e) {
-    if (!this.isDragging && !this.isResizing) return;
+  handleRightClickTouchMove(e) {
+    if (!this.isRightClickDragging) return;
     
     const touch = e.touches[0];
-    if (this.isDragging && !this.isResizing) {
-      const canvasRect = this.canvas.getBoundingClientRect();
-      const touchX = touch.clientX - canvasRect.left;
-      const touchY = touch.clientY - canvasRect.top;
-      
-      // Calculate new position using the drag offset
-      const newX = touchX - this.dragStart.x - this.cropArea.width / 2;
-      const newY = touchY - this.dragStart.y - this.cropArea.height / 2;
-      
-      // Allow movement across the entire canvas (with small margin)
-      this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
-      this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
-    } else if (this.isResizing) {
-      this.handleResize({ clientX: touch.clientX, clientY: touch.clientY });
-    }
+    const canvasRect = this.canvas.getBoundingClientRect();
+    const touchX = touch.clientX - canvasRect.left;
+    const touchY = touch.clientY - canvasRect.top;
+    
+    // Calculate new position using the drag offset
+    const newX = touchX - this.dragStart.x - this.cropArea.width / 2;
+    const newY = touchY - this.dragStart.y - this.cropArea.height / 2;
+    
+    // Allow movement across the entire canvas (with small margin)
+    this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
+    this.cropArea.y = Math.max(-this.cropArea.height + 10, Math.min(newY, this.canvas.height - 10));
     
     this.updateCropAreaDisplay();
     this.updateCropInputs();
   }
   
-  handleCropAreaTouchEnd() {
-    this.handleCropAreaMouseUp();
+  handleRightClickTouchEnd() {
+    this.isRightClickDragging = false;
   }
   
   // Control functions
