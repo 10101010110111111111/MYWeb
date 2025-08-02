@@ -562,20 +562,26 @@ class ImageCropper {
     // Calculate crop coordinates relative to the original image
     const scale = this.imageState.scale;
     
-    // Get canvas position relative to the page
-    const canvasRect = this.canvas.getBoundingClientRect();
+    // The image is drawn centered on the canvas with transformations
+    // We need to calculate the actual image position considering the transformations
     
-    // Calculate crop area position relative to the canvas
-    const cropXInCanvas = this.cropArea.x;
-    const cropYInCanvas = this.cropArea.y;
+    // Get the center of the canvas
+    const canvasCenterX = this.canvas.width / 2;
+    const canvasCenterY = this.canvas.height / 2;
     
-    // Calculate the image position within the canvas
-    const imageXInCanvas = (this.canvas.width - this.imageState.width * scale) / 2;
-    const imageYInCanvas = (this.canvas.height - this.imageState.height * scale) / 2;
+    // Calculate the image bounds in canvas coordinates
+    const imageLeft = canvasCenterX - (this.imageState.width * scale) / 2;
+    const imageTop = canvasCenterY - (this.imageState.height * scale) / 2;
+    const imageRight = imageLeft + this.imageState.width * scale;
+    const imageBottom = imageTop + this.imageState.height * scale;
     
-    // Calculate crop coordinates relative to the original image
-    const actualCropX = (cropXInCanvas - imageXInCanvas) / scale;
-    const actualCropY = (cropYInCanvas - imageYInCanvas) / scale;
+    // Calculate crop area position relative to the image
+    const cropXInImage = this.cropArea.x - imageLeft;
+    const cropYInImage = this.cropArea.y - imageTop;
+    
+    // Convert to original image coordinates
+    const actualCropX = cropXInImage / scale;
+    const actualCropY = cropYInImage / scale;
     const actualCropWidth = this.cropArea.width / scale;
     const actualCropHeight = this.cropArea.height / scale;
     
@@ -648,20 +654,26 @@ class ImageCropper {
     // Calculate crop coordinates relative to the original image
     const scale = this.imageState.scale;
     
-    // Get canvas position relative to the page
-    const canvasRect = this.canvas.getBoundingClientRect();
+    // The image is drawn centered on the canvas with transformations
+    // We need to calculate the actual image position considering the transformations
     
-    // Calculate crop area position relative to the canvas
-    const cropXInCanvas = this.cropArea.x;
-    const cropYInCanvas = this.cropArea.y;
+    // Get the center of the canvas
+    const canvasCenterX = this.canvas.width / 2;
+    const canvasCenterY = this.canvas.height / 2;
     
-    // Calculate the image position within the canvas
-    const imageXInCanvas = (this.canvas.width - this.imageState.width * scale) / 2;
-    const imageYInCanvas = (this.canvas.height - this.imageState.height * scale) / 2;
+    // Calculate the image bounds in canvas coordinates
+    const imageLeft = canvasCenterX - (this.imageState.width * scale) / 2;
+    const imageTop = canvasCenterY - (this.imageState.height * scale) / 2;
+    const imageRight = imageLeft + this.imageState.width * scale;
+    const imageBottom = imageTop + this.imageState.height * scale;
     
-    // Calculate crop coordinates relative to the original image
-    const actualCropX = (cropXInCanvas - imageXInCanvas) / scale;
-    const actualCropY = (cropYInCanvas - imageYInCanvas) / scale;
+    // Calculate crop area position relative to the image
+    const cropXInImage = this.cropArea.x - imageLeft;
+    const cropYInImage = this.cropArea.y - imageTop;
+    
+    // Convert to original image coordinates
+    const actualCropX = cropXInImage / scale;
+    const actualCropY = cropYInImage / scale;
     const actualCropWidth = this.cropArea.width / scale;
     const actualCropHeight = this.cropArea.height / scale;
     
