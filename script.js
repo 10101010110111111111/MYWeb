@@ -68,11 +68,11 @@ const projectList = [
   {
     path: "./project8/index.html",
     name: "Projekt 8 - Image Cropper",
-    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním (nedokončený)",
+    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním (zrušeno)",
     category: "Tools",
-    status: "in-progress",
+    status: "cancelled",
     password: null,
-    progress: 75
+    progress: 0
   },
   {
     path: "./project9/index.html",
@@ -292,28 +292,33 @@ function createProjectCard(project, index) {
   return card;
 }
 
-// Get status information
-function getStatusInfo(status) {
-  const statusMap = {
-    'done': {
-      text: 'Dokončeno',
-      icon: 'fas fa-check-circle',
-      color: '#00ff00'
-    },
-    'in-progress': {
-      text: 'Stále ve vývoji',
-      icon: 'fas fa-clock',
-      color: '#ffd700'
-    },
-    'not-finished': {
-      text: 'Nedokončeno',
-      icon: 'fas fa-exclamation-triangle',
-      color: '#ff6b35'
-    }
-  };
-  
-  return statusMap[status] || statusMap['not-finished'];
-}
+ // Get status information
+ function getStatusInfo(status) {
+   const statusMap = {
+     'done': {
+       text: 'Dokončeno',
+       icon: 'fas fa-check-circle',
+       color: '#00ff00'
+     },
+     'in-progress': {
+       text: 'Stále ve vývoji',
+       icon: 'fas fa-clock',
+       color: '#ffd700'
+     },
+     'cancelled': {
+       text: 'Zrušeno',
+       icon: 'fas fa-times-circle',
+       color: '#ff0000'
+     },
+     'not-finished': {
+       text: 'Nedokončeno',
+       icon: 'fas fa-exclamation-triangle',
+       color: '#ff6b35'
+     }
+   };
+   
+   return statusMap[status] || statusMap['not-finished'];
+ }
 
 // Show password modal
 function showPasswordModal(index) {
