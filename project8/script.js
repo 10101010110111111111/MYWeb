@@ -320,6 +320,11 @@ class ImageCropper {
     
     this.updateCropAreaDisplay();
     this.updateCropInputs();
+    
+    // Update preview if we're in preview mode
+    if (document.getElementById('previewSection').style.display === 'block') {
+      this.exportImage();
+    }
   }
   
   moveCropArea(deltaX, deltaY) {
@@ -328,6 +333,11 @@ class ImageCropper {
     
     this.updateCropAreaDisplay();
     this.updateCropInputs();
+    
+    // Update preview if we're in preview mode
+    if (document.getElementById('previewSection').style.display === 'block') {
+      this.exportImage();
+    }
   }
   
   centerCropArea() {
@@ -336,6 +346,11 @@ class ImageCropper {
     
     this.updateCropAreaDisplay();
     this.updateCropInputs();
+    
+    // Update preview if we're in preview mode
+    if (document.getElementById('previewSection').style.display === 'block') {
+      this.exportImage();
+    }
   }
   
   zoomAtPoint(factor, point) {
@@ -509,6 +524,11 @@ class ImageCropper {
     
     this.updateCropAreaDisplay();
     this.updateCropInputs();
+    
+    // Update preview if we're in preview mode
+    if (document.getElementById('previewSection').style.display === 'block') {
+      this.exportImage();
+    }
   }
   
   setAspectRatio(ratio) {
@@ -524,6 +544,11 @@ class ImageCropper {
     // Update crop area
     if (this.settings.lockAspectRatio) {
       this.updateCropDimensions('width', this.cropArea.width);
+    }
+    
+    // Update preview if we're in preview mode
+    if (document.getElementById('previewSection').style.display === 'block') {
+      this.exportImage();
     }
   }
   
