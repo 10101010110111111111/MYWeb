@@ -188,14 +188,51 @@ body {
 .editor-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface-hover);
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .editor-header h2 {
   color: var(--primary-color);
+}
+
+.controls-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border);
+}
+
+.controls-info h4 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.controls-info ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.controls-info li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.controls-info li i {
+  color: var(--primary-color);
+  width: 16px;
+  text-align: center;
 }
 
 .editor-controls {
@@ -687,6 +724,19 @@ body {
   
   .editor-controls {
     flex-wrap: wrap;
+  }
+  
+  .editor-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .controls-info {
+    margin-top: 0.5rem;
+  }
+  
+  .controls-info li {
+    font-size: 0.75rem;
   }
 }
 
