@@ -68,8 +68,17 @@ const projectList = [
   {
     path: "./project8/index.html",
     name: "Projekt 8 - Image Cropper",
-    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním",
+    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním (nedokončený)",
     category: "Tools",
+    status: "in-progress",
+    password: null,
+    progress: 75
+  },
+  {
+    path: "./project9/index.html",
+    name: "Projekt 9 - Poker Calculator",
+    description: "Kalkulačka pravděpodobností pro Texas Hold'em s Monte Carlo simulací",
+    category: "Gaming",
     status: "done",
     password: null,
     progress: 100
