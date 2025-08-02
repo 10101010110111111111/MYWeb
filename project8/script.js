@@ -530,11 +530,15 @@ class ImageCropper {
     this.isDragging = true;
     
     const canvasRect = this.canvas.getBoundingClientRect();
-    const cropAreaRect = document.getElementById('cropArea').getBoundingClientRect();
     
+    // Calculate mouse position relative to canvas
+    const mouseX = e.clientX - canvasRect.left;
+    const mouseY = e.clientY - canvasRect.top;
+    
+    // Calculate offset from crop area center
     this.dragStart = {
-      x: e.clientX - cropAreaRect.left,
-      y: e.clientY - cropAreaRect.top
+      x: mouseX - this.cropArea.x - this.cropArea.width / 2,
+      y: mouseY - this.cropArea.y - this.cropArea.height / 2
     };
     
     // Check if clicking on resize handle
@@ -551,8 +555,13 @@ class ImageCropper {
     
     if (this.isDragging && !this.isResizing) {
       // Move crop area
-      const newX = e.clientX - this.dragStart.x;
-      const newY = e.clientY - this.dragStart.y;
+      const canvasRect = this.canvas.getBoundingClientRect();
+      const mouseX = e.clientX - canvasRect.left;
+      const mouseY = e.clientY - canvasRect.top;
+      
+      // Calculate new position using the drag offset
+      const newX = mouseX - this.dragStart.x - this.cropArea.width / 2;
+      const newY = mouseY - this.dragStart.y - this.cropArea.height / 2;
       
       // Allow movement across the entire canvas (with small margin)
       this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
@@ -771,11 +780,15 @@ class ImageCropper {
     this.isDragging = true;
     
     const canvasRect = this.canvas.getBoundingClientRect();
-    const cropAreaRect = document.getElementById('cropArea').getBoundingClientRect();
     
+    // Calculate touch position relative to canvas
+    const touchX = touch.clientX - canvasRect.left;
+    const touchY = touch.clientY - canvasRect.top;
+    
+    // Calculate offset from crop area center
     this.dragStart = {
-      x: touch.clientX - cropAreaRect.left,
-      y: touch.clientY - cropAreaRect.top
+      x: touchX - this.cropArea.x - this.cropArea.width / 2,
+      y: touchY - this.cropArea.y - this.cropArea.height / 2
     };
     
     const handle = e.target.closest('.crop-handle');
@@ -791,8 +804,13 @@ class ImageCropper {
     
     const touch = e.touches[0];
     if (this.isDragging && !this.isResizing) {
-      const newX = touch.clientX - this.dragStart.x;
-      const newY = touch.clientY - this.dragStart.y;
+      const canvasRect = this.canvas.getBoundingClientRect();
+      const touchX = touch.clientX - canvasRect.left;
+      const touchY = touch.clientY - canvasRect.top;
+      
+      // Calculate new position using the drag offset
+      const newX = touchX - this.dragStart.x - this.cropArea.width / 2;
+      const newY = touchY - this.dragStart.y - this.cropArea.height / 2;
       
       // Allow movement across the entire canvas (with small margin)
       this.cropArea.x = Math.max(-this.cropArea.width + 10, Math.min(newX, this.canvas.width - 10));
