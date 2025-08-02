@@ -559,10 +559,23 @@ class ImageCropper {
     
     this.showLoading();
     
-    // Calculate crop coordinates
+    // Calculate crop coordinates relative to the original image
     const scale = this.imageState.scale;
-    const actualCropX = (this.cropArea.x - this.imageState.offsetX) / scale;
-    const actualCropY = (this.cropArea.y - this.imageState.offsetY) / scale;
+    
+    // Get canvas position relative to the page
+    const canvasRect = this.canvas.getBoundingClientRect();
+    
+    // Calculate crop area position relative to the canvas
+    const cropXInCanvas = this.cropArea.x;
+    const cropYInCanvas = this.cropArea.y;
+    
+    // Calculate the image position within the canvas
+    const imageXInCanvas = (this.canvas.width - this.imageState.width * scale) / 2;
+    const imageYInCanvas = (this.canvas.height - this.imageState.height * scale) / 2;
+    
+    // Calculate crop coordinates relative to the original image
+    const actualCropX = (cropXInCanvas - imageXInCanvas) / scale;
+    const actualCropY = (cropYInCanvas - imageYInCanvas) / scale;
     const actualCropWidth = this.cropArea.width / scale;
     const actualCropHeight = this.cropArea.height / scale;
     
@@ -632,10 +645,23 @@ class ImageCropper {
     const format = document.getElementById('exportFormat').value;
     const quality = document.getElementById('exportQuality').value / 100;
     
-    // Calculate crop coordinates
+    // Calculate crop coordinates relative to the original image
     const scale = this.imageState.scale;
-    const actualCropX = (this.cropArea.x - this.imageState.offsetX) / scale;
-    const actualCropY = (this.cropArea.y - this.imageState.offsetY) / scale;
+    
+    // Get canvas position relative to the page
+    const canvasRect = this.canvas.getBoundingClientRect();
+    
+    // Calculate crop area position relative to the canvas
+    const cropXInCanvas = this.cropArea.x;
+    const cropYInCanvas = this.cropArea.y;
+    
+    // Calculate the image position within the canvas
+    const imageXInCanvas = (this.canvas.width - this.imageState.width * scale) / 2;
+    const imageYInCanvas = (this.canvas.height - this.imageState.height * scale) / 2;
+    
+    // Calculate crop coordinates relative to the original image
+    const actualCropX = (cropXInCanvas - imageXInCanvas) / scale;
+    const actualCropY = (cropYInCanvas - imageYInCanvas) / scale;
     const actualCropWidth = this.cropArea.width / scale;
     const actualCropHeight = this.cropArea.height / scale;
     
