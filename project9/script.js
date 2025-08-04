@@ -35,7 +35,16 @@ class PokerCalculator {
     setupEventListeners() {
         // Player count change
         document.getElementById('playerCount').addEventListener('change', (e) => {
-            this.currentPlayerCount = parseInt(e.target.value);
+            const newCount = parseInt(e.target.value);
+            const maxPossiblePlayers = this.calculateMaxPlayers();
+            
+            if (newCount > maxPossiblePlayers) {
+                alert(`Maximální počet hráčů je ${maxPossiblePlayers} (podle dostupných karet)`);
+                e.target.value = this.currentPlayerCount;
+                return;
+            }
+            
+            this.currentPlayerCount = newCount;
             this.generatePlayers();
             this.updateUI();
         });
@@ -606,15 +615,20 @@ class PokerCalculator {
                 };
             } else if (this.hasFourOfAKind(valueCounts)) {
                 const fourValue = this.getFourOfAKindValue(valueCounts);
-                const kicker = sortedValues.find(v => v !== fourValue);
+                const kicker = sortedValues.find(v => v !== fourValue) || 0;
                 currentHand = { 
                     rank: 7, 
                     name: 'Four of a Kind', 
                     kickers: [fourValue, kicker]
                 };
             } else if (this.hasFullHouse(valueCounts)) {
-                const threeValue = this.getThreeOfAKindValue(valueCounts);
-                const pairValue = this.getPairValue(valueCounts, threeValue);
+                const threeValues = this.getThreeOfAKindValues(valueCounts);
+                const pairValues = this.getPairValues(valueCounts, threeValues[0]);
+                
+                // Use highest three of a kind and highest pair
+                const threeValue = Math.max(...threeValues);
+                const pairValue = Math.max(...pairValues);
+                
                 currentHand = { 
                     rank: 6, 
                     name: 'Full House', 
@@ -703,7 +717,7 @@ class PokerCalculator {
             return hand1.rank > hand2.rank;
         }
         
-        // Same rank, compare kickers
+        // Same rank, compare all available kickers
         const maxKickerLength = Math.max(hand1.kickers.length, hand2.kickers.length);
         
         for (let i = 0; i < maxKickerLength; i++) {
@@ -727,14 +741,19 @@ class PokerCalculator {
     }
     
     isRoyalFlush(values, suits) {
-        // Check if we have exactly 10-J-Q-K-A of the same suit
-        const royalValues = [10, 11, 12, 13, 14];
+        // Royal flush must be a straight flush with Ace as highest card
+        // First check if it's a straight flush
+        if (!this.checkFlush(suits) || !this.checkStraight(values)) {
+            return false;
+        }
         
-        // Check if we have exactly these 5 values
+        // Then check if it's the highest possible straight (10-J-Q-K-A)
+        const royalValues = [10, 11, 12, 13, 14];
         const hasAllRoyalValues = royalValues.every(value => values.includes(value));
+        
         if (!hasAllRoyalValues) return false;
         
-        // Check if all 5 cards are of the same suit
+        // Check if all royal cards are of the same suit
         const royalCards = [];
         for (let i = 0; i < values.length; i++) {
             if (royalValues.includes(values[i])) {
@@ -856,6 +875,16 @@ class PokerCalculator {
         return 0;
     }
     
+    getThreeOfAKindValues(valueCounts) {
+        const threeValues = [];
+        for (const [value, count] of Object.entries(valueCounts)) {
+            if (count === 3) {
+                threeValues.push(parseInt(value));
+            }
+        }
+        return threeValues.sort((a, b) => b - a); // Sort descending
+    }
+    
     getPairValue(valueCounts, excludeValue = null) {
         const pairs = [];
         for (const [value, count] of Object.entries(valueCounts)) {
@@ -864,6 +893,16 @@ class PokerCalculator {
             }
         }
         return pairs.length > 0 ? Math.max(...pairs) : 0;
+    }
+    
+    getPairValues(valueCounts, excludeValue = null) {
+        const pairs = [];
+        for (const [value, count] of Object.entries(valueCounts)) {
+            if (count === 2 && parseInt(value) !== excludeValue) {
+                pairs.push(parseInt(value));
+            }
+        }
+        return pairs.sort((a, b) => b - a); // Sort descending
     }
     
     getTwoPairValues(valueCounts) {
@@ -891,6 +930,7 @@ class PokerCalculator {
         }
         
         // Return the 5 highest cards of the flush suit for kicker comparison
+        // Sort descending and take top 5
         return flushCards.sort((a, b) => b - a).slice(0, 5);
     }
     
@@ -922,7 +962,7 @@ class PokerCalculator {
     }
     
     compareHands(hands) {
-        // Compare kickers according to poker rules
+        // Compare all kickers according to poker rules
         const maxKickerLength = Math.max(...hands.map(h => h.hand.kickers.length));
         
         for (let i = 0; i < maxKickerLength; i++) {
@@ -983,6 +1023,18 @@ class PokerCalculator {
         }
         
         return numerator / denominator;
+    }
+    
+    calculateMaxPlayers() {
+        const deck = this.createDeck();
+        const communityCardsNeeded = 5 - this.communityCards.length;
+        
+        // Each player needs 2 cards + community cards needed
+        // Formula: (deck.length - communityCardsNeeded) / 2
+        const maxPlayers = Math.floor((deck.length - communityCardsNeeded) / 2);
+        
+        // Cap at 22 players (theoretical maximum from 52 cards)
+        return Math.min(maxPlayers, 22);
     }
     
     displayResults(results, calculationTime) {
