@@ -470,50 +470,141 @@ class PokerCalculator {
             }
             results.forEach(r => r.total++);
         } else {
-            // Generate all possible combinations of remaining cards
-            const combinations = this.generateCombinations(deck, needed);
-            const totalCombinations = combinations.length;
+            // Use Web Workers for parallel processing if supported
+            if (typeof Worker !== 'undefined') {
+                return await this.runWithWorkers(activePlayers, deck, needed, results);
+            } else {
+                // Fallback to single-threaded processing
+                return await this.runSingleThreaded(activePlayers, deck, needed, results);
+            }
+        }
+        
+        return results;
+    }
+    
+    async runWithWorkers(activePlayers, deck, needed, results) {
+        const combinations = this.generateCombinations(deck, needed);
+        const totalCombinations = combinations.length;
+        
+        console.log(`Počet hráčů: ${activePlayers.length}, Zbývající karty: ${deck.length}, Potřebné karty: ${needed}`);
+        console.log(`Celkový počet kombinací: ${totalCombinations.toLocaleString()}`);
+        
+        // Determine number of workers based on CPU cores
+        const numWorkers = Math.min(navigator.hardwareConcurrency || 4, 8);
+        const batchSize = Math.ceil(totalCombinations / numWorkers);
+        
+        console.log(`Používám ${numWorkers} Web Workers pro paralelní zpracování`);
+        
+        // Create workers
+        const workers = [];
+        const workerPromises = [];
+        
+        for (let i = 0; i < numWorkers; i++) {
+            const worker = new Worker('./worker.js');
+            workers.push(worker);
             
-            console.log(`Počet hráčů: ${activePlayers.length}, Zbývající karty: ${deck.length}, Potřebné karty: ${needed}`);
-            console.log(`Celkový počet kombinací: ${totalCombinations.toLocaleString()}`);
+            const startIndex = i * batchSize;
+            const endIndex = Math.min((i + 1) * batchSize, totalCombinations);
             
-            // Optimized batch processing
-            const batchSize = Math.max(5000, Math.floor(totalCombinations / 50)); // Larger batches for better performance
-            
-            for (let i = 0; i < totalCombinations; i++) {
-                const combination = combinations[i];
-                const completedBoard = [
-                    ...this.communityCards.map(card => ({ value: card.value, suit: card.suit })),
-                    ...combination
-                ];
-                
-                // Record hand statistics for each player
-                activePlayers.forEach((player, index) => {
-                    const hand = this.evaluateHand([...player.cards, ...completedBoard]);
-                    const handName = this.getHandDisplayName(hand.name);
-                    if (results[index].handStats[handName] !== undefined) {
-                        results[index].handStats[handName]++;
-                    }
+            if (startIndex < totalCombinations) {
+                const promise = new Promise((resolve) => {
+                    worker.onmessage = function(e) {
+                        if (e.data.type === 'results') {
+                            resolve(e.data.data);
+                        }
+                    };
                 });
                 
-                const winner = this.evaluateWinner(activePlayers, completedBoard);
+                workerPromises.push(promise);
                 
-                if (winner === 'tie') {
-                    results.forEach(r => r.ties++);
-                } else {
-                    results[winner].wins++;
-                }
-                results.forEach(r => r.total++);
-                
-                // Update progress less frequently for better performance
-                if (i % batchSize === 0 || i === totalCombinations - 1) {
-                    const progress = ((i + 1) / totalCombinations) * 100;
-                    document.getElementById('progressFill').style.width = `${progress}%`;
-                    
-                    // Allow UI to update only every 2% progress
-                    if (i % (batchSize * 2) === 0) {
-                        await new Promise(resolve => setTimeout(resolve, 0));
+                // Send work to worker
+                worker.postMessage({
+                    type: 'calculate',
+                    data: {
+                        combinations: combinations.slice(startIndex, endIndex),
+                        activePlayers,
+                        communityCards: this.communityCards.map(card => ({ value: card.value, suit: card.suit })),
+                        startIndex: 0,
+                        endIndex: endIndex - startIndex
                     }
+                });
+            }
+        }
+        
+        // Wait for all workers to complete with progress tracking
+        let completedWorkers = 0;
+        const workerResults = await Promise.all(workerPromises.map(promise => 
+            promise.then(result => {
+                completedWorkers++;
+                const progress = (completedWorkers / numWorkers) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                return result;
+            })
+        ));
+        
+        // Merge results from all workers
+        workerResults.forEach(workerResult => {
+            workerResult.forEach((workerPlayerResult, playerIndex) => {
+                results[playerIndex].wins += workerPlayerResult.wins;
+                results[playerIndex].ties += workerPlayerResult.ties;
+                results[playerIndex].total += workerPlayerResult.total;
+                
+                // Merge hand statistics
+                Object.keys(workerPlayerResult.handStats).forEach(handType => {
+                    results[playerIndex].handStats[handType] += workerPlayerResult.handStats[handType];
+                });
+            });
+        });
+        
+        // Terminate workers
+        workers.forEach(worker => worker.terminate());
+        
+        return results;
+    }
+    
+    async runSingleThreaded(activePlayers, deck, needed, results) {
+        const combinations = this.generateCombinations(deck, needed);
+        const totalCombinations = combinations.length;
+        
+        console.log(`Počet hráčů: ${activePlayers.length}, Zbývající karty: ${deck.length}, Potřebné karty: ${needed}`);
+        console.log(`Celkový počet kombinací: ${totalCombinations.toLocaleString()}`);
+        console.log('Používám single-threaded zpracování (Web Workers nejsou podporovány)');
+        
+        const batchSize = Math.max(5000, Math.floor(totalCombinations / 50));
+        
+        for (let i = 0; i < totalCombinations; i++) {
+            const combination = combinations[i];
+            const completedBoard = [
+                ...this.communityCards.map(card => ({ value: card.value, suit: card.suit })),
+                ...combination
+            ];
+            
+            // Record hand statistics for each player
+            activePlayers.forEach((player, index) => {
+                const hand = this.evaluateHand([...player.cards, ...completedBoard]);
+                const handName = this.getHandDisplayName(hand.name);
+                if (results[index].handStats[handName] !== undefined) {
+                    results[index].handStats[handName]++;
+                }
+            });
+            
+            const winner = this.evaluateWinner(activePlayers, completedBoard);
+            
+            if (winner === 'tie') {
+                results.forEach(r => r.ties++);
+            } else {
+                results[winner].wins++;
+            }
+            results.forEach(r => r.total++);
+            
+            // Update progress
+            if (i % batchSize === 0 || i === totalCombinations - 1) {
+                const progress = ((i + 1) / totalCombinations) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                
+                // Allow UI to update
+                if (i % (batchSize * 2) === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
                 }
             }
         }
