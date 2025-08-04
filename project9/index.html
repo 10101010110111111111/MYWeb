@@ -29,30 +29,28 @@
                     <div class="player-count-control">
                         <label for="playerCount">Počet hráčů:</label>
                         <select id="playerCount">
-                            <option value="2">2 hráči</option>
+                            <option value="2" selected>2 hráči</option>
                             <option value="3">3 hráči</option>
                             <option value="4">4 hráči</option>
                             <option value="5">5 hráčů</option>
                             <option value="6">6 hráčů</option>
                             <option value="7">7 hráčů</option>
                             <option value="8">8 hráčů</option>
-                            <option value="9" selected>9 hráčů</option>
+                            <option value="9">9 hráčů</option>
                         </select>
                     </div>
                     
-                    <div class="simulation-controls">
-                        <label for="simulationCount">Počet simulací:</label>
-                        <select id="simulationCount">
-                            <option value="1000">1,000</option>
-                            <option value="5000" selected>5,000</option>
-                            <option value="10000">10,000</option>
-                        </select>
+                    <div class="simulation-info">
+                        <div class="info-text">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Úplný výčet všech možných kombinací</span>
+                        </div>
                     </div>
                     
                     <div class="action-buttons">
                         <button class="btn btn-primary" id="calculateBtn">
                             <i class="fas fa-calculator"></i>
-                            Spočítat pravděpodobnosti
+                            Spočítat všechny kombinace
                         </button>
                         <button class="btn btn-secondary" id="resetBtn">
                             <i class="fas fa-undo"></i>
@@ -66,126 +64,363 @@
                 </div>
             </section>
 
-            <!-- Players Section -->
-            <section class="players-section">
-                <div class="players-container">
-                    <h2>Hráči a jejich karty</h2>
-                    <div class="players-grid" id="playersGrid">
-                        <!-- Players will be generated here -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Community Cards Section -->
-            <section class="community-section">
-                <div class="community-container">
-                    <h2>Společné karty (Board)</h2>
-                    <div class="community-cards">
-                        <div class="card-slot" data-position="flop1">
-                            <div class="card-placeholder">
-                                <i class="fas fa-plus"></i>
-                                <span>Flop 1</span>
-                            </div>
-                        </div>
-                        <div class="card-slot" data-position="flop2">
-                            <div class="card-placeholder">
-                                <i class="fas fa-plus"></i>
-                                <span>Flop 2</span>
-                            </div>
-                        </div>
-                        <div class="card-slot" data-position="flop3">
-                            <div class="card-placeholder">
-                                <i class="fas fa-plus"></i>
-                                <span>Flop 3</span>
-                            </div>
-                        </div>
-                        <div class="card-slot" data-position="turn">
-                            <div class="card-placeholder">
-                                <i class="fas fa-plus"></i>
-                                <span>Turn</span>
-                            </div>
-                        </div>
-                        <div class="card-slot" data-position="river">
-                            <div class="card-placeholder">
-                                <i class="fas fa-plus"></i>
-                                <span>River</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                         <!-- Players Section -->
+             <section class="players-section">
+                 <div class="players-container">
+                     <h2>Hráči a jejich karty</h2>
+                     <div class="players-grid" id="playersGrid">
+                         <!-- Players will be generated here -->
+                     </div>
+                 </div>
+             </section>
+ 
+             <!-- Card Picker Section -->
+             <section class="card-picker-section">
+                 <div class="card-picker-container">
+                     <h2>Vyberte kartu</h2>
+                     <div class="card-picker">
+                         <div class="card-grid">
+                             <!-- Row 1: Hearts -->
+                             <div class="card-item" data-value="A" data-suit="hearts">
+                                 <div class="card-rank">A</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="K" data-suit="hearts">
+                                 <div class="card-rank">K</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="Q" data-suit="hearts">
+                                 <div class="card-rank">Q</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="J" data-suit="hearts">
+                                 <div class="card-rank">J</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="10" data-suit="hearts">
+                                 <div class="card-rank">10</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="9" data-suit="hearts">
+                                 <div class="card-rank">9</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="8" data-suit="hearts">
+                                 <div class="card-rank">8</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="7" data-suit="hearts">
+                                 <div class="card-rank">7</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="6" data-suit="hearts">
+                                 <div class="card-rank">6</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="5" data-suit="hearts">
+                                 <div class="card-rank">5</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="4" data-suit="hearts">
+                                 <div class="card-rank">4</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="3" data-suit="hearts">
+                                 <div class="card-rank">3</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             <div class="card-item" data-value="2" data-suit="hearts">
+                                 <div class="card-rank">2</div>
+                                 <div class="card-suit">♥</div>
+                             </div>
+                             
+                             <!-- Row 2: Diamonds -->
+                             <div class="card-item" data-value="A" data-suit="diamonds">
+                                 <div class="card-rank">A</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="K" data-suit="diamonds">
+                                 <div class="card-rank">K</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="Q" data-suit="diamonds">
+                                 <div class="card-rank">Q</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="J" data-suit="diamonds">
+                                 <div class="card-rank">J</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="10" data-suit="diamonds">
+                                 <div class="card-rank">10</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="9" data-suit="diamonds">
+                                 <div class="card-rank">9</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="8" data-suit="diamonds">
+                                 <div class="card-rank">8</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="7" data-suit="diamonds">
+                                 <div class="card-rank">7</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="6" data-suit="diamonds">
+                                 <div class="card-rank">6</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="5" data-suit="diamonds">
+                                 <div class="card-rank">5</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="4" data-suit="diamonds">
+                                 <div class="card-rank">4</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="3" data-suit="diamonds">
+                                 <div class="card-rank">3</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             <div class="card-item" data-value="2" data-suit="diamonds">
+                                 <div class="card-rank">2</div>
+                                 <div class="card-suit">♦</div>
+                             </div>
+                             
+                             <!-- Row 3: Clubs -->
+                             <div class="card-item" data-value="A" data-suit="clubs">
+                                 <div class="card-rank">A</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="K" data-suit="clubs">
+                                 <div class="card-rank">K</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="Q" data-suit="clubs">
+                                 <div class="card-rank">Q</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="J" data-suit="clubs">
+                                 <div class="card-rank">J</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="10" data-suit="clubs">
+                                 <div class="card-rank">10</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="9" data-suit="clubs">
+                                 <div class="card-rank">9</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="8" data-suit="clubs">
+                                 <div class="card-rank">8</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="7" data-suit="clubs">
+                                 <div class="card-rank">7</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="6" data-suit="clubs">
+                                 <div class="card-rank">6</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="5" data-suit="clubs">
+                                 <div class="card-rank">5</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="4" data-suit="clubs">
+                                 <div class="card-rank">4</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="3" data-suit="clubs">
+                                 <div class="card-rank">3</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             <div class="card-item" data-value="2" data-suit="clubs">
+                                 <div class="card-rank">2</div>
+                                 <div class="card-suit">♣</div>
+                             </div>
+                             
+                             <!-- Row 4: Spades -->
+                             <div class="card-item" data-value="A" data-suit="spades">
+                                 <div class="card-rank">A</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="K" data-suit="spades">
+                                 <div class="card-rank">K</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="Q" data-suit="spades">
+                                 <div class="card-rank">Q</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="J" data-suit="spades">
+                                 <div class="card-rank">J</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="10" data-suit="spades">
+                                 <div class="card-rank">10</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="9" data-suit="spades">
+                                 <div class="card-rank">9</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="8" data-suit="spades">
+                                 <div class="card-rank">8</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="7" data-suit="spades">
+                                 <div class="card-rank">7</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="6" data-suit="spades">
+                                 <div class="card-rank">6</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="5" data-suit="spades">
+                                 <div class="card-rank">5</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="4" data-suit="spades">
+                                 <div class="card-rank">4</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="3" data-suit="spades">
+                                 <div class="card-rank">3</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                             <div class="card-item" data-value="2" data-suit="spades">
+                                 <div class="card-rank">2</div>
+                                 <div class="card-suit">♠</div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </section>
+ 
+             <!-- Community Cards Section -->
+             <section class="community-section">
+                 <div class="community-container">
+                     <h2>Společné karty (Board)</h2>
+                     <div class="community-cards">
+                         <div class="card-slot" data-position="flop1">
+                             <div class="card-placeholder">
+                                 <i class="fas fa-plus"></i>
+                                 <span>Flop 1</span>
+                             </div>
+                         </div>
+                         <div class="card-slot" data-position="flop2">
+                             <div class="card-placeholder">
+                                 <i class="fas fa-plus"></i>
+                                 <span>Flop 2</span>
+                             </div>
+                         </div>
+                         <div class="card-slot" data-position="flop3">
+                             <div class="card-placeholder">
+                                 <i class="fas fa-plus"></i>
+                                 <span>Flop 3</span>
+                             </div>
+                         </div>
+                         <div class="card-slot" data-position="turn">
+                             <div class="card-placeholder">
+                                 <i class="fas fa-plus"></i>
+                                 <span>Turn</span>
+                             </div>
+                         </div>
+                         <div class="card-slot" data-position="river">
+                             <div class="card-placeholder">
+                                 <i class="fas fa-plus"></i>
+                                 <span>River</span>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="community-buttons">
+                         <button class="btn btn-secondary" id="randomFlopBtn">
+                             <i class="fas fa-random"></i>
+                             Náhodný Flop
+                         </button>
+                         <button class="btn btn-secondary" id="randomTurnBtn">
+                             <i class="fas fa-random"></i>
+                             Náhodný Turn
+                         </button>
+                         <button class="btn btn-secondary" id="randomRiverBtn">
+                             <i class="fas fa-random"></i>
+                             Náhodný River
+                         </button>
+                         <button class="btn btn-danger" id="clearBoardBtn">
+                             <i class="fas fa-trash"></i>
+                             Smazat karty
+                         </button>
+                     </div>
+                 </div>
+             </section>
 
             <!-- Results Section -->
             <section class="results-section" id="resultsSection" style="display: none;">
                 <div class="results-container">
-                    <h2>Výsledky simulace</h2>
+                    <h2>Výsledky úplného výčtu</h2>
                     <div class="results-info">
-                        <p>Počet simulací: <span id="simulationInfo">-</span></p>
+                        <p>Počet kombinací: <span id="simulationInfo">-</span></p>
                         <p>Čas výpočtu: <span id="calculationTime">-</span></p>
                     </div>
-                    <div class="results-table" id="resultsTable">
-                        <!-- Results will be displayed here -->
+                    <div class="results-grid">
+                        <div class="results-overview">
+                            <div class="overview-header">
+                                <div class="overview-section">
+                                    <h3 class="you-label">Vy</h3>
+                                    <div class="overview-stats">
+                                        <div class="stat-row">
+                                            <span class="stat-label">Výhra:</span>
+                                            <span class="stat-value" id="youWinPercent">-</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Remíza:</span>
+                                            <span class="stat-value" id="youTiePercent">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overview-section">
+                                    <h3 class="others-label">Ostatní</h3>
+                                    <div class="overview-stats">
+                                        <div class="stat-row">
+                                            <span class="stat-label">Výhra:</span>
+                                            <span class="stat-value" id="othersWinPercent">-</span>
+                                        </div>
+                                        <div class="stat-row">
+                                            <span class="stat-label">Remíza:</span>
+                                            <span class="stat-value" id="othersTiePercent">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="results-details">
+                            <div class="details-header">
+                                <div class="details-section">
+                                    <h3 class="you-label">Vy</h3>
+                                </div>
+                                <div class="details-section">
+                                    <h3 class="others-label">Ostatní</h3>
+                                </div>
+                            </div>
+                            <div class="hand-ranks-table" id="handRanksTable">
+                                <!-- Hand ranks will be displayed here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- Card Picker Modal -->
-        <div class="modal" id="cardPickerModal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Vyberte kartu</h3>
-                    <button class="modal-close" id="closeCardPicker">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="card-picker">
-                        <div class="card-values">
-                            <h4>Hodnota</h4>
-                            <div class="value-buttons">
-                                <button class="value-btn" data-value="2">2</button>
-                                <button class="value-btn" data-value="3">3</button>
-                                <button class="value-btn" data-value="4">4</button>
-                                <button class="value-btn" data-value="5">5</button>
-                                <button class="value-btn" data-value="6">6</button>
-                                <button class="value-btn" data-value="7">7</button>
-                                <button class="value-btn" data-value="8">8</button>
-                                <button class="value-btn" data-value="9">9</button>
-                                <button class="value-btn" data-value="10">10</button>
-                                <button class="value-btn" data-value="J">J</button>
-                                <button class="value-btn" data-value="Q">Q</button>
-                                <button class="value-btn" data-value="K">K</button>
-                                <button class="value-btn" data-value="A">A</button>
-                            </div>
-                        </div>
-                        <div class="card-suits">
-                            <h4>Barva</h4>
-                            <div class="suit-buttons">
-                                <button class="suit-btn" data-suit="hearts" data-color="red">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                                <button class="suit-btn" data-suit="diamonds" data-color="red">
-                                    <i class="fas fa-diamond"></i>
-                                </button>
-                                <button class="suit-btn" data-suit="clubs" data-color="black">
-                                    <i class="fas fa-club"></i>
-                                </button>
-                                <button class="suit-btn" data-suit="spades" data-color="black">
-                                    <i class="fas fa-spade"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <!-- Loading Overlay -->
         <div class="loading-overlay" id="loadingOverlay" style="display: none;">
             <div class="loading-spinner">
                 <i class="fas fa-spinner fa-spin"></i>
-                <p>Počítám pravděpodobnosti...</p>
+                <p>Počítám všechny kombinace...</p>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autor a Audiokniha – Atomové návyky</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="styles.css" rel="stylesheet" />
+    <style>
+        /* Vlastní styly pro galerii obrázků a lightbox */
+        .carousel-item img {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .carousel-item img:hover {
+            opacity: 0.9;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1051;
+        }
+        .lightbox-nav {
+            position: absolute;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1051;
+            background-color: rgba(0, 0, 0, 0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .lightbox-nav:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .lightbox-prev {
+            left: 20px;
+        }
+        .lightbox-next {
+            right: 20px;
+        }
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 5%;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .carousel-indicators {
+            bottom: -50px;
+        }
+        .carousel-indicators button {
+            background-color: #0d6efd;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .notes-carousel {
+            margin-bottom: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigace -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-atom me-2"></i>Atomové návyky
+            </a>
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav"
+                aria-expanded="false"
+                aria-label="Přepnout navigaci"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Domů</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#web-author">Autor webu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#audiobook">Audiokniha</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Přihlášení</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sekce Autor webu -->
+    <section id="web-author" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-user-edit text-primary me-2"></i>
+                Autor webu
+            </h2>
+
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <img
+                                src="Media/IMG.jpg"
+                                alt="Obrázek autora"
+                                class="img-fluid rounded mb-4 w-100"
+                            />
+
+                            <h3>O autorovi webu</h3>
+                            <p class="lead">
+    <em>
+        Jsem webový vývojář, který chce, aby tento web splňoval první a třetí pravidlo z knihy. 📘<br>
+        Autor v knize nabízí mnoho způsobů, jak si trackovat své návyky, ale většinou jde o to si je napsat na papír, 
+        což je zdlouhavé a nudné. 😴 (Pokud je něco nudné, tak to není atraktivní — neboli druhé pravidlo.)<br>
+        Proto jsem vytvořil jednoduchý tracker, který umožňuje pouze jedno kliknutí – a je hotovo. ✅<br>
+        Pokud by si uživatel chtěl žurnalovat svůj pokrok, je v programu i možnost napsat komentář, 
+        což je podle mě velmi dobré. 📝<br>
+        Je to vhodné pro všechny typy uživatelů – jak pro ty, co si chtějí jen zaškrtávat aktivitu, 
+        tak i pro ty, co si chtějí vše rozepsat. 🗂️<br>
+        A dokonce i pro ty, kteří v tom mají chaos – každý z nás má jiné způsoby, jak dělá věci. 
+        Vždy ale jde o řešení. 🔍<br>
+        Má stránka poskytuje volnost pro uživatele a pomáhá jim práci se zapisováním návyků zjednodušit. 
+        (3. pravidlo: Zjednodušte to.) ⚙️
+    </em>
+</p>
+<!--
+
+<p class="lead">
+                                <em>
+                                    Jsem webový vývojář který chce aby tento web splňoval první a třetí pravidlo z knihy
+                                    Autor v knize nabízí hodně způsobů jak si trackovat své návyky ale většinou jde o to si to napsat na papír
+                                    což je zdlouhavé a nudné (pokud je něco nudné tak to není atraktivní neboli druhé pravidlo)
+                                    proto jsem vytvořil jednoduchý tracker který umožnuje pouze jednou kliknout a je to.
+                                    pokud by si uživatel chtěl žurnalovat svůj pokrok je v programu i možnost napsat komentář což je za mě velmi dobré
+                                    pro všechny tipy uživatelů jen ty co si chtějí zaškrtávat aktivitu i ty co si chtějí vše rozepsat
+                                    tak ty co to dělají chaoticky každý z nás má jiný způsoby jak dělá věci vždy jde však o řešení
+                                    má stránka poskituje volnost pro uživatele a pomůže jim práci zapisování návyků zlechčit (3, pravidlo: Zjednodušte to)
+                                </em>
+                            </p>
+
+                            <h3>Proč jsem si vybral tuto knihu</h3>
+                            <p class="lead">
+                                <em>
+                                    Knihu „Atomové návyky“ jsem objevil v roce 2022, kdy jsem začal hodně číst seberozvojové knihy
+                                    tata kniha je velice jednoduchá na čtení protože obsahuje hodně obrázků a grafů
+                                    často opakuje ty nejdůležitější informace a vypráví pomocí příběhu
+                                    těmi nejdůležitějšími informacemi myslím ty dvě tabulky na lendingpagi 
+                                    věřím tomu že kniha má velký potenciál změnit život v podstatě komukoliv kdo se s ní bude řídit
+                                    V knize je popsáno proč jsme si jako lidská rasa návyky vyvinuli také to že jimi strávímě +-50% každého dne
+                                    i kdyby to mělo být jen 10% děnně tak je to kolem 45 hodin měsíčně !
+                                    Knihu dopuručuji uplně všem já sám jsem jí četl dvakrát a určitě si ji přečtu znova
+                                </em>
+                            </p>
+
+
+
+-->
+<h3>Proč jsem si vybral tuto knihu</h3>
+<p class="lead">
+    <em>
+        Knihu „Atomové návyky“ jsem objevil v roce 2022, kdy jsem začal hodně číst seberozvojové knihy. 📚<br>
+        Tato kniha je velice jednoduchá na čtení, protože obsahuje hodně obrázků a grafů. 📊<br>
+        Často opakuje ty nejdůležitější informace a vypráví pomocí příběhů. 📖<br>
+        Těmi nejdůležitějšími informacemi myslím ty dvě tabulky na landing page. 🗒️<br>
+        Věřím tomu, že kniha má velký potenciál změnit život v podstatě komukoliv, kdo se jí bude řídit. 💡<br>
+        V knize je popsáno, proč jsme si jako lidská rasa návyky vyvinuli, a také to, že jimi trávíme přibližně 50 % každého dne. ⏳<br>
+        I kdyby to bylo jen 10 % denně, je to kolem 45 hodin měsíčně! ⏰<br>
+        Knihu doporučuji úplně všem – já sám jsem ji četl dvakrát a určitě si ji přečtu znovu. 🔁
+    </em>
+</p>
+
+                            <h3>
+                                Mé poznámky <small class="text-muted">(Klikněte na obrázek pro zobrazení na celou obrazovku)</small>
+                            </h3>
+
+                            <!-- Karusel poznámek -->
+                            <div
+                                id="notesCarousel"
+                                class="carousel slide notes-carousel"
+                                data-bs-ride="carousel"
+                            >
+                                <div class="carousel-indicators">
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="0"
+                                        class="active"
+                                        aria-current="true"
+                                        aria-label="Poznámka 1"
+                                    ></button>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="1"
+                                        aria-label="Poznámka 2"
+                                    ></button>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="2"
+                                        aria-label="Poznámka 3"
+                                    ></button>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="3"
+                                        aria-label="Poznámka 4"
+                                    ></button>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="4"
+                                        aria-label="Poznámka 5"
+                                    ></button>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="5"
+                                        aria-label="Poznámka 6"
+                                    ></button>
+                                    <button
+                                        type="button"
+                                        data-bs-target="#notesCarousel"
+                                        data-bs-slide-to="6"
+                                        aria-label="Poznámka 7"
+                                    ></button>
+                                </div>
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img
+                                            src="Media/SCAN0002.JPG"
+                                            alt="Stránka poznámek 1"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="0"
+                                        />
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img
+                                            src="Media/SCAN0003.JPG"
+                                            alt="Stránka poznámek 2"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="1"
+                                        />
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img
+                                            src="Media/SCAN0004.JPG"
+                                            alt="Stránka poznámek 3"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="2"
+                                        />
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img
+                                            src="Media/SCAN0005.JPG"
+                                            alt="Stránka poznámek 4"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="3"
+                                        />
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img
+                                            src="Media/SCAN0006.JPG"
+                                            alt="Stránka poznámek 5"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="4"
+                                        />
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img
+                                            src="Media/SCAN0007.JPG"
+                                            alt="Stránka poznámek 6"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="5"
+                                        />
+                                    </div>
+                                    <div class="carousel-item">
+                                        <img
+                                            src="Media/SCAN0008.JPG"
+                                            alt="Stránka poznámek 7"
+                                            class="d-block mx-auto img-fluid rounded shadow-sm"
+                                            style="max-height: 500px"
+                                            data-index="6"
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    class="carousel-control-prev"
+                                    type="button"
+                                    data-bs-target="#notesCarousel"
+                                    data-bs-slide="prev"
+                                >
+                                    <span
+                                        class="carousel-control-prev-icon"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span class="visually-hidden">Předchozí</span>
+                                </button>
+                                <button
+                                    class="carousel-control-next"
+                                    type="button"
+                                    data-bs-target="#notesCarousel"
+                                    data-bs-slide="next"
+                                >
+                                    <span
+                                        class="carousel-control-next-icon"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span class="visually-hidden">Další</span>
+                                </button>
+                            </div>
+
+                            <!-- Navigace pod karuselem -->
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+                                    <p class="text-muted">
+                                        Stránka <span id="currentSlide">1</span> z 7
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox pro zobrazení obrázků na celou obrazovku -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <div class="lightbox-nav lightbox-prev">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <img id="lightbox-img" src="/placeholder.svg" alt="Obrázek na celou obrazovku" />
+        <div class="lightbox-nav lightbox-next">
+            <i class="fas fa-chevron-right"></i>
+        </div>
+    </div>
+
+    <!-- Sekce Audiokniha -->
+    <section id="audiobook" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-headphones text-primary me-2"></i>
+                Audiokniha
+            </h2>
+
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <img
+                                    src="Media/Book.png"
+                                    alt="Audiokniha Atomové návyky"
+                                    class="img-fluid rounded shadow-sm"
+                                    style="max-height: 300px"
+                                />
+                            </div>
+
+                            <h4 class="text-center mb-4">Poslouchejte Atomové návyky</h4>
+
+                            <div class="audio-player-container">
+                                <audio
+                                    id="audiobook-player"
+                                    src="Media/Audio.mp3"
+                                    preload="metadata"
+                                ></audio>
+
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-3"
+                                >
+                                    <span id="current-time" class="text-muted">0:00</span>
+                                    <div
+                                        class="progress flex-grow-1 mx-3"
+                                        style="height: 8px; cursor: pointer"
+                                    >
+                                        <div
+                                            id="audio-progress"
+                                            class="progress-bar"
+                                            role="progressbar"
+                                            style="width: 0%"
+                                        ></div>
+                                    </div>
+                                    <span id="duration" class="text-muted">0:00</span>
+                                </div>
+
+                                <div
+                                    class="d-flex justify-content-center align-items-center"
+                                >
+                                    <button
+                                        id="play-btn"
+                                        class="btn btn-primary rounded-circle me-2"
+                                        style="width: 50px; height: 50px"
+                                    >
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button
+                                        id="pause-btn"
+                                        class="btn btn-primary rounded-circle me-2"
+                                        style="width: 50px; height: 50px; display: none"
+                                    >
+                                        <i class="fas fa-pause"></i>
+                                    </button>
+
+                                    <div class="d-flex align-items-center ms-3">
+                                        <i class="fas fa-volume-down text-muted me-2"></i>
+                                        <input
+                                            type="range"
+                                            class="form-range"
+                                            id="volume-control"
+                                            min="0"
+                                            max="1"
+                                            step="0.1"
+                                            value="1"
+                                            style="width: 100px"
+                                        />
+                                        <i class="fas fa-volume-up text-muted ms-2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Patička -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">Proměňte svůj život jeden návyk za druhým.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Na základě knihy od Jamese Cleara</p>
+                    <div class="mb-2">
+                        <a href="resources.html" class="text-light text-decoration-none me-3">
+                            <i class="fas fa-book me-1"></i>Zdroje
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inicializace audio přehrávače
+            initializeAudioPlayer();
+
+            // Inicializace lightboxu
+            initializeLightbox();
+
+            // Aktualizace ukazatele aktuálního snímku
+            updateCurrentSlide();
+
+            // Plynulé scrollování pro odkazy v navigaci
+            initializeSmoothScrolling();
+        });
+
+        // Audio Player Functionality
+        function initializeAudioPlayer() {
+            const audioPlayer = document.getElementById('audiobook-player');
+            const playBtn = document.getElementById('play-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const volumeControl = document.getElementById('volume-control');
+            const progressBar = document.getElementById('audio-progress');
+            const currentTimeDisplay = document.getElementById('current-time');
+            const durationDisplay = document.getElementById('duration');
+
+            if (audioPlayer && playBtn && pauseBtn) {
+                playBtn.addEventListener('click', () => {
+                    audioPlayer.play();
+                    playBtn.style.display = 'none';
+                    pauseBtn.style.display = 'inline-block';
+                });
+
+                pauseBtn.addEventListener('click', () => {
+                    audioPlayer.pause();
+                    pauseBtn.style.display = 'none';
+                    playBtn.style.display = 'inline-block';
+                });
+
+                if (volumeControl) {
+                    volumeControl.addEventListener('input', () => {
+                        audioPlayer.volume = volumeControl.value;
+                    });
+                }
+
+                audioPlayer.addEventListener('timeupdate', () => {
+                    if (progressBar) {
+                        const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                        progressBar.style.width = percentage + '%';
+
+                        if (currentTimeDisplay) {
+                            currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+                        }
+                    }
+                });
+
+                audioPlayer.addEventListener('loadedmetadata', () => {
+                    if (durationDisplay) {
+                        durationDisplay.textContent = formatTime(audioPlayer.duration);
+                    }
+                });
+
+                if (progressBar && progressBar.parentElement) {
+                    progressBar.parentElement.addEventListener('click', (e) => {
+                        const progressBarContainer = progressBar.parentElement;
+                        const clickPosition =
+                            (e.clientX - progressBarContainer.getBoundingClientRect().left) /
+                            progressBarContainer.offsetWidth;
+                        audioPlayer.currentTime = clickPosition * audioPlayer.duration;
+                    });
+                }
+            }
+        }
+
+        // Lightbox Functionality
+        function initializeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxClose = document.querySelector('.lightbox-close');
+            const lightboxPrev = document.querySelector('.lightbox-prev');
+            const lightboxNext = document.querySelector('.lightbox-next');
+            const carouselImages = document.querySelectorAll('.carousel-item img');
+
+            let currentImageIndex = 0;
+            const imageSources = Array.from(carouselImages).map((img) => img.src);
+
+            carouselImages.forEach((img) => {
+                img.addEventListener('click', function () {
+                    currentImageIndex = parseInt(this.dataset.index);
+                    lightboxImg.src = this.src;
+                    lightbox.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            lightboxClose.addEventListener('click', function () {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            lightbox.addEventListener('click', function (e) {
+                if (e.target === lightbox) {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            lightboxPrev.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex - 1 + imageSources.length) % imageSources.length;
+                lightboxImg.src = imageSources[currentImageIndex];
+            });
+
+            lightboxNext.addEventListener('click', function () {
+                currentImageIndex = (currentImageIndex + 1) % imageSources.length;
+                lightboxImg.src = imageSources[currentImageIndex];
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (!lightbox.classList.contains('active')) return;
+
+                if (e.key === 'Escape') {
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = '';
+                } else if (e.key === 'ArrowLeft') {
+                    currentImageIndex = (currentImageIndex - 1 + imageSources.length) % imageSources.length;
+                    lightboxImg.src = imageSources[currentImageIndex];
+                } else if (e.key === 'ArrowRight') {
+                    currentImageIndex = (currentImageIndex + 1) % imageSources.length;
+                    lightboxImg.src = imageSources[currentImageIndex];
+                }
+            });
+        }
+
+        // Aktualizace čísla aktuálního snímku v karuselu
+        function updateCurrentSlide() {
+            const carousel = document.getElementById('notesCarousel');
+            const currentSlideElement = document.getElementById('currentSlide');
+
+            carousel.addEventListener('slide.bs.carousel', function (e) {
+                currentSlideElement.textContent = e.to + 1;
+            });
+        }
+
+        // Formát času mm:ss
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Plynulé scrollování po kliknutí na odkaz
+        function initializeSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -82,6 +82,15 @@ const projectList = [
     status: "done",
     password: null,
     progress: 100
+  },
+  {
+    path: "./project10/index.html",
+    name: "Projekt 10 - Atomové návyky",
+    description: "Webová aplikace o knize Atomové návyky s trackerem návyků a audioknihou",
+    category: "Productivity",
+    status: "done",
+    password: null,
+    progress: 100
   }
 ];
 

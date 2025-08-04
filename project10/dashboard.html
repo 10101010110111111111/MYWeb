@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nástěnka – Atomové návyky</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+        .day-cell.invalid-day {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  opacity: 0.5;
+}
+
+.day-cell.invalid-day:hover {
+  cursor: not-allowed;
+  transform: none;
+  border-color: #e9ecef;
+}
+
+.habit-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 1rem;
+}
+
+/* Month navigation styling */
+.month-navigation {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Navigace -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fas fa-atom me-2"></i>Atomové návyky
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">Vítej, <span id="userName"></span>!</span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-1"></i>Odhlásit se
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Stav předplatného -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-warning" id="subscriptionCard">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-1">
+                                    <i class="fas fa-crown text-warning me-2"></i>
+                                    <span id="subscriptionStatus">Bezplatný plán</span>
+                                </h5>
+                                <p class="card-text mb-0" id="subscriptionText">
+                                    Můžete vytvořit až 3 projekty návyků. Upgradujte pro neomezený počet projektů!
+                                </p>
+                            </div>
+                            <button class="btn btn-warning" id="upgradeBtn" onclick="showUpgradeModal()">
+                                <i class="fas fa-star me-1"></i>Upgradovat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sekce projektů -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2><i class="fas fa-project-diagram me-2"></i>Vaše projekty návyků</h2>
+                    <button class="btn btn-primary" onclick="showCreateProjectModal()" id="createProjectBtn">
+                        <i class="fas fa-plus me-1"></i>Nový projekt
+                    </button>
+                </div>
+                
+                <div id="projectsContainer" class="row"></div>
+                
+                <div id="noProjectsMessage" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Zatím žádné projekty</h4>
+                    <p class="text-muted">Vytvořte svůj první projekt návyků a začněte!</p>
+                    <button class="btn btn-primary" onclick="showCreateProjectModal()">
+                        <i class="fas fa-plus me-1"></i>Vytvořit první projekt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Vytvořit projekt -->
+    <div class="modal fade" id="createProjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2"></i>Vytvořit nový projekt návyků
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="createProjectForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="projectTitle" class="form-label">Název projektu</label>
+                            <input type="text" class="form-control" id="projectTitle" name="projectTitle" 
+                                   placeholder="např. Číst 20 stran denně" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectDescription" class="form-label">Popis</label>
+                            <textarea class="form-control" id="projectDescription" name="projectDescription" 
+                                      rows="3" placeholder="Popište svůj cíl návyku..." required></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectCategory" class="form-label">Kategorie</label>
+                            <select class="form-select" id="projectCategory" name="projectCategory" required>
+                                <option value="">Vyberte kategorii</option>
+                                <option value="health">Zdraví a kondice</option>
+                                <option value="learning">Vzdělávání</option>
+                                <option value="productivity">Produktivita</option>
+                                <option value="mindfulness">Všímavost</option>
+                                <option value="creativity">Kreativita</option>
+                                <option value="other">Jiné</option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="projectFrequency" class="form-label">Jak často chcete tento návyk dělat?</label>
+                          <select class="form-select" id="projectFrequency" name="projectFrequency" required>
+                            <option value="">Vyberte frekvenci</option>
+                            <option value="daily">Každý den</option>
+                            <option value="weekdays">Pouze pracovní dny (Po-Pá)</option>
+                            <option value="weekends">Pouze víkendy (So-Ne)</option>
+                            <option value="custom">Vlastní počet dnů v měsíci</option>
+                          </select>
+                          <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="mb-3" id="customDaysContainer" style="display: none;">
+                          <label for="customDays" class="form-label">Počet dnů v měsíci</label>
+                          <input type="number" class="form-control" id="customDays" name="customDays" 
+                                 min="1" max="31" placeholder="např. 15">
+                          <div class="form-text">Zadejte počet dnů v měsíci (1-31)</div>
+                          <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Vytvořit projekt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Upravit projekt -->
+    <div class="modal fade" id="editProjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Upravit projekt návyků
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editProjectForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editProjectId" name="projectId">
+                        <div class="mb-3">
+                            <label for="editProjectTitle" class="form-label">Název projektu</label>
+                            <input type="text" class="form-control" id="editProjectTitle" name="projectTitle" 
+                                   placeholder="např. Číst 20 stran denně" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProjectDescription" class="form-label">Popis</label>
+                            <textarea class="form-control" id="editProjectDescription" name="projectDescription" 
+                                      rows="3" placeholder="Popište svůj cíl návyku..." required></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProjectCategory" class="form-label">Kategorie</label>
+                            <select class="form-select" id="editProjectCategory" name="projectCategory" required>
+                                <option value="">Vyberte kategorii</option>
+                                <option value="health">Zdraví a kondice</option>
+                                <option value="learning">Vzdělávání</option>
+                                <option value="productivity">Produktivita</option>
+                                <option value="mindfulness">Všímavost</option>
+                                <option value="creativity">Kreativita</option>
+                                <option value="other">Jiné</option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Aktualizovat projekt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Předplatné -->
+    <div class="modal fade" id="upgradeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-crown me-2"></i>Přejít na Premium
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <h3 class="text-warning">9,99 $/měsíc</h3>
+                        <p class="text-muted">Odemkněte neomezené projekty návyků</p>
+                    </div>
+                    <form id="paymentForm">
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Číslo karty</label>
+                            <input type="text" class="form-control" id="cardNumber" name="cardNumber" 
+                                   placeholder="1234 5678 9012 3456" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="expiryDate" class="form-label">Datum expirace</label>
+                                <input type="text" class="form-control" id="expiryDate" name="expiryDate" 
+                                       placeholder="MM/RR" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" name="cvv" 
+                                       placeholder="123" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardName" class="form-label">Jméno na kartě</label>
+                            <input type="text" class="form-control" id="cardName" name="cardName" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                    <button type="button" class="btn btn-warning" onclick="processPayment()">
+                        <i class="fas fa-credit-card me-1"></i>Odebírat nyní
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Komentář -->
+    <div class="modal fade" id="commentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-comment me-2"></i>Přidat denní komentář
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="commentForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="dailyComment" class="form-label">Jaký byl dnešní den?</label>
+                            <textarea class="form-control" id="dailyComment" name="dailyComment" 
+                                      rows="4" placeholder="Zamyslete se nad svým pokrokem dnes..." required></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mood" class="form-label">Jak se cítíte?</label>
+                            <select class="form-select" id="mood" name="mood" required>
+                                <option value="">Vyberte svou náladu</option>
+                                <option value="excellent">😄 Skvěle</option>
+                                <option value="good">😊 Dobře</option>
+                                <option value="okay">😐 Ujde to</option>
+                                <option value="challenging">😔 špatně</option>
+                                <option value="difficult">😞 Hrozně</option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Uložit komentář
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">Proměňte svůj život jeden návyk za druhým.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Na základě knihy od Jamese Cleara</p>
+                    <div class="mb-2">
+                        <a href="resources.html" class="text-light text-decoration-none me-3">
+                            <i class="fas fa-book me-1"></i>Zdroje
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
