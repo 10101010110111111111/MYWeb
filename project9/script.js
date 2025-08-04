@@ -27,6 +27,7 @@ class PokerCalculator {
         this.handCache = new Map(); // Cache for hand evaluations
         this.combinationCache = new Map(); // Cache for combinations
         this.cardValueMap = new Map(); // Pre-computed card values
+        this.maxCacheSize = 10000; // Limit cache size to prevent memory leaks
         
         // Pre-compute card values
         this.cardValues.forEach((value, index) => {
@@ -44,52 +45,76 @@ class PokerCalculator {
     
     setupEventListeners() {
         // Player count change
-        document.getElementById('playerCount').addEventListener('change', (e) => {
-            const newCount = parseInt(e.target.value);
-            const maxPossiblePlayers = this.calculateMaxPlayers();
-            
-            if (newCount > maxPossiblePlayers) {
-                alert(`Maximální počet hráčů je ${maxPossiblePlayers} (podle dostupných karet)`);
-                e.target.value = this.currentPlayerCount;
-                return;
-            }
-            
-            this.currentPlayerCount = newCount;
-            this.generatePlayers();
-            this.updateUI();
-        });
+        const playerCountElement = document.getElementById('playerCount');
+        if (playerCountElement) {
+            playerCountElement.addEventListener('change', (e) => {
+                const newCount = parseInt(e.target.value);
+                const maxPossiblePlayers = this.calculateMaxPlayers();
+                
+                if (newCount > maxPossiblePlayers) {
+                    alert(`Maximální počet hráčů je ${maxPossiblePlayers} (podle dostupných karet)`);
+                    e.target.value = this.currentPlayerCount;
+                    return;
+                }
+                
+                this.currentPlayerCount = newCount;
+                this.generatePlayers();
+                this.updateUI();
+            });
+        }
         
 
         
         // Action buttons
-        document.getElementById('calculateBtn').addEventListener('click', () => {
-            this.calculateProbabilities();
-        });
+        const calculateBtn = document.getElementById('calculateBtn');
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', () => {
+                this.calculateProbabilities();
+            });
+        }
         
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            this.resetAll();
-        });
+        const resetBtn = document.getElementById('resetBtn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                this.resetAll();
+            });
+        }
         
-        document.getElementById('randomBtn').addEventListener('click', () => {
-            this.generateRandomCards();
-        });
+        const randomBtn = document.getElementById('randomBtn');
+        if (randomBtn) {
+            randomBtn.addEventListener('click', () => {
+                this.generateRandomCards();
+            });
+        }
         
         // Community card random buttons
-        document.getElementById('randomFlopBtn').addEventListener('click', () => {
-            this.generateRandomFlop();
-        });
+        const randomFlopBtn = document.getElementById('randomFlopBtn');
+        if (randomFlopBtn) {
+            randomFlopBtn.addEventListener('click', () => {
+                this.generateRandomFlop();
+            });
+        }
         
-        document.getElementById('randomTurnBtn').addEventListener('click', () => {
-            this.generateRandomTurn();
-        });
+        const randomTurnBtn = document.getElementById('randomTurnBtn');
+        if (randomTurnBtn) {
+            randomTurnBtn.addEventListener('click', () => {
+                this.generateRandomTurn();
+            });
+        }
         
-        document.getElementById('randomRiverBtn').addEventListener('click', () => {
-            this.generateRandomRiver();
-        });
+        const randomRiverBtn = document.getElementById('randomRiverBtn');
+        if (randomRiverBtn) {
+            randomRiverBtn.addEventListener('click', () => {
+                this.generateRandomRiver();
+            });
+        }
         
-        document.getElementById('clearBoardBtn').addEventListener('click', () => {
-            this.clearBoard();
-        });
+        const clearBoardBtn = document.getElementById('clearBoardBtn');
+        if (clearBoardBtn) {
+            clearBoardBtn.addEventListener('click', () => {
+                this.clearBoard();
+            });
+        }
         
         // Card picker buttons
         document.querySelectorAll('.card-item').forEach(btn => {
@@ -522,7 +547,17 @@ class PokerCalculator {
         
         for (let i = 0; i < numWorkers; i++) {
             try {
-                const worker = new Worker('./worker.js');
+                // Try different paths for worker
+                let worker;
+                try {
+                    worker = new Worker('./worker.js');
+                } catch (e) {
+                    try {
+                        worker = new Worker('worker.js');
+                    } catch (e2) {
+                        worker = new Worker('./project9/worker.js');
+                    }
+                }
                 workers.push(worker);
                 
                 const startIndex = i * batchSize;
@@ -573,7 +608,10 @@ class PokerCalculator {
             promise.then(result => {
                 completedWorkers++;
                 const progress = (completedWorkers / numWorkers) * 100;
-                document.getElementById('progressFill').style.width = `${progress}%`;
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = `${progress}%`;
+                }
                 return result;
             })
         ));
@@ -636,7 +674,10 @@ class PokerCalculator {
             // Update progress more frequently for better UX
             if (i % (batchSize / 4) === 0 || i === totalCombinations - 1) {
                 const progress = ((i + 1) / totalCombinations) * 100;
-                document.getElementById('progressFill').style.width = `${progress}%`;
+                const progressFill = document.getElementById('progressFill');
+                if (progressFill) {
+                    progressFill.style.width = `${progress}%`;
+                }
                 
                 // Allow UI to update more frequently
                 if (i % (batchSize / 2) === 0) {
@@ -691,7 +732,12 @@ class PokerCalculator {
             combinations.push(indices.map(i => deck[i]));
         }
         
-        // Cache the result
+        // Cache the result with size limit
+        if (this.combinationCache.size >= this.maxCacheSize) {
+            // Remove oldest entries (first 20% of cache)
+            const keysToDelete = Array.from(this.combinationCache.keys()).slice(0, Math.floor(this.maxCacheSize * 0.2));
+            keysToDelete.forEach(key => this.combinationCache.delete(key));
+        }
         this.combinationCache.set(cacheKey, combinations);
         return combinations;
     }
@@ -844,13 +890,18 @@ class PokerCalculator {
             };
         }
         
-        // Cache the result
+        // Cache the result with size limit
+        if (this.handCache.size >= this.maxCacheSize) {
+            // Remove oldest entries (first 20% of cache)
+            const keysToDelete = Array.from(this.handCache.keys()).slice(0, Math.floor(this.maxCacheSize * 0.2));
+            keysToDelete.forEach(key => this.handCache.delete(key));
+        }
         this.handCache.set(cacheKey, result);
         return result;
     }
     
-    // Helper function to generate combinations of cards
-    generateCombinations(cards, r) {
+    // Helper function to generate combinations of cards (for 5-card hands from 7 cards)
+    generateFiveCardCombinations(cards, r) {
         const combinations = [];
         
         function backtrack(start, current) {
