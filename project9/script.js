@@ -477,7 +477,8 @@ class PokerCalculator {
             console.log(`Počet hráčů: ${activePlayers.length}, Zbývající karty: ${deck.length}, Potřebné karty: ${needed}`);
             console.log(`Celkový počet kombinací: ${totalCombinations.toLocaleString()}`);
             
-            const batchSize = Math.max(1000, Math.floor(totalCombinations / 100)); // Update progress every 1%
+            // Optimized batch processing
+            const batchSize = Math.max(5000, Math.floor(totalCombinations / 50)); // Larger batches for better performance
             
             for (let i = 0; i < totalCombinations; i++) {
                 const combination = combinations[i];
@@ -504,13 +505,15 @@ class PokerCalculator {
                 }
                 results.forEach(r => r.total++);
                 
-                // Update progress
+                // Update progress less frequently for better performance
                 if (i % batchSize === 0 || i === totalCombinations - 1) {
                     const progress = ((i + 1) / totalCombinations) * 100;
                     document.getElementById('progressFill').style.width = `${progress}%`;
                     
-                    // Allow UI to update
-                    await new Promise(resolve => setTimeout(resolve, 0));
+                    // Allow UI to update only every 2% progress
+                    if (i % (batchSize * 2) === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                    }
                 }
             }
         }
@@ -520,29 +523,43 @@ class PokerCalculator {
     
 
     
-    // Helper function to generate combinations for board completion
+    // Optimized combination generator using iterative approach
     generateCombinations(deck, r) {
-        const combinations = [];
+        if (r === 0) return [[]];
+        if (r > deck.length) return [];
         
-        function backtrack(start, current) {
-            if (current.length === r) {
-                combinations.push([...current]);
-                return;
+        const combinations = [];
+        const indices = Array.from({length: r}, (_, i) => i);
+        
+        // Generate first combination
+        combinations.push(indices.map(i => deck[i]));
+        
+        // Generate next combinations
+        while (true) {
+            let i = r - 1;
+            
+            // Find rightmost element to increment
+            while (i >= 0 && indices[i] === deck.length - r + i) {
+                i--;
             }
             
-            for (let i = start; i < deck.length; i++) {
-                current.push(deck[i]);
-                backtrack(i + 1, current);
-                current.pop();
+            if (i < 0) break; // No more combinations
+            
+            indices[i]++;
+            
+            // Update remaining elements
+            for (let j = i + 1; j < r; j++) {
+                indices[j] = indices[j - 1] + 1;
             }
+            
+            combinations.push(indices.map(i => deck[i]));
         }
         
-        backtrack(0, []);
         return combinations;
     }
     
     evaluateWinner(activePlayers, completedBoard) {
-        // Evaluate each player's hand
+        // Optimized evaluation with caching
         const playerHands = activePlayers.map(player => ({
             player,
             hand: this.evaluateHand([...player.cards, ...completedBoard])
@@ -578,116 +595,100 @@ class PokerCalculator {
     }
     
     evaluateHand(cards) {
-        // Generate all possible 5-card combinations from the 7 cards
-        const combinations = this.generateCombinations(cards, 5);
+        // Optimized evaluation - evaluate directly from 7 cards without generating all 5-card combinations
+        const values = cards.map(c => this.getCardValue(c.value));
+        const suits = cards.map(c => c.suit);
         
-        let bestHand = null;
+        // Count value frequencies
+        const valueCounts = {};
+        values.forEach(v => valueCounts[v] = (valueCounts[v] || 0) + 1);
         
-        // Evaluate each 5-card combination and find the best one
-        combinations.forEach(combo => {
-            const values = combo.map(c => this.getCardValue(c.value));
-            const suits = combo.map(c => c.suit);
-            
-            // Count value frequencies
-            const valueCounts = {};
-            values.forEach(v => valueCounts[v] = (valueCounts[v] || 0) + 1);
-            
-            // Get sorted values for kicker comparison
-            const sortedValues = [...values].sort((a, b) => b - a);
-            
-            // Check for flush
-            const flush = this.checkFlush(suits);
-            
-            // Check for straight
-            const straight = this.checkStraight(values);
-            
-            let currentHand = null;
-            
-            // Determine hand rank and get kickers
-            if (flush && straight) {
-                const straightHigh = this.getStraightHigh(values);
-                // Check for Royal Flush: exactly 10-J-Q-K-A of the same suit
-                const isRoyal = this.isRoyalFlush(values, suits);
-                currentHand = { 
-                    rank: isRoyal ? 9 : 8, 
-                    name: isRoyal ? 'Royal Flush' : 'Straight Flush', 
-                    kickers: [straightHigh]
-                };
-            } else if (this.hasFourOfAKind(valueCounts)) {
-                const fourValue = this.getFourOfAKindValue(valueCounts);
-                const kicker = sortedValues.find(v => v !== fourValue) || 0;
-                currentHand = { 
-                    rank: 7, 
-                    name: 'Four of a Kind', 
-                    kickers: [fourValue, kicker]
-                };
-            } else if (this.hasFullHouse(valueCounts)) {
-                const threeValues = this.getThreeOfAKindValues(valueCounts);
-                const pairValues = this.getPairValues(valueCounts, threeValues[0]);
-                
-                // Use highest three of a kind and highest pair
-                const threeValue = Math.max(...threeValues);
-                const pairValue = Math.max(...pairValues);
-                
-                currentHand = { 
-                    rank: 6, 
-                    name: 'Full House', 
-                    kickers: [threeValue, pairValue]
-                };
-            } else if (flush) {
-                const flushValues = this.getFlushValues(values, suits);
-                currentHand = { 
-                    rank: 5, 
-                    name: 'Flush', 
-                    kickers: flushValues
-                };
-            } else if (straight) {
-                const straightHigh = this.getStraightHigh(values);
-                currentHand = { 
-                    rank: 4, 
-                    name: 'Straight', 
-                    kickers: [straightHigh]
-                };
-            } else if (this.hasThreeOfAKind(valueCounts)) {
-                const threeValue = this.getThreeOfAKindValue(valueCounts);
-                const kickers = sortedValues.filter(v => v !== threeValue).slice(0, 2);
-                currentHand = { 
-                    rank: 3, 
-                    name: 'Three of a Kind', 
-                    kickers: [threeValue, ...kickers]
-                };
-            } else if (this.hasTwoPair(valueCounts)) {
-                const pairs = this.getTwoPairValues(valueCounts);
-                const kicker = sortedValues.find(v => !pairs.includes(v)) || 0;
-                currentHand = { 
-                    rank: 2, 
-                    name: 'Two Pair', 
-                    kickers: [...pairs, kicker]
-                };
-            } else if (this.hasOnePair(valueCounts)) {
-                const pairValue = this.getPairValue(valueCounts);
-                const kickers = sortedValues.filter(v => v !== pairValue).slice(0, 3);
-                currentHand = { 
-                    rank: 1, 
-                    name: 'One Pair', 
-                    kickers: [pairValue, ...kickers]
-                };
-            } else {
-                // High card
-                currentHand = { 
-                    rank: 0, 
-                    name: 'High Card', 
-                    kickers: sortedValues.slice(0, 5)
-                };
-            }
-            
-            // Update best hand if current is better
-            if (!bestHand || this.isBetterHand(currentHand, bestHand)) {
-                bestHand = currentHand;
-            }
-        });
+        // Get sorted values for kicker comparison
+        const sortedValues = [...values].sort((a, b) => b - a);
         
-        return bestHand;
+        // Check for flush
+        const flush = this.checkFlush(suits);
+        
+        // Check for straight
+        const straight = this.checkStraight(values);
+        
+        // Determine hand rank and get kickers
+        if (flush && straight) {
+            const straightHigh = this.getStraightHigh(values);
+            // Check for Royal Flush: exactly 10-J-Q-K-A of the same suit
+            const isRoyal = this.isRoyalFlush(values, suits);
+            return { 
+                rank: isRoyal ? 9 : 8, 
+                name: isRoyal ? 'Royal Flush' : 'Straight Flush', 
+                kickers: [straightHigh]
+            };
+        } else if (this.hasFourOfAKind(valueCounts)) {
+            const fourValue = this.getFourOfAKindValue(valueCounts);
+            const kicker = sortedValues.find(v => v !== fourValue) || 0;
+            return { 
+                rank: 7, 
+                name: 'Four of a Kind', 
+                kickers: [fourValue, kicker]
+            };
+        } else if (this.hasFullHouse(valueCounts)) {
+            const threeValues = this.getThreeOfAKindValues(valueCounts);
+            const pairValues = this.getPairValues(valueCounts, threeValues[0]);
+            
+            // Use highest three of a kind and highest pair
+            const threeValue = Math.max(...threeValues);
+            const pairValue = Math.max(...pairValues);
+            
+            return { 
+                rank: 6, 
+                name: 'Full House', 
+                kickers: [threeValue, pairValue]
+            };
+        } else if (flush) {
+            const flushValues = this.getFlushValues(values, suits);
+            return { 
+                rank: 5, 
+                name: 'Flush', 
+                kickers: flushValues
+            };
+        } else if (straight) {
+            const straightHigh = this.getStraightHigh(values);
+            return { 
+                rank: 4, 
+                name: 'Straight', 
+                kickers: [straightHigh]
+            };
+        } else if (this.hasThreeOfAKind(valueCounts)) {
+            const threeValue = this.getThreeOfAKindValue(valueCounts);
+            const kickers = sortedValues.filter(v => v !== threeValue).slice(0, 2);
+            return { 
+                rank: 3, 
+                name: 'Three of a Kind', 
+                kickers: [threeValue, ...kickers]
+            };
+        } else if (this.hasTwoPair(valueCounts)) {
+            const pairs = this.getTwoPairValues(valueCounts);
+            const kicker = sortedValues.find(v => !pairs.includes(v)) || 0;
+            return { 
+                rank: 2, 
+                name: 'Two Pair', 
+                kickers: [...pairs, kicker]
+            };
+        } else if (this.hasOnePair(valueCounts)) {
+            const pairValue = this.getPairValue(valueCounts);
+            const kickers = sortedValues.filter(v => v !== pairValue).slice(0, 3);
+            return { 
+                rank: 1, 
+                name: 'One Pair', 
+                kickers: [pairValue, ...kickers]
+            };
+        } else {
+            // High card
+            return { 
+                rank: 0, 
+                name: 'High Card', 
+                kickers: sortedValues.slice(0, 5)
+            };
+        }
     }
     
     // Helper function to generate combinations of cards
