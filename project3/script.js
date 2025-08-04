@@ -409,45 +409,37 @@ function loadPage(index) {
     document.getElementById('pageLabel').textContent = page.label;
     if (page.type === 'main') {
         document.getElementById('mainContent').innerHTML = pages[0].html;
-        setTimeout(() => {
-            if (document.getElementById("deckCount")) {
-                document.getElementById("deckCount").addEventListener("change", function() {
-                    updateDisplay();
-                    const feedback = document.createElement('div');
-                    feedback.style.cssText = `
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        background: linear-gradient(145deg, #3182ce, #2c5282);
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 10px;
-                        font-size: 1em;
-                        font-weight: bold;
-                        z-index: 1000;
-                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-                        animation: slideInRight 0.5s ease-out forwards;
-                    `;
-                    feedback.innerHTML = `Deck count: ${this.value}`;
-                    document.body.appendChild(feedback);
-                    setTimeout(() => {
-                        feedback.style.animation = 'slideOutRight 0.5s ease-in forwards';
-                        setTimeout(() => {
-                            if (document.body.contains(feedback)) {
-                                document.body.removeChild(feedback);
-                            }
-                        }, 500);
-                    }, 2000);
-                });
-            }
-            updateDisplay();
-        }, 0);
+        if (document.getElementById("deckCount")) {
+            document.getElementById("deckCount").addEventListener("change", function() {
+                updateDisplay();
+                const feedback = document.createElement('div');
+                feedback.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(145deg, #3182ce, #2c5282);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    font-size: 1em;
+                    font-weight: bold;
+                    z-index: 1000;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                `;
+                feedback.innerHTML = `Deck count: ${this.value}`;
+                document.body.appendChild(feedback);
+                setTimeout(() => {
+                    if (document.body.contains(feedback)) {
+                        document.body.removeChild(feedback);
+                    }
+                }, 2000);
+            });
+        }
+        updateDisplay();
     } else if (page.type === 'embedded') {
         document.getElementById('mainContent').innerHTML = page.html;
-        // Apply colors after content is loaded
-        setTimeout(() => {
-            applyTableColors();
-        }, 100);
+        // Apply colors immediately
+        applyTableColors();
     }
 }
 
@@ -523,29 +515,4 @@ window.addEventListener('DOMContentLoaded', function() {
     loadPage(0);
 });
 
-// Add CSS for slide animations
-const slideStyle = document.createElement('style');
-slideStyle.textContent = `
-    @keyframes slideInRight {
-        from {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    @keyframes slideOutRight {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-    }
-`;
-document.head.appendChild(slideStyle);
+// CSS animations removed for instant page switching
