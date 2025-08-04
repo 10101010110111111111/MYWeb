@@ -23,6 +23,16 @@ class PokerCalculator {
             'spades': 'black'
         };
         
+        // Performance optimizations
+        this.handCache = new Map(); // Cache for hand evaluations
+        this.combinationCache = new Map(); // Cache for combinations
+        this.cardValueMap = new Map(); // Pre-computed card values
+        
+        // Pre-compute card values
+        this.cardValues.forEach((value, index) => {
+            this.cardValueMap.set(value, index + 2);
+        });
+        
         this.init();
     }
     
@@ -395,6 +405,11 @@ class PokerCalculator {
         });
         this.communityCards = [];
         this.selectedCards.clear();
+        
+        // Clear caches for memory management
+        this.handCache.clear();
+        this.combinationCache.clear();
+        
         this.updateUI();
     }
     
@@ -489,8 +504,9 @@ class PokerCalculator {
         console.log(`Počet hráčů: ${activePlayers.length}, Zbývající karty: ${deck.length}, Potřebné karty: ${needed}`);
         console.log(`Celkový počet kombinací: ${totalCombinations.toLocaleString()}`);
         
-        // Determine number of workers based on CPU cores
+        // Determine number of workers based on CPU cores and combination count
         const numWorkers = Math.min(navigator.hardwareConcurrency || 4, 8);
+        const optimalBatchSize = Math.max(10000, Math.ceil(totalCombinations / (numWorkers * 4))); // Smaller batches for better load balancing
         const batchSize = Math.ceil(totalCombinations / numWorkers);
         
         console.log(`Používám ${numWorkers} Web Workers pro paralelní zpracování`);
@@ -614,10 +630,19 @@ class PokerCalculator {
     
 
     
-    // Optimized combination generator using iterative approach
+    // Optimized combination generator using iterative approach with caching
     generateCombinations(deck, r) {
         if (r === 0) return [[]];
         if (r > deck.length) return [];
+        
+        // Create cache key
+        const deckKey = deck.map(c => `${c.value}${c.suit}`).join(',');
+        const cacheKey = `${deckKey}:${r}`;
+        
+        // Check cache first
+        if (this.combinationCache.has(cacheKey)) {
+            return this.combinationCache.get(cacheKey);
+        }
         
         const combinations = [];
         const indices = Array.from({length: r}, (_, i) => i);
@@ -646,6 +671,8 @@ class PokerCalculator {
             combinations.push(indices.map(i => deck[i]));
         }
         
+        // Cache the result
+        this.combinationCache.set(cacheKey, combinations);
         return combinations;
     }
     
@@ -686,8 +713,22 @@ class PokerCalculator {
     }
     
     evaluateHand(cards) {
+        // Create cache key from sorted cards
+        const sortedCards = [...cards].sort((a, b) => {
+            const aVal = this.cardValueMap.get(a.value);
+            const bVal = this.cardValueMap.get(b.value);
+            if (aVal !== bVal) return bVal - aVal;
+            return a.suit.localeCompare(b.suit);
+        });
+        const cacheKey = sortedCards.map(c => `${c.value}${c.suit}`).join(',');
+        
+        // Check cache first
+        if (this.handCache.has(cacheKey)) {
+            return this.handCache.get(cacheKey);
+        }
+        
         // Optimized evaluation - evaluate directly from 7 cards without generating all 5-card combinations
-        const values = cards.map(c => this.getCardValue(c.value));
+        const values = cards.map(c => this.cardValueMap.get(c.value));
         const suits = cards.map(c => c.suit);
         
         // Count value frequencies
@@ -703,12 +744,14 @@ class PokerCalculator {
         // Check for straight
         const straight = this.checkStraight(values);
         
+        let result;
+        
         // Determine hand rank and get kickers
         if (flush && straight) {
             const straightHigh = this.getStraightHigh(values);
             // Check for Royal Flush: exactly 10-J-Q-K-A of the same suit
             const isRoyal = this.isRoyalFlush(values, suits);
-            return { 
+            result = { 
                 rank: isRoyal ? 9 : 8, 
                 name: isRoyal ? 'Royal Flush' : 'Straight Flush', 
                 kickers: [straightHigh]
@@ -716,7 +759,7 @@ class PokerCalculator {
         } else if (this.hasFourOfAKind(valueCounts)) {
             const fourValue = this.getFourOfAKindValue(valueCounts);
             const kicker = sortedValues.find(v => v !== fourValue) || 0;
-            return { 
+            result = { 
                 rank: 7, 
                 name: 'Four of a Kind', 
                 kickers: [fourValue, kicker]
@@ -729,21 +772,21 @@ class PokerCalculator {
             const threeValue = Math.max(...threeValues);
             const pairValue = Math.max(...pairValues);
             
-            return { 
+            result = { 
                 rank: 6, 
                 name: 'Full House', 
                 kickers: [threeValue, pairValue]
             };
         } else if (flush) {
             const flushValues = this.getFlushValues(values, suits);
-            return { 
+            result = { 
                 rank: 5, 
                 name: 'Flush', 
                 kickers: flushValues
             };
         } else if (straight) {
             const straightHigh = this.getStraightHigh(values);
-            return { 
+            result = { 
                 rank: 4, 
                 name: 'Straight', 
                 kickers: [straightHigh]
@@ -751,7 +794,7 @@ class PokerCalculator {
         } else if (this.hasThreeOfAKind(valueCounts)) {
             const threeValue = this.getThreeOfAKindValue(valueCounts);
             const kickers = sortedValues.filter(v => v !== threeValue).slice(0, 2);
-            return { 
+            result = { 
                 rank: 3, 
                 name: 'Three of a Kind', 
                 kickers: [threeValue, ...kickers]
@@ -759,7 +802,7 @@ class PokerCalculator {
         } else if (this.hasTwoPair(valueCounts)) {
             const pairs = this.getTwoPairValues(valueCounts);
             const kicker = sortedValues.find(v => !pairs.includes(v)) || 0;
-            return { 
+            result = { 
                 rank: 2, 
                 name: 'Two Pair', 
                 kickers: [...pairs, kicker]
@@ -767,19 +810,23 @@ class PokerCalculator {
         } else if (this.hasOnePair(valueCounts)) {
             const pairValue = this.getPairValue(valueCounts);
             const kickers = sortedValues.filter(v => v !== pairValue).slice(0, 3);
-            return { 
+            result = { 
                 rank: 1, 
                 name: 'One Pair', 
                 kickers: [pairValue, ...kickers]
             };
         } else {
             // High card
-            return { 
+            result = { 
                 rank: 0, 
                 name: 'High Card', 
                 kickers: sortedValues.slice(0, 5)
             };
         }
+        
+        // Cache the result
+        this.handCache.set(cacheKey, result);
+        return result;
     }
     
     // Helper function to generate combinations of cards
@@ -825,11 +872,7 @@ class PokerCalculator {
     }
     
     getCardValue(value) {
-        const valueMap = {
-            '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
-            '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14
-        };
-        return valueMap[value];
+        return this.cardValueMap.get(value);
     }
     
     isRoyalFlush(values, suits) {
