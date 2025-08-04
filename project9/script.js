@@ -487,7 +487,12 @@ class PokerCalculator {
         } else {
             // Use Web Workers for parallel processing if supported
             if (typeof Worker !== 'undefined') {
-                return await this.runWithWorkers(activePlayers, deck, needed, results);
+                try {
+                    return await this.runWithWorkers(activePlayers, deck, needed, results);
+                } catch (error) {
+                    console.warn('Web Workers failed, falling back to single-threaded processing:', error);
+                    return await this.runSingleThreaded(activePlayers, deck, needed, results);
+                }
             } else {
                 // Fallback to single-threaded processing
                 return await this.runSingleThreaded(activePlayers, deck, needed, results);
@@ -516,34 +521,49 @@ class PokerCalculator {
         const workerPromises = [];
         
         for (let i = 0; i < numWorkers; i++) {
-            const worker = new Worker('./worker.js');
-            workers.push(worker);
-            
-            const startIndex = i * batchSize;
-            const endIndex = Math.min((i + 1) * batchSize, totalCombinations);
-            
-            if (startIndex < totalCombinations) {
-                const promise = new Promise((resolve) => {
-                    worker.onmessage = function(e) {
-                        if (e.data.type === 'results') {
-                            resolve(e.data.data);
+            try {
+                const worker = new Worker('./worker.js');
+                workers.push(worker);
+                
+                const startIndex = i * batchSize;
+                const endIndex = Math.min((i + 1) * batchSize, totalCombinations);
+                
+                if (startIndex < totalCombinations) {
+                    const promise = new Promise((resolve, reject) => {
+                        worker.onmessage = function(e) {
+                            if (e.data.type === 'results') {
+                                resolve(e.data.data);
+                            }
+                        };
+                        
+                        worker.onerror = function(error) {
+                            console.error('Worker error:', error);
+                            reject(error);
+                        };
+                        
+                        // Timeout after 30 seconds
+                        setTimeout(() => {
+                            reject(new Error('Worker timeout'));
+                        }, 30000);
+                    });
+                    
+                    workerPromises.push(promise);
+                    
+                    // Send work to worker
+                    worker.postMessage({
+                        type: 'calculate',
+                        data: {
+                            combinations: combinations.slice(startIndex, endIndex),
+                            activePlayers,
+                            communityCards: this.communityCards.map(card => ({ value: card.value, suit: card.suit })),
+                            startIndex: 0,
+                            endIndex: endIndex - startIndex
                         }
-                    };
-                });
-                
-                workerPromises.push(promise);
-                
-                // Send work to worker
-                worker.postMessage({
-                    type: 'calculate',
-                    data: {
-                        combinations: combinations.slice(startIndex, endIndex),
-                        activePlayers,
-                        communityCards: this.communityCards.map(card => ({ value: card.value, suit: card.suit })),
-                        startIndex: 0,
-                        endIndex: endIndex - startIndex
-                    }
-                });
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to create worker:', error);
+                throw error;
             }
         }
         
@@ -613,13 +633,13 @@ class PokerCalculator {
             }
             results.forEach(r => r.total++);
             
-            // Update progress
-            if (i % batchSize === 0 || i === totalCombinations - 1) {
+            // Update progress more frequently for better UX
+            if (i % (batchSize / 4) === 0 || i === totalCombinations - 1) {
                 const progress = ((i + 1) / totalCombinations) * 100;
                 document.getElementById('progressFill').style.width = `${progress}%`;
                 
-                // Allow UI to update
-                if (i % (batchSize * 2) === 0) {
+                // Allow UI to update more frequently
+                if (i % (batchSize / 2) === 0) {
                     await new Promise(resolve => setTimeout(resolve, 0));
                 }
             }
