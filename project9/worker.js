@@ -116,13 +116,18 @@ function evaluateHand(cards) {
     const straight = checkStraight(values);
     
     // Determine hand rank and get kickers
-    if (flush && straight) {
-        const straightHigh = getStraightHigh(values);
-        // Check for Royal Flush: exactly 10-J-Q-K-A of the same suit
-        const isRoyal = isRoyalFlush(values, suits);
+    // Check for Royal Flush first (highest rank)
+    if (isRoyalFlush(values, suits)) {
         return { 
-            rank: isRoyal ? 9 : 8, 
-            name: isRoyal ? 'Royal Flush' : 'Straight Flush', 
+            rank: 9, 
+            name: 'Royal Flush', 
+            kickers: [14] // Ace is always highest in Royal Flush
+        };
+    } else if (flush && straight) {
+        const straightHigh = getStraightHigh(values);
+        return { 
+            rank: 8, 
+            name: 'Straight Flush', 
             kickers: [straightHigh]
         };
     } else if (hasFourOfAKind(valueCounts)) {
@@ -266,15 +271,14 @@ function getCardValue(value) {
 }
 
 function isRoyalFlush(values, suits) {
-    if (!checkFlush(suits) || !checkStraight(values)) {
-        return false;
-    }
-    
+    // Royal flush must be exactly 10-J-Q-K-A of the same suit
     const royalValues = [10, 11, 12, 13, 14];
-    const hasAllRoyalValues = royalValues.every(value => values.includes(value));
     
+    // Check if we have exactly the royal values
+    const hasAllRoyalValues = royalValues.every(value => values.includes(value));
     if (!hasAllRoyalValues) return false;
     
+    // Check if all royal cards are of the same suit
     const royalCards = [];
     for (let i = 0; i < values.length; i++) {
         if (royalValues.includes(values[i])) {
@@ -282,6 +286,7 @@ function isRoyalFlush(values, suits) {
         }
     }
     
+    // Must have exactly 5 royal cards of the same suit
     return royalCards.length === 5 && royalCards.every(suit => suit === royalCards[0]);
 }
 

@@ -813,13 +813,18 @@ class PokerCalculator {
         let result;
         
         // Determine hand rank and get kickers
-        if (flush && straight) {
-            const straightHigh = this.getStraightHigh(values);
-            // Check for Royal Flush: exactly 10-J-Q-K-A of the same suit
-            const isRoyal = this.isRoyalFlush(values, suits);
+        // Check for Royal Flush first (highest rank)
+        if (this.isRoyalFlush(values, suits)) {
             result = { 
-                rank: isRoyal ? 9 : 8, 
-                name: isRoyal ? 'Royal Flush' : 'Straight Flush', 
+                rank: 9, 
+                name: 'Royal Flush', 
+                kickers: [14] // Ace is always highest in Royal Flush
+            };
+        } else if (flush && straight) {
+            const straightHigh = this.getStraightHigh(values);
+            result = { 
+                rank: 8, 
+                name: 'Straight Flush', 
                 kickers: [straightHigh]
             };
         } else if (this.hasFourOfAKind(valueCounts)) {
@@ -947,16 +952,11 @@ class PokerCalculator {
     }
     
     isRoyalFlush(values, suits) {
-        // Royal flush must be a straight flush with Ace as highest card
-        // First check if it's a straight flush
-        if (!this.checkFlush(suits) || !this.checkStraight(values)) {
-            return false;
-        }
-        
-        // Then check if it's the highest possible straight (10-J-Q-K-A)
+        // Royal flush must be exactly 10-J-Q-K-A of the same suit
         const royalValues = [10, 11, 12, 13, 14];
-        const hasAllRoyalValues = royalValues.every(value => values.includes(value));
         
+        // Check if we have exactly the royal values
+        const hasAllRoyalValues = royalValues.every(value => values.includes(value));
         if (!hasAllRoyalValues) return false;
         
         // Check if all royal cards are of the same suit
@@ -967,7 +967,7 @@ class PokerCalculator {
             }
         }
         
-        // All royal cards must be of the same suit
+        // Must have exactly 5 royal cards of the same suit
         return royalCards.length === 5 && royalCards.every(suit => suit === royalCards[0]);
     }
     

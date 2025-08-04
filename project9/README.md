@@ -1,54 +1,128 @@
-# Poker Calculator - Detailní Popis Metod
+# Poker Calculator - Kompletní Dokumentace
 
-## Přehled Aplikace
-Poker Calculator je JavaScript aplikace pro výpočet pravděpodobností v Texas Hold'em pokeru. Používá kompletní enumeraci všech možných kombinací karet pro přesný výpočet šancí na výhru.
+## 📋 Přehled Aplikace
 
-## Hlavní Třída: PokerCalculator
+Poker Calculator je pokročilá JavaScript aplikace pro výpočet přesných pravděpodobností v Texas Hold'em pokeru. Aplikace používá kompletní enumeraci všech možných kombinací karet pro 100% přesné výsledky.
 
-### Konstruktor (constructor)
+### 🎯 Klíčové Funkce
+- **Kompletní enumerace** všech možných kombinací
+- **Paralelní zpracování** pomocí Web Workers
+- **Optimalizované algoritmy** s cachováním
+- **Přesné poker pravidla** podle oficiálních standardů
+- **Real-time progress tracking**
+
+---
+
+## 🃏 Poker Pravidla - Texas Hold'em
+
+### Základní Pravidla
+1. **Každý hráč dostane 2 karty** (hole cards)
+2. **5 společných karet** se rozdá postupně (flop, turn, river)
+3. **Nejlepší 5-kartová kombinace** z 7 dostupných karet vyhrává
+
+### Pořadí Rukou (od nejvyšší po nejnižší)
+
+#### 1. **Royal Flush** (9 bodů)
+- **Definice**: A-K-Q-J-10 stejné barvy
+- **Příklad**: ♠A ♠K ♠Q ♠J ♠10
+- **Algoritmus**: `isRoyalFlush()` - kontroluje straight flush s nejvyššími kartami
+
+#### 2. **Straight Flush** (8 bodů)
+- **Definice**: 5 po sobě jdoucích karet stejné barvy
+- **Příklad**: ♥7 ♥6 ♥5 ♥4 ♥3
+- **Algoritmus**: `checkFlush()` + `checkStraight()` + `getStraightHigh()`
+
+#### 3. **Four of a Kind** (7 bodů)
+- **Definice**: 4 karty stejné hodnoty + 1 kicker
+- **Příklad**: ♠A ♥A ♦A ♣A ♠K
+- **Algoritmus**: `hasFourOfAKind()` + `getFourOfAKindValue()`
+
+#### 4. **Full House** (6 bodů)
+- **Definice**: 3 karty stejné hodnoty + 2 karty stejné hodnoty
+- **Příklad**: ♠A ♥A ♦A ♠K ♥K
+- **Algoritmus**: `hasFullHouse()` + `getThreeOfAKindValues()` + `getPairValues()`
+
+#### 5. **Flush** (5 bodů)
+- **Definice**: 5 karet stejné barvy (ne po sobě jdoucích)
+- **Příklad**: ♠A ♠K ♠7 ♠4 ♠2
+- **Algoritmus**: `checkFlush()` + `getFlushValues()`
+
+#### 6. **Straight** (4 body)
+- **Definice**: 5 po sobě jdoucích karet (různé barvy)
+- **Speciální případ**: A-2-3-4-5 (wheel) - A se počítá jako 1
+- **Příklad**: ♠5 ♥4 ♦3 ♣2 ♠A (wheel)
+- **Algoritmus**: `checkStraight()` + `getStraightHigh()`
+
+#### 7. **Three of a Kind** (3 body)
+- **Definice**: 3 karty stejné hodnoty + 2 kickery
+- **Příklad**: ♠A ♥A ♦A ♠K ♥Q
+- **Algoritmus**: `hasThreeOfAKind()` + `getThreeOfAKindValue()`
+
+#### 8. **Two Pair** (2 body)
+- **Definice**: 2 páry + 1 kicker
+- **Příklad**: ♠A ♥A ♠K ♥K ♠Q
+- **Algoritmus**: `hasTwoPair()` + `getTwoPairValues()`
+
+#### 9. **One Pair** (1 bod)
+- **Definice**: 1 pár + 3 kickery
+- **Příklad**: ♠A ♥A ♠K ♥Q ♠J
+- **Algoritmus**: `hasOnePair()` + `getPairValue()`
+
+#### 10. **High Card** (0 bodů)
+- **Definice**: Žádná kombinace, nejvyšší karta rozhoduje
+- **Příklad**: ♠A ♥K ♦Q ♣J ♠9
+- **Algoritmus**: Seřazení karet podle hodnoty
+
+---
+
+## 🔧 Detailní Popis Metod
+
+### Konstruktor a Inicializace
+
+#### `constructor()`
 ```javascript
-constructor()
+constructor() {
+    this.players = [];
+    this.communityCards = [];
+    this.selectedCards = new Set();
+    this.currentPlayerCount = 2;
+    this.cardPickerTarget = null;
+    
+    // Card values and suits
+    this.cardValues = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    this.cardSuits = ['hearts', 'diamonds', 'clubs', 'spades'];
+    
+    // Performance optimizations
+    this.handCache = new Map();
+    this.combinationCache = new Map();
+    this.cardValueMap = new Map();
+    this.maxCacheSize = 10000;
+}
 ```
-**Účel:** Inicializuje základní proměnné a nastavení aplikace
-**Proměnné:**
-- `players[]` - pole hráčů s jejich kartami
-- `communityCards[]` - společné karty na stole
-- `selectedCards` - Set již použitých karet
-- `currentPlayerCount` - aktuální počet hráčů
-- `cardPickerTarget` - cíl pro výběr karty
-- `cardValues[]` - hodnoty karet (2-A)
-- `cardSuits[]` - barvy karet (hearts, diamonds, clubs, spades)
-- `suitSymbols{}` - symboly pro barvy (♥, ♦, ♣, ♠)
-- `suitColors{}` - barvy pro zobrazení (red/black)
+**Účel**: Inicializuje základní proměnné a optimalizace
+**Klíčové komponenty**:
+- Pole hráčů a společných karet
+- Set pro sledování použitých karet
+- Cache pro optimalizaci výkonu
+- Pre-computed mapy pro rychlý přístup
 
-### Inicializace (init)
-```javascript
-init()
-```
-**Účel:** Spustí aplikaci
-**Akce:**
-1. Nastaví event listenery
-2. Vygeneruje hráče
-3. Aktualizuje UI
+#### `init()`
+**Účel**: Spouští inicializaci aplikace
+**Akce**: Nastavuje event listeners, generuje hráče, aktualizuje UI
 
-### Nastavení Event Listenerů (setupEventListeners)
-```javascript
-setupEventListeners()
-```
-**Účel:** Připojí všechny event listenery k UI prvkům
-**Listenery:**
-- Změna počtu hráčů
-- Tlačítka pro výpočet, reset, náhodné karty
-- Tlačítka pro náhodný flop/turn/river
-- Tlačítka pro výběr karet
-- Kliknutí na sloty karet
+### UI a Event Handling
 
-### Generování Hráčů (generatePlayers)
-```javascript
-generatePlayers()
-```
-**Účel:** Vytvoří pole hráčů podle aktuálního počtu
-**Struktura hráče:**
+#### `setupEventListeners()`
+**Účel**: Nastavuje všechny event listeners s error handling
+**Funkce**:
+- Player count change s validací
+- Action buttons (calculate, reset, random)
+- Community card buttons
+- Card picker buttons
+
+#### `generatePlayers()`
+**Účel**: Vytváří pole hráčů podle aktuálního počtu
+**Struktura hráče**:
 ```javascript
 {
     id: number,
@@ -58,454 +132,347 @@ generatePlayers()
 }
 ```
 
-### Aktualizace UI (updateUI)
-```javascript
-updateUI()
-```
-**Účel:** Překreslí celé uživatelské rozhraní
-**Volá:** `renderPlayers()` a `renderCommunityCards()`
+#### `updateUI()`
+**Účel**: Aktualizuje celé uživatelské rozhraní
+**Akce**: Renderuje hráče, community karty, progress bar
 
-### Renderování Hráčů (renderPlayers)
-```javascript
-renderPlayers()
-```
-**Účel:** Vykreslí všechny hráče s jejich kartami
-**Funkce:**
-- Vytvoří HTML pro každého hráče
-- Přidá toggle pro aktivaci/deaktivaci
-- Přidá sloty pro karty s click listenery
-- Zobrazí aktivní/neaktivní stav
+### Renderování
 
-### Renderování Karty (renderCard)
-```javascript
-renderCard(card)
-```
-**Účel:** Vytvoří HTML pro zobrazení karty
-**Parametry:** `card` - objekt karty {value, suit}
-**Výstup:** HTML string s kartou nebo placeholder
+#### `renderPlayers()`
+**Účel**: Vykresluje všechny hráče s jejich kartami
+**Funkce**:
+- Zobrazuje pozice (UTG, BB, SB, atd.)
+- Renderuje hole cards
+- Zobrazuje aktivní/neaktivní stav
+- Přidává click handlers pro výběr karet
 
-### Renderování Společných Karet (renderCommunityCards)
-```javascript
-renderCommunityCards()
-```
-**Účel:** Vykreslí společné karty na stole (flop, turn, river)
-**Funkce:**
-- Najde všechny sloty pro společné karty
-- Vyplní je kartami nebo placeholdery
-- Přidá click listenery pro výběr karet
+#### `renderCard(card)`
+**Účel**: Vykresluje jednotlivou kartu
+**Funkce**:
+- Zobrazuje hodnotu a barvu
+- Používá správné symboly (♥, ♦, ♣, ♠)
+- Aplikuje barvy (červená/černá)
+- Zobrazuje placeholder pro prázdné karty
 
-### Přepnutí Hráče (togglePlayer)
-```javascript
-togglePlayer(playerId)
-```
-**Účel:** Aktivuje/deaktivuje hráče
-**Parametry:** `playerId` - ID hráče
-**Akce:** Změní `active` stav hráče a překreslí UI
+#### `renderCommunityCards()`
+**Účel**: Vykresluje společné karty (flop, turn, river)
+**Funkce**:
+- Zobrazuje 5 pozic pro community karty
+- Renderuje již nastavené karty
+- Zobrazuje placeholder pro prázdné pozice
 
-### Otevření Výběru Karet (openCardPicker)
-```javascript
-openCardPicker(target)
-```
-**Účel:** Otevře výběr karet pro daný slot
-**Parametry:** `target` - DOM element slotu karty
-**Akce:** Nastaví `cardPickerTarget` a resetuje výběry
+### Správa Karet
 
-### Zavření Výběru Karet (closeCardPicker)
-```javascript
-closeCardPicker()
-```
-**Účel:** Zavře výběr karet
-**Akce:** Nastaví `cardPickerTarget` na null
+#### `openCardPicker(target)`
+**Účel**: Otevře výběr karet pro danou pozici
+**Parametry**: `target` - cílová pozice (player.card1, player.card2, community)
+**Akce**: Zobrazí modal s výběrem karet
 
-### Výběr Karty (selectCard)
-```javascript
-selectCard(value, suit)
-```
-**Účel:** Vybere kartu a aplikuje ji na slot
-**Parametry:** `value` - hodnota karty, `suit` - barva karty
-**Akce:**
-1. Odstraní všechny výběry
-2. Přidá výběr na kliknutou kartu
-3. Zavolá `setCard()`
+#### `selectCard(value, suit)`
+**Účel**: Nastaví vybranou kartu na cílovou pozici
+**Parametry**: `value` - hodnota karty, `suit` - barva
+**Validace**: Kontroluje duplicity karet
 
-### Nastavení Karty (setCard)
-```javascript
-setCard(value, suit)
-```
-**Účel:** Nastaví kartu na konkrétní slot
-**Parametry:** `value` - hodnota karty, `suit` - barva karty
-**Funkce:**
-- Kontroluje, zda karta není již použita
-- Odstraní starou kartu ze `selectedCards`
-- Nastaví novou kartu na slot
-- Přidá kartu do `selectedCards`
-- Překreslí UI
+#### `setCard(value, suit)`
+**Účel**: Interní metoda pro nastavení karty
+**Funkce**:
+- Přidá kartu do selectedCards Set
+- Aktualizuje UI
+- Zavře card picker
 
-### Generování Náhodných Karet (generateRandomCards)
-```javascript
-generateRandomCards()
-```
-**Účel:** Vygeneruje náhodné karty pro všechny hráče
-**Akce:**
-1. Resetuje vše
-2. Pro každého hráče vygeneruje 2 náhodné karty
-3. Přidá karty do `selectedCards`
-4. Aktualizuje UI
+### Generování Náhodných Karet
 
-### Získání Náhodné Karty (getRandomCard)
-```javascript
-getRandomCard()
-```
-**Účel:** Vygeneruje náhodnou nepoužitou kartu
-**Výstup:** Objekt karty {value, suit}
-**Logika:** Generuje karty dokud nenajde nepoužitou
-
-### Generování Náhodného Flopu (generateRandomFlop)
-```javascript
-generateRandomFlop()
-```
-**Účel:** Vygeneruje náhodné 3 karty pro flop
-**Akce:**
-1. Odstraní existující flop karty
-2. Vygeneruje 3 nové náhodné karty
-3. Nastaví pozice flop1, flop2, flop3
-
-### Generování Náhodného Turnu (generateRandomTurn)
-```javascript
-generateRandomTurn()
-```
-**Účel:** Vygeneruje náhodnou kartu pro turn
-**Akce:**
-1. Odstraní existující turn kartu
-2. Vygeneruje novou náhodnou kartu
-3. Nastaví pozici turn
-
-### Generování Náhodného Riveru (generateRandomRiver)
-```javascript
-generateRandomRiver()
-```
-**Účel:** Vygeneruje náhodnou kartu pro river
-**Akce:**
-1. Odstraní existující river kartu
-2. Vygeneruje novou náhodnou kartu
-3. Nastaví pozici river
-
-### Vyčištění Stolu (clearBoard)
-```javascript
-clearBoard()
-```
-**Účel:** Odstraní všechny společné karty
-**Akce:**
-1. Odstraní všechny karty ze `selectedCards`
-2. Vyčistí `communityCards`
+#### `generateRandomCards()`
+**Účel**: Generuje náhodné karty pro všechny hráče
+**Algoritmus**:
+1. Vymaže všechny existující karty
+2. Pro každého hráče vygeneruje 2 unikátní karty
 3. Aktualizuje UI
 
-### Reset Všeho (resetAll)
-```javascript
-resetAll()
-```
-**Účel:** Resetuje celou aplikaci
-**Akce:**
-1. Vyčistí karty všech hráčů
-2. Vyčistí společné karty
-3. Vyčistí `selectedCards`
-4. Aktualizuje UI
+#### `getRandomCard()`
+**Účel**: Vrací náhodnou kartu, která ještě nebyla použita
+**Algoritmus**:
+- Generuje náhodnou hodnotu a barvu
+- Kontroluje proti selectedCards Set
+- Opakuje, dokud nenajde unikátní kartu
 
-### Výpočet Pravděpodobností (calculateProbabilities)
-```javascript
-async calculateProbabilities()
-```
-**Účel:** Hlavní metoda pro výpočet šancí na výhru
-**Funkce:**
-1. Kontroluje, zda jsou alespoň 2 aktivní hráči s kartami
-2. Zobrazí loading
+#### `generateRandomFlop()`, `generateRandomTurn()`, `generateRandomRiver()`
+**Účel**: Generuje náhodné community karty pro danou fázi
+**Funkce**: Přidává 3, 1, nebo 1 kartu podle fáze hry
+
+### Výpočet Pravděpodobností
+
+#### `calculateProbabilities()`
+**Účel**: Hlavní metoda pro výpočet pravděpodobností
+**Algoritmus**:
+1. Validuje aktivní hráče s kartami
+2. Zobrazí loading screen
 3. Spustí kompletní enumeraci
 4. Zobrazí výsledky
 
-### Kompletní Enumerace (runCompleteEnumeration)
-```javascript
-async runCompleteEnumeration(activePlayers)
-```
-**Účel:** Provede kompletní výpočet všech možných kombinací
-**Parametry:** `activePlayers` - pole aktivních hráčů
-**Logika:**
-1. Vytvoří výsledky pro každého hráče
-2. Pokud jsou všechny karty na stole, vyhodnotí jednou
-3. Jinak generuje všechny kombinace zbývajících karet
-4. Pro každou kombinaci vyhodnotí vítěze
-5. Aktualizuje progress bar
+#### `runCompleteEnumeration(activePlayers)`
+**Účel**: Spouští kompletní enumeraci všech možných kombinací
+**Algoritmus**:
+1. Vytvoří výsledkové objekty pro každého hráče
+2. Vypočítá aktuální sílu ruky (pokud jsou community karty)
+3. Rozhodne mezi Web Workers a single-threaded zpracováním
+4. Vrátí výsledky
 
-### Generování Kombinací (generateCombinations)
-```javascript
-generateCombinations(deck, r)
-```
-**Účel:** Generuje všechny kombinace karet délky r
-**Parametry:** `deck` - balíček karet, `r` - délka kombinace
-**Algoritmus:** Backtracking pro generování kombinací
+#### `runWithWorkers(activePlayers, deck, needed, results)`
+**Účel**: Paralelní zpracování pomocí Web Workers
+**Algoritmus**:
+1. Určí počet workerů podle CPU jader
+2. Rozdělí kombinace mezi workery
+3. Počká na dokončení všech workerů
+4. Sloučí výsledky
 
-### Vyhodnocení Vítěze (evaluateWinner)
-```javascript
-evaluateWinner(activePlayers, completedBoard)
-```
-**Účel:** Najde vítěze mezi hráči
-**Parametry:** `activePlayers` - hráči, `completedBoard` - kompletní stůl
-**Výstup:** Index vítěze nebo 'tie'
+#### `runSingleThreaded(activePlayers, deck, needed, results)`
+**Účel**: Fallback single-threaded zpracování
+**Algoritmus**:
+1. Generuje všechny kombinace
+2. Pro každou kombinaci vyhodnotí vítěze
+3. Aktualizuje progress bar
+4. Umožňuje UI updates
 
-### Vytvoření Balíčku (createDeck)
-```javascript
-createDeck()
-```
-**Účel:** Vytvoří balíček nepoužitých karet
-**Výstup:** Pole karet, které nejsou v `selectedCards`
+### Generování Kombinací
 
-### Vyhodnocení Ruky (evaluateHand)
-```javascript
-evaluateHand(cards)
-```
-**Účel:** Vyhodnotí nejlepší možnou 5-kartovou kombinaci ze 7 karet
-**Parametry:** `cards` - pole 7 karet
-**Algoritmus:**
-1. Generuje všechny 5-kartové kombinace
-2. Pro každou kombinaci určí typ ruky
-3. Vrátí nejlepší kombinaci
+#### `generateCombinations(deck, r)`
+**Účel**: Generuje všechny kombinace r karet z balíčku
+**Algoritmus**: Iterativní přístup s cachováním
+**Optimalizace**:
+- Cache pro opakované kombinace
+- Memory management s limitem velikosti
+- Efektivní generování pomocí indexů
 
-### Kontrola Flush (checkFlush)
-```javascript
-checkFlush(suits)
-```
-**Účel:** Kontroluje, zda je flush (5 karet stejné barvy)
-**Parametry:** `suits` - pole barev karet
-**Výstup:** boolean
+#### `generateFiveCardCombinations(cards, r)`
+**Účel**: Generuje kombinace pro 5-kartové ruce z 7 karet
+**Algoritmus**: Backtracking pro nalezení nejlepší 5-kartové kombinace
 
-### Kontrola Straight (checkStraight)
-```javascript
-checkStraight(values)
-```
-**Účel:** Kontroluje, zda je straight (5 po sobě jdoucích hodnot)
-**Parametry:** `values` - pole hodnot karet
-**Logika:** Kontroluje běžný straight i wheel (A-2-3-4-5)
+### Vyhodnocení Rukou
 
-### Kontrola Four of a Kind (hasFourOfAKind)
-```javascript
-hasFourOfAKind(valueCounts)
-```
-**Účel:** Kontroluje, zda jsou 4 karty stejné hodnoty
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** boolean
+#### `evaluateHand(cards)`
+**Účel**: Vyhodnotí nejlepší 5-kartovou kombinaci z 7 karet
+**Algoritmus**:
+1. Vytvoří cache key ze seřazených karet
+2. Zkontroluje cache pro existující výsledek
+3. Vyhodnotí všechny možné 5-kartové kombinace
+4. Vrátí nejlepší kombinaci podle poker pravidel
 
-### Kontrola Full House (hasFullHouse)
-```javascript
-hasFullHouse(valueCounts)
-```
-**Účel:** Kontroluje, zda je full house (3+2 stejné hodnoty)
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** boolean
+#### `evaluateWinner(activePlayers, completedBoard)`
+**Účel**: Určí vítěze mezi hráči pro daný board
+**Algoritmus**:
+1. Vyhodnotí ruce všech hráčů
+2. Najde nejlepší ruce
+3. Porovná kickery při remíze
 
-### Kontrola Three of a Kind (hasThreeOfAKind)
-```javascript
-hasThreeOfAKind(valueCounts)
-```
-**Účel:** Kontroluje, zda jsou 3 karty stejné hodnoty
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** boolean
+### Poker Algoritmy
 
-### Kontrola Two Pair (hasTwoPair)
-```javascript
-hasTwoPair(valueCounts)
-```
-**Účel:** Kontroluje, zda jsou 2 páry
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** boolean
+#### `isRoyalFlush(values, suits)`
+**Účel**: Kontroluje, zda je to Royal Flush
+**Algoritmus**:
+1. Kontroluje, zda je to straight flush
+2. Kontroluje, zda obsahuje A-K-Q-J-10
+3. Kontroluje, zda jsou všechny karty stejné barvy
 
-### Kontrola One Pair (hasOnePair)
-```javascript
-hasOnePair(valueCounts)
-```
-**Účel:** Kontroluje, zda je 1 pár
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** boolean
+#### `checkFlush(suits)`
+**Účel**: Kontroluje, zda je to flush
+**Algoritmus**: Počítá karty každé barvy, hledá 5+ karet stejné barvy
 
-### Získání Hodnoty Karty (getCardValue)
-```javascript
-getCardValue(value)
-```
-**Účel:** Převede hodnotu karty na číslo
-**Parametry:** `value` - hodnota karty (string)
-**Mapování:** 2=2, 3=3, ..., 10=10, J=11, Q=12, K=13, A=14
+#### `checkStraight(values)`
+**Účel**: Kontroluje, zda je to straight
+**Algoritmus**:
+1. Seřadí unikátní hodnoty
+2. Hledá 5 po sobě jdoucích karet
+3. Speciální kontrola pro wheel (A-2-3-4-5)
+4. Speciální kontrola pro high straight (A-K-Q-J-10)
 
-### Kontrola Royal Flush (isRoyalFlush)
-```javascript
-isRoyalFlush(values, suits)
-```
-**Účel:** Kontroluje, zda je royal flush (10-J-Q-K-A stejné barvy)
-**Parametry:** `values` - hodnoty, `suits` - barvy
-**Výstup:** boolean
+#### `hasFourOfAKind(valueCounts)`
+**Účel**: Kontroluje, zda je to four of a kind
+**Algoritmus**: Hledá hodnotu s počtem 4
 
-### Získání Straight High (getStraightHigh)
-```javascript
-getStraightHigh(values)
-```
-**Účel:** Najde nejvyšší kartu ve straight
-**Parametry:** `values` - hodnoty karet
-**Logika:** Zohledňuje wheel (A-2-3-4-5) a běžný straight
+#### `hasFullHouse(valueCounts)`
+**Účel**: Kontroluje, zda je to full house
+**Algoritmus**: Kontroluje přítomnost trojice a páru
 
-### Získání Four of a Kind Value (getFourOfAKindValue)
-```javascript
-getFourOfAKindValue(valueCounts)
-```
-**Účel:** Najde hodnotu čtyř karet
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** hodnota čtyř karet
+#### `hasThreeOfAKind(valueCounts)`
+**Účel**: Kontroluje, zda je to three of a kind
+**Algoritmus**: Hledá hodnotu s počtem 3
 
-### Získání Three of a Kind Value (getThreeOfAKindValue)
-```javascript
-getThreeOfAKindValue(valueCounts)
-```
-**Účel:** Najde hodnotu tří karet
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** hodnota tří karet
+#### `hasTwoPair(valueCounts)`
+**Účel**: Kontroluje, zda je to two pair
+**Algoritmus**: Počítá páry, hledá 2+
 
-### Získání Pair Value (getPairValue)
-```javascript
-getPairValue(valueCounts, excludeValue)
-```
-**Účel:** Najde hodnotu páru
-**Parametry:** `valueCounts` - objekt s počty hodnot, `excludeValue` - hodnota k vyloučení
-**Výstup:** hodnota páru
+#### `hasOnePair(valueCounts)`
+**Účel**: Kontroluje, zda je to one pair
+**Algoritmus**: Hledá hodnotu s počtem 2
 
-### Získání Two Pair Values (getTwoPairValues)
-```javascript
-getTwoPairValues(valueCounts)
-```
-**Účel:** Najde hodnoty dvou párů
-**Parametry:** `valueCounts` - objekt s počty hodnot
-**Výstup:** pole hodnot párů (seřazeno sestupně)
+### Pomocné Funkce pro Kickers
 
-### Získání Flush Values (getFlushValues)
-```javascript
-getFlushValues(values, suits)
-```
-**Účel:** Najde hodnoty karet ve flush
-**Parametry:** `values` - hodnoty karet, `suits` - barvy karet
-**Výstup:** pole 5 nejvyšších hodnot flush barvy
+#### `getStraightHigh(values)`
+**Účel**: Vrací nejvyšší kartu ve straight
+**Algoritmus**:
+1. Najde straight v hodnotách
+2. Vrací nejvyšší kartu
+3. Speciální logika pro wheel (vrací 5)
 
-### Porovnání Rukou (isBetterHand)
-```javascript
-isBetterHand(hand1, hand2)
-```
-**Účel:** Porovná dvě ruce podle poker pravidel
-**Parametry:** `hand1`, `hand2` - objekty rukou
-**Logika:** Porovná rank, pak kickers
-**Výstup:** boolean (hand1 > hand2)
+#### `getFourOfAKindValue(valueCounts)`
+**Účel**: Vrací hodnotu four of a kind
+**Algoritmus**: Najde hodnotu s počtem 4
 
-### Nalezení Vítěze (findWinner)
-```javascript
-findWinner(playerHands)
-```
-**Účel:** Najde vítěze mezi hráči
-**Parametry:** `playerHands` - pole objektů {player, hand}
-**Výstup:** index vítěze nebo 'tie'
+#### `getThreeOfAKindValue(valueCounts)`
+**Účel**: Vrací hodnotu three of a kind
+**Algoritmus**: Najde hodnotu s počtem 3
 
-### Porovnání Rukou (compareHands)
-```javascript
-compareHands(hands)
-```
-**Účel:** Porovná ruce s stejným rankem podle kickerů
-**Parametry:** `hands` - pole objektů {player, hand}
-**Výstup:** vítězný hráč nebo 'tie'
+#### `getThreeOfAKindValues(valueCounts)`
+**Účel**: Vrací všechny hodnoty three of a kind (pro full house)
+**Algoritmus**: Najde všechny hodnoty s počtem 3, seřadí sestupně
 
-### Získání Názvu Ruky (getHandDisplayName)
-```javascript
-getHandDisplayName(handName)
-```
-**Účel:** Převede název ruky na zobrazovací formát
-**Parametry:** `handName` - název ruky
-**Výstup:** zobrazovací název
+#### `getPairValue(valueCounts, excludeValue)`
+**Účel**: Vrací nejvyšší hodnotu páru
+**Parametry**: `excludeValue` - hodnota k vyloučení (pro full house)
+**Algoritmus**: Najde nejvyšší hodnotu s počtem 2
 
-### Výpočet Celkových Kombinací (calculateTotalCombinations)
-```javascript
-calculateTotalCombinations()
-```
-**Účel:** Vypočítá celkový počet možných kombinací
-**Výstup:** počet kombinací C(deck.length, needed)
+#### `getPairValues(valueCounts, excludeValue)`
+**Účel**: Vrací všechny hodnoty párů
+**Algoritmus**: Najde všechny hodnoty s počtem 2, seřadí sestupně
 
-### Zobrazení Výsledků (displayResults)
-```javascript
-displayResults(results, calculationTime)
-```
-**Účel:** Zobrazí výsledky výpočtu
-**Parametry:** `results` - výsledky, `calculationTime` - čas výpočtu
-**Funkce:**
-1. Aktualizuje informace o simulaci
-2. Zobrazí procenta výher/remíz
-3. Vytvoří tabulku s rozložením rukou
-4. Zobrazí výsledky
+#### `getTwoPairValues(valueCounts)`
+**Účel**: Vrací hodnoty dvou párů
+**Algoritmus**: Najde 2 nejvyšší hodnoty s počtem 2
 
-### Zobrazení Loading (showLoading)
-```javascript
-showLoading()
-```
-**Účel:** Zobrazí loading overlay
-**Akce:** Nastaví display na 'flex' pro loadingOverlay
+#### `getFlushValues(values, suits)`
+**Účel**: Vrací nejvyšších 5 karet stejné barvy
+**Algoritmus**:
+1. Najde barvu s 5+ kartami
+2. Seřadí karty této barvy sestupně
+3. Vrátí nejvyšších 5
 
-### Skrytí Loading (hideLoading)
-```javascript
-hideLoading()
-```
-**Účel:** Skryje loading overlay
-**Akce:** Nastaví display na 'none' pro loadingOverlay
+### Porovnání Rukou
 
-## Pomocné Funkce
+#### `findWinner(playerHands)`
+**Účel**: Najde vítěze mezi hráči
+**Algoritmus**:
+1. Najde nejvyšší rank mezi všemi rukami
+2. Shromáždí všechny ruce s tímto rankem
+3. Pokud je jen jedna, vrátí vítěze
+4. Jinak porovná kickery
 
-### Získání Názvu Pozice (getPositionName)
-```javascript
-getPositionName(position)
-```
-**Účel:** Převede pozici na zobrazovací název
-**Mapování:** flop1→Flop 1, flop2→Flop 2, atd.
+#### `compareHands(hands)`
+**Účel**: Porovná ruce se stejným rankem pomocí kickerů
+**Algoritmus**:
+1. Porovná kickery v pořadí důležitosti
+2. Vrátí hráče s nejvyšším kickerem
+3. Při remíze pokračuje na další kicker
+4. Při úplné remíze vrátí 'tie'
 
-## Inicializace Aplikace
-```javascript
-document.addEventListener('DOMContentLoaded', () => {
-    pokerCalculator = new PokerCalculator();
-});
-```
-**Účel:** Vytvoří instanci aplikace po načtení DOM
+#### `isBetterHand(hand1, hand2)`
+**Účel**: Porovná dvě ruce
+**Algoritmus**:
+1. Porovná ranky
+2. Při stejných rankech porovná kickery
+3. Vrátí true, pokud hand1 je lepší
 
-## Klíčové Algoritmy
+### Utility Funkce
 
-### 1. Kompletní Enumerace
-- Generuje všechny možné kombinace zbývajících karet
-- Pro každou kombinaci vyhodnotí vítěze
-- Počítá statistiky pro každého hráče
+#### `getCardValue(value)`
+**Účel**: Převede hodnotu karty na číslo
+**Mapování**: 2=2, 3=3, ..., 10=10, J=11, Q=12, K=13, A=14
 
-### 2. Vyhodnocení Ruky
-- Generuje všechny 5-kartové kombinace ze 7 karet
-- Pro každou kombinaci určí typ ruky (flush, straight, atd.)
-- Vrátí nejlepší možnou kombinaci
+#### `getHandDisplayName(handName)`
+**Účel**: Převede interní název ruky na zobrazovací formát
+**Mapování**: 'Straight Flush' → 'Straight flush', atd.
 
-### 3. Porovnání Rukou
-- Porovná rank rukou (royal flush > straight flush > ...)
-- Při stejném ranku porovná kickers
-- Zohledňuje poker pravidla pro kickery
+#### `calculateTotalCombinations()`
+**Účel**: Vypočítá celkový počet kombinací pro progress tracking
+**Vzorec**: C(deck.length, needed_cards)
 
-### 4. Generování Kombinací
-- Používá backtracking algoritmus
-- Generuje kombinace bez opakování
-- Optimalizováno pro výkon
+#### `calculateMaxPlayers()`
+**Účel**: Vypočítá maximální možný počet hráčů
+**Vzorec**: floor((available_cards - community_cards_needed) / 2)
 
-## Výkonnostní Optimalizace
+### UI Funkce
 
-1. **Progress Bar** - aktualizuje se každých 1% kombinací
-2. **Batch Processing** - zpracovává kombinace v dávkách
-3. **Async/Await** - neblokuje UI během výpočtu
-4. **Set pro Selected Cards** - rychlé vyhledávání použitých karet
-5. **Memoizace** - ukládá výsledky vyhodnocení rukou
+#### `showLoading()`
+**Účel**: Zobrazí loading screen
+**Akce**: Zobrazí progress bar a zakáže tlačítka
 
-## Poker Pravidla Implementována
+#### `hideLoading()`
+**Účel**: Skryje loading screen
+**Akce**: Skryje progress bar a povolí tlačítka
 
-1. **Hodnocení rukou** - od Royal Flush po High Card
-2. **Kickers** - správné porovnání při stejných rukách
-3. **Wheel** - A-2-3-4-5 jako nejnižší straight
-4. **Suit nezáleží** - kromě flush a royal flush
-5. **Best 5 cards** - z 7 karet se vybere nejlepších 5 
+#### `displayResults(results, calculationTime)`
+**Účel**: Zobrazí výsledky výpočtu
+**Funkce**:
+- Zobrazí pravděpodobnosti výhry pro každého hráče
+- Zobrazí statistiky rukou
+- Zobrazí čas výpočtu
+- Zobrazí aktuální ruce (pokud jsou community karty)
+
+---
+
+## 🚀 Optimalizace Výkonu
+
+### Cachování
+- **Hand Cache**: Ukládá výsledky vyhodnocení rukou
+- **Combination Cache**: Ukládá generované kombinace
+- **Memory Management**: Automatické čištění cache při překročení limitu
+
+### Web Workers
+- **Paralelní zpracování**: Využívá všechna CPU jádra
+- **Fallback**: Automatický přechod na single-threaded při chybě
+- **Progress Tracking**: Real-time zobrazení postupu
+
+### Algoritmické Optimalizace
+- **Pre-computed hodnoty**: Mapy pro rychlý přístup
+- **Efektivní generování kombinací**: Iterativní místo rekurzivního
+- **Optimalizované vyhodnocení**: Přímé vyhodnocení z 7 karet
+
+---
+
+## 📊 Očekávaný Výkon
+
+### Rychlost
+- **2 hráči, 1.7M kombinací**: 5-30 sekund
+- **4 hráči, 1.1M kombinací**: 3-20 sekund
+- **6 hráčů, 0.7M kombinací**: 2-15 sekund
+
+### Přesnost
+- **100% přesné výsledky** díky kompletní enumeraci
+- **Správné poker pravidla** podle oficiálních standardů
+- **Správné kickery** pro všechny typy rukou
+
+---
+
+## 🐛 Error Handling
+
+### DOM Elementy
+- Kontrola existence elementů před přidáním event listeners
+- Graceful fallback při chybějících elementech
+
+### Web Workers
+- Try-catch bloky pro vytváření workerů
+- Fallback na single-threaded zpracování
+- Timeout handling (30 sekund)
+
+### Cache Management
+- Automatické čištění při překročení limitu
+- Memory leak prevence
+
+---
+
+## 🔧 Technické Detaily
+
+### Datové Struktury
+- **Map**: Pro cache a rychlé vyhledávání
+- **Set**: Pro sledování použitých karet
+- **Array**: Pro kombinace a výsledky
+
+### Asynchronní Zpracování
+- **async/await**: Pro neblokující UI
+- **Promise.all**: Pro paralelní zpracování
+- **setTimeout**: Pro UI updates
+
+### Memory Management
+- **Cache size limits**: Prevenci memory leaks
+- **Automatic cleanup**: Při resetu a překročení limitů
+- **Efficient data structures**: Minimalizace paměťové náročnosti 
