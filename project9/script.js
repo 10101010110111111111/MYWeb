@@ -837,11 +837,18 @@ class PokerCalculator {
             };
         } else if (this.hasFullHouse(valueCounts)) {
             const threeValues = this.getThreeOfAKindValues(valueCounts);
-            const pairValues = this.getPairValues(valueCounts, threeValues[0]);
             
-            // Use highest three of a kind and highest pair
+            // For Full House, we need to find the best combination
+            // If we have multiple three of a kinds, use the highest one
+            // and find the best pair from the remaining cards
             const threeValue = Math.max(...threeValues);
-            const pairValue = Math.max(...pairValues);
+            
+            // Find the best pair from remaining cards (excluding the three of a kind)
+            const pairValues = this.getPairValues(valueCounts, threeValue);
+            
+            // If no pair found, use the highest remaining card as "pair"
+            const pairValue = pairValues.length > 0 ? Math.max(...pairValues) : 
+                             this.getHighestRemainingCard(valueCounts, threeValue);
             
             result = { 
                 rank: 6, 
@@ -1185,6 +1192,17 @@ class PokerCalculator {
         // Return the 5 highest cards of the flush suit for kicker comparison
         // Sort descending and take top 5
         return flushCards.sort((a, b) => b - a).slice(0, 5);
+    }
+    
+    getHighestRemainingCard(valueCounts, excludeValue) {
+        let highest = 0;
+        for (const [value, count] of Object.entries(valueCounts)) {
+            const numValue = parseInt(value);
+            if (numValue !== excludeValue && count > 0 && numValue > highest) {
+                highest = numValue;
+            }
+        }
+        return highest;
     }
     
     findWinner(playerHands) {
