@@ -123,7 +123,7 @@ function evaluateHand(cards) {
             name: 'Royal Flush', 
             kickers: [14] // Ace is always highest in Royal Flush
         };
-    } else if (flush && straight) {
+    } else if (isStraightFlush(values, suits)) {
         const straightHigh = getStraightHigh(values);
         return { 
             rank: 8, 
@@ -287,7 +287,54 @@ function isRoyalFlush(values, suits) {
     }
     
     // Must have exactly 5 royal cards of the same suit
-    return royalCards.length === 5 && royalCards.every(suit => suit === royalCards[0]);
+    if (royalCards.length !== 5) return false;
+    if (!royalCards.every(suit => suit === royalCards[0])) return false;
+    
+    // Additional check: make sure we don't have extra cards of the same suit
+    // that would make this a 6+ card flush instead of exactly 5 cards
+    const flushSuit = royalCards[0];
+    const allCardsOfSuit = suits.filter(suit => suit === flushSuit);
+    
+    // Royal Flush must be exactly 5 cards of the same suit
+    return allCardsOfSuit.length === 5;
+}
+
+function isStraightFlush(values, suits) {
+    // Straight flush must be exactly 5 consecutive cards of the same suit
+    // First check if we have a flush
+    const suitCounts = {};
+    suits.forEach(suit => suitCounts[suit] = (suitCounts[suit] || 0) + 1);
+    const flushSuit = Object.keys(suitCounts).find(suit => suitCounts[suit] >= 5);
+    if (!flushSuit) return false;
+    
+    // Get all cards of the flush suit
+    const flushCards = [];
+    for (let i = 0; i < values.length; i++) {
+        if (suits[i] === flushSuit) {
+            flushCards.push(values[i]);
+        }
+    }
+    
+    // Must have exactly 5 cards of the flush suit
+    if (flushCards.length !== 5) return false;
+    
+    // Check if these 5 cards form a straight
+    const sortedFlushCards = [...new Set(flushCards)].sort((a, b) => a - b);
+    
+    // Check for regular straight
+    if (sortedFlushCards.length === 5 && sortedFlushCards[4] - sortedFlushCards[0] === 4) {
+        return true;
+    }
+    
+    // Check for wheel (A-2-3-4-5)
+    if (sortedFlushCards.includes(14)) { // Ace
+        const lowStraight = [2, 3, 4, 5, 14];
+        if (lowStraight.every(v => sortedFlushCards.includes(v))) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 function checkFlush(suits) {
