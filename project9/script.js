@@ -1,6 +1,12 @@
 // Poker Calculator Application
 // (Původní třída PokerCalculator byla odstraněna pro refaktorování.)
 
+// --- Global state variables ---
+let players = [];
+let communityCards = [null, null, null, null, null];
+let currentPlayerCount = 2;
+let cardHistory = []; // Historie pro undo funkci
+
 // --- Constants from utils.js ---
 export const CARD_VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
 export const CARD_SUITS = ['s', 'c', 'h', 'd'];
@@ -459,10 +465,11 @@ export function generateFlushData () {
 }
 
 // --- UI State ---
-let players = [];
-let communityCards = [];
 let selectedCards = new Set();
-let currentPlayerCount = 2;
+let pickerTarget = null;
+let pickerCardIdx = null;
+let sequentialAssign = false;
+let assignIndex = { player: 0, card: 0, board: 0 };
 
 // --- UI Setup ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -587,29 +594,71 @@ function renderCommunityCards() {
 }
 
 function togglePlayer(playerId) {
-    players[playerId].active = !players[playerId].active;
+    // Validace: zkontroluj, zda je playerId platný
+    if (playerId < 0 || playerId >= players.length) {
+        showError('Neplatný hráč!');
+        return;
+    }
+    
+    const player = players[playerId];
+    const wasActive = player.active;
+    
+    // Pokud deaktivujeme hráče, smaž jeho karty
+    if (wasActive) {
+        if (player.cards[0] || player.cards[1]) {
+            if (confirm('Opravdu chcete deaktivovat hráče? Jeho karty budou smazány.')) {
+                player.cards = [null, null];
+                player.active = false;
+            } else {
+                return; // Uživatel zrušil
+            }
+        } else {
+            player.active = false;
+        }
+    } else {
+        player.active = true;
+    }
+    
     updateUI();
+    
+    if (wasActive) {
+        showSuccess(`Hráč ${playerId + 1} byl deaktivován`);
+    } else {
+        showSuccess(`Hráč ${playerId + 1} byl aktivován`);
+    }
 }
 
 // --- Card Picker Modal ---
-let pickerTarget = null;
-let pickerCardIdx = null;
-
-// --- Sekvenční režim přidělování karet ---
-let sequentialAssign = false;
-let assignIndex = { player: 0, card: 0, board: 0 };
-let assignHistory = [];
 
 function openCardPicker(target, cardIdx) {
-    // Pokud kliknu na hráče, začíná sekvenční režim
-    if (typeof target === 'number') {
-        sequentialAssign = true;
-        assignIndex.player = target;
-        assignIndex.card = players[target].cards[0] ? 1 : 0;
-        assignIndex.board = 0;
+    // Validace: zkontroluj, zda je target platný
+    if (target === 'community') {
+        // Pro community karty
+        if (cardIdx < 0 || cardIdx > 4) {
+            showError('Neplatná pozice karty na boardu!');
+            return;
+        }
+    } else {
+        // Pro hráče
+        if (target < 0 || target >= players.length) {
+            showError('Neplatný hráč!');
+            return;
+        }
+        if (cardIdx < 0 || cardIdx > 1) {
+            showError('Neplatná pozice karty hráče!');
+            return;
+        }
+        if (!players[target].active) {
+            showError('Hráč není aktivní! Nejdříve ho aktivujte.');
+            return;
+        }
     }
+    
     pickerTarget = target;
     pickerCardIdx = cardIdx;
+    sequentialAssign = true;
+    assignIndex = { player: 0, card: 0, board: 0 };
+    
     showCardPickerModal();
 }
 
@@ -695,76 +744,128 @@ function isCardUsed(card) {
 }
 
 function selectCardSequential(card) {
-    if (sequentialAssign) {
-        // Nejprve hráči, pak board
-        if (assignIndex.player < players.length) {
-            players[assignIndex.player].cards[assignIndex.card] = card;
-            assignHistory.push({ type: 'player', player: assignIndex.player, card: assignIndex.card, value: card });
-            // Další karta pro stejného hráče, nebo další hráč
-            if (assignIndex.card === 0) {
-                assignIndex.card = 1;
-            } else {
-                assignIndex.player++;
-                assignIndex.card = 0;
+    // Validace: zkontroluj, zda je karta už použita
+    if (isCardUsed(card)) {
+        showError('Tato karta už je použita! Vyberte jinou kartu.');
+        return;
+    }
+    
+    // Najdi další volnou pozici pro kartu
+    let target, cardIdx;
+    
+    // Nejdřív zkus najít volnou pozici u hráčů
+    for (let playerId = 0; playerId < players.length; playerId++) {
+        if (!players[playerId].active) continue;
+        
+        for (let cardPos = 0; cardPos < 2; cardPos++) {
+            if (!players[playerId].cards[cardPos]) {
+                target = playerId;
+                cardIdx = cardPos;
+                break;
             }
-        } else if (assignIndex.board < 5) {
-            communityCards[assignIndex.board] = card;
-            assignHistory.push({ type: 'board', board: assignIndex.board, value: card });
-            assignIndex.board++;
         }
-        updateUI();
-        // Pokud už jsou rozdané všechny karty, zavři picker
-        if (assignIndex.player >= players.length && assignIndex.board >= 5) {
-            closeCardPicker();
+        if (target !== undefined) break;
+    }
+    
+    // Pokud nejsou volné pozice u hráčů, použij board
+    if (target === undefined) {
+        for (let boardPos = 0; boardPos < 5; boardPos++) {
+            if (!communityCards[boardPos]) {
+                target = 'community';
+                cardIdx = boardPos;
+                break;
+            }
         }
+    }
+    
+    // Pokud není volná pozice nikde
+    if (target === undefined) {
+        showError('Všechny pozice jsou obsazené! Nejdříve smažte nějaké karty.');
+        return;
+    }
+    
+    // Přiřaď kartu
+    if (target === 'community') {
+        communityCards[cardIdx] = card;
     } else {
-        // fallback: klasické chování (při kliknutí na konkrétní kartu)
-        if (pickerTarget === 'community') {
-            communityCards[pickerCardIdx] = card;
-            assignHistory.push({ type: 'board', board: pickerCardIdx, value: card });
-        } else {
-            players[pickerTarget].cards[pickerCardIdx] = card;
-            assignHistory.push({ type: 'player', player: pickerTarget, card: pickerCardIdx, value: card });
-        }
+        players[target].cards[cardIdx] = card;
+    }
+    
+    // Přidej do historie pro undo
+    cardHistory.push({ target, cardIdx, card });
+    
+    updateUI();
+    
+    // Zkontroluj, zda jsou všechny pozice obsazené
+    const allPlayerCardsAssigned = players.every(p => 
+        !p.active || (p.cards[0] && p.cards[1])
+    );
+    const allBoardCardsAssigned = communityCards.every(card => card !== null);
+    
+    if (allPlayerCardsAssigned && allBoardCardsAssigned) {
+        showSuccess('Všechny karty byly úspěšně přiřazeny!');
         closeCardPicker();
-        updateUI();
     }
 }
 
 function undoAssignCard() {
-    if (assignHistory.length === 0) return;
-    const last = assignHistory.pop();
-    if (last.type === 'player') {
-        players[last.player].cards[last.card] = null;
-        // Pokud jsme v sekvenčním režimu, nastav index zpět
-        if (sequentialAssign) {
-            assignIndex.player = last.player;
-            assignIndex.card = last.card;
-        }
-    } else if (last.type === 'board') {
-        communityCards[last.board] = null;
-        if (sequentialAssign) {
-            assignIndex.player = players.length; // už jsme na boardu
-            assignIndex.board = last.board;
-        }
+    if (cardHistory.length === 0) {
+        showWarning('Žádné karty k vrácení!');
+        return;
     }
+    
+    const lastAction = cardHistory.pop();
+    
+    if (lastAction.target === 'community') {
+        communityCards[lastAction.cardIdx] = null;
+    } else {
+        players[lastAction.target].cards[lastAction.cardIdx] = null;
+    }
+    
     updateUI();
-    renderPickerGrid();
+    showSuccess('Poslední karta byla vrácena!');
 }
 
+// --- Error handling utility ---
+function showError(message) {
+    alert(`❌ Chyba: ${message}`);
+}
+
+function showSuccess(message) {
+    alert(`✅ ${message}`);
+}
+
+function showWarning(message) {
+    alert(`⚠️ ${message}`);
+}
+
+// --- Vylepšené funkce pro tlačítka ---
+
 function generateRandomCards() {
+    // Validace: zkontroluj, zda jsou nějací aktivní hráči
+    const activePlayers = players.filter(p => p.active);
+    if (activePlayers.length === 0) {
+        showError('Nejdříve musíte mít alespoň jednoho aktivního hráče!');
+        return;
+    }
+    
     const deck = createDeck();
     let used = new Set();
     
-    // Generate random cards for players
+    // Generate random cards for active players only
     players.forEach(player => {
-        for (let i = 0; i < 2; i++) {
-            let card;
-            do {
-                card = deck[Math.floor(Math.random() * deck.length)];
-            } while (used.has(card));
-            player.cards[i] = card;
-            used.add(card);
+        if (player.active) {
+            for (let i = 0; i < 2; i++) {
+                let card;
+                do {
+                    card = deck[Math.floor(Math.random() * deck.length)];
+                } while (used.has(card));
+                player.cards[i] = card;
+                used.add(card);
+            }
+        } else {
+            // Reset inactive players
+            player.cards = [null, null];
         }
     });
     
@@ -780,11 +881,28 @@ function generateRandomCards() {
     }
     
     updateUI();
+    showSuccess('Náhodné karty byly úspěšně vygenerovány!');
 }
 
 function generateRandomFlop() {
+    // Validace: zkontroluj, zda jsou nějací aktivní hráči s kartami
+    const activePlayersWithCards = players.filter(p => p.active && p.cards[0] && p.cards[1]);
+    if (activePlayersWithCards.length === 0) {
+        showError('Nejdříve musíte mít alespoň jednoho aktivního hráče s kartami!');
+        return;
+    }
+    
+    // Validace: zkontroluj, zda už není flop vygenerovaný
+    if (communityCards[0] && communityCards[1] && communityCards[2]) {
+        showWarning('Flop už je vygenerovaný! Chcete ho přepsat?');
+        if (!confirm('Opravdu chcete přepsat současný flop?')) {
+            return;
+        }
+    }
+    
     const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
     let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
+    
     for (let i = 0; i < 3; i++) {
         let card;
         do {
@@ -793,83 +911,216 @@ function generateRandomFlop() {
         communityCards[i] = card;
         used.add(card);
     }
+    
     updateUI();
+    showSuccess('Náhodný flop byl vygenerován!');
 }
 
 function generateRandomTurn() {
+    // Validace: zkontroluj, zda je flop vygenerovaný
+    if (!communityCards[0] || !communityCards[1] || !communityCards[2]) {
+        showError('Nejdříve musíte vygenerovat flop!');
+        return;
+    }
+    
+    // Validace: zkontroluj, zda už není turn vygenerovaný
+    if (communityCards[3]) {
+        showWarning('Turn už je vygenerovaný! Chcete ho přepsat?');
+        if (!confirm('Opravdu chcete přepsat současný turn?')) {
+            return;
+        }
+    }
+    
     const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
     let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
+    
     let card;
     do {
         card = deck[Math.floor(Math.random() * deck.length)];
     } while (used.has(card));
     communityCards[3] = card;
+    used.add(card);
+    
     updateUI();
+    showSuccess('Náhodný turn byl vygenerován!');
 }
 
 function generateRandomRiver() {
+    // Validace: zkontroluj, zda je turn vygenerovaný
+    if (!communityCards[3]) {
+        showError('Nejdříve musíte vygenerovat turn!');
+        return;
+    }
+    
+    // Validace: zkontroluj, zda už není river vygenerovaný
+    if (communityCards[4]) {
+        showWarning('River už je vygenerovaný! Chcete ho přepsat?');
+        if (!confirm('Opravdu chcete přepsat současný river?')) {
+            return;
+        }
+    }
+    
     const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
     let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
+    
     let card;
     do {
         card = deck[Math.floor(Math.random() * deck.length)];
     } while (used.has(card));
     communityCards[4] = card;
+    used.add(card);
+    
     updateUI();
+    showSuccess('Náhodný river byl vygenerován!');
 }
 
 function clearBoard() {
-    communityCards = [];
-    updateUI();
-}
-
-function resetAll() {
-    players.forEach(player => {
-        player.cards = [null, null];
-        player.active = true;
-    });
-    communityCards = [];
-    updateUI();
-}
-
-function calculateProbabilities() {
-    const activePlayers = players.filter(p => p.active && p.cards[0] && p.cards[1]);
-    
-    if (activePlayers.length < 2) {
-        alert('Potřebujete alespoň 2 aktivní hráče s kartami pro výpočet.');
+    // Validace: zkontroluj, zda jsou nějaké karty na boardu
+    if (!communityCards.some(card => card !== null)) {
+        showWarning('Board je už prázdný!');
         return;
     }
     
+    if (confirm('Opravdu chcete smazat všechny karty z boardu?')) {
+        communityCards = [];
+        updateUI();
+        showSuccess('Board byl vyčištěn!');
+    }
+}
+
+function resetAll() {
+    // Validace: zkontroluj, zda jsou nějaké změny k resetování
+    const hasPlayerCards = players.some(p => p.cards[0] || p.cards[1]);
+    const hasBoardCards = communityCards.some(card => card !== null);
+    
+    if (!hasPlayerCards && !hasBoardCards) {
+        showWarning('Nic k resetování - vše je už prázdné!');
+        return;
+    }
+    
+    if (confirm('Opravdu chcete resetovat všechny karty a nastavení?')) {
+        players.forEach(player => {
+            player.cards = [null, null];
+            player.active = true;
+        });
+        communityCards = [];
+        updateUI();
+        showSuccess('Vše bylo resetováno!');
+    }
+}
+
+function calculateProbabilities() {
+    // Validace: zkontroluj, zda jsou alespoň 2 aktivní hráči s kartami
+    const activePlayers = players.filter(p => p.active && p.cards[0] && p.cards[1]);
+    
+    if (activePlayers.length < 2) {
+        showError('Potřebujete alespoň 2 aktivní hráče s kartami pro výpočet!');
+        return;
+    }
+    
+    // Validace: zkontroluj, zda jsou nějaké karty na boardu (alespoň flop)
+    const boardCards = communityCards.filter(card => card !== null);
+    if (boardCards.length < 3) {
+        showError('Potřebujete alespoň flop (3 karty) na boardu pro výpočet!');
+        return;
+    }
+    
+    // Zobraz loading overlay
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'flex';
+    }
+    
     const hands = activePlayers.map(p => p.cards);
-    const board = communityCards.filter(card => card !== null);
+    const board = boardCards;
     
     try {
-        const results = calculateEquity(hands, board, 10000, false);
+        // Použij menší počet iterací pro rychlejší výpočet
+        const results = calculateEquity(hands, board, 50000, false);
         displayResults(results);
+        showSuccess('Výpočet dokončen!');
     } catch (error) {
         console.error('Chyba při výpočtu:', error);
-        alert('Došlo k chybě při výpočtu pravděpodobností.');
+        showError('Došlo k chybě při výpočtu pravděpodobností. Zkontrolujte, zda nejsou duplicitní karty.');
+    } finally {
+        // Skryj loading overlay
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
     }
 }
 
 function displayResults(results) {
-        const resultsSection = document.getElementById('resultsSection');
+    const resultsSection = document.getElementById('resultsSection');
     if (!resultsSection) return;
     
+    // Skryj loading overlay
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+    }
+    
+    // Vypočítej celkový počet kombinací
+    const totalCombinations = results[0]?.count || 0;
+    const calculationTime = results[0]?.time || 0;
+    
+    // Vypočítej procenta pro každého hráče
+    const playerResults = results.map((result, idx) => {
+        const winPercent = (result.wins / result.count) * 100;
+        const tiePercent = (result.ties / result.count) * 100;
+        const losePercent = 100 - winPercent - tiePercent;
+        
+        return {
+            player: idx + 1,
+            cards: result.hand.join(' '),
+            winPercent: round(winPercent, 2),
+            tiePercent: round(tiePercent, 2),
+            losePercent: round(losePercent, 2)
+        };
+    });
+    
+    // Najdi vítěze (hráče s nejvyšším win%)
+    const winner = playerResults.reduce((max, current) => 
+        current.winPercent > max.winPercent ? current : max
+    );
+    
     resultsSection.innerHTML = `
-        <h2>Výsledky</h2>
-        <div class="results-grid">
-            ${results.map((result, idx) => `
-                <div class="result-row">
-                    <div class="player-info">Hráč ${idx + 1}: ${result.hand.join(' ')}</div>
-                    <div class="win-percent">${percent(result.wins / result.count)}</div>
-                    <div class="tie-percent">${percent(result.ties / result.count)}</div>
+        <div class="results-container">
+            <h2>Výsledky úplného výčtu</h2>
+            <div class="results-info">
+                <p><strong>Počet kombinací:</strong> <span id="simulationInfo">${totalCombinations.toLocaleString()}</span></p>
+                <p><strong>Čas výpočtu:</strong> <span id="calculationTime">${seconds(calculationTime)}</span></p>
+                <p><strong>Počet hráčů:</strong> ${playerResults.length}</p>
+            </div>
+            
+            <div class="results-grid">
+                <div class="results-overview">
+                    <div class="overview-header">
+                        <h3>📊 Přehled pravděpodobností</h3>
+                    </div>
+                    <div class="overview-stats">
+                        ${playerResults.map(player => `
+                            <div class="stat-row ${player.player === winner.player ? 'winner' : ''}">
+                                <span class="player-name">Hráč ${player.player} (${player.cards})</span>
+                                <div class="stat-values">
+                                    <span class="win-stat">Výhra: ${player.winPercent}%</span>
+                                    <span class="tie-stat">Remíza: ${player.tiePercent}%</span>
+                                    <span class="lose-stat">Prohra: ${player.losePercent}%</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-            `).join('')}
+            </div>
+            
+            <div class="winner-announcement">
+                <h3>🏆 ${winner.winPercent > 50 ? 'Vítěz' : 'Nejlepší šance'}</h3>
+                <p><strong>Hráč ${winner.player}</strong> má ${winner.winPercent}% šanci na výhru</p>
+            </div>
         </div>
     `;
-        
-        resultsSection.style.display = 'block';
+    
+    resultsSection.style.display = 'block';
 }
 
 // Initialize FULL_DECK after all functions are defined
