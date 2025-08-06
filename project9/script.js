@@ -246,8 +246,8 @@ export function calculateEquity (hands, board = [], iterations = 100000, exhaust
   let results = hands.map(hand => ({
     hand,
     count: 0,
-    wins: 0,
-    ties: 0,
+            wins: 0,
+            ties: 0,
     handChances: RANK_NAMES.map(name => ({ name, count: 0 }))
   }));
   if (board.length === 5) {
@@ -314,16 +314,16 @@ function analyse (results, board) {
     if (ranks[i] === bestRank) {
       if (tie) {
         results[i].ties++;
-      } else {
+            } else {
         results[i].wins++;
       }
     }
     results[i].count++;
     results[i].handChances[parseInt(ranks[i][0])].count++;
   }
-  return results;
-}
-
+        return results;
+    }
+    
 // --- Console functions from console.js ---
 const HAND_PATTERN = /^[AKQJT2-9.][schd.][AKQJT2-9.][schd.]$/;
 const CONSOLE_COLORS = {
@@ -495,6 +495,24 @@ function setupEventListeners() {
     if (randomBtn) {
         randomBtn.addEventListener('click', generateRandomCards);
     }
+
+    // Nová tlačítka pro board
+    const randomFlopBtn = document.getElementById('randomFlopBtn');
+    if (randomFlopBtn) {
+        randomFlopBtn.addEventListener('click', generateRandomFlop);
+    }
+    const randomTurnBtn = document.getElementById('randomTurnBtn');
+    if (randomTurnBtn) {
+        randomTurnBtn.addEventListener('click', generateRandomTurn);
+    }
+    const randomRiverBtn = document.getElementById('randomRiverBtn');
+    if (randomRiverBtn) {
+        randomRiverBtn.addEventListener('click', generateRandomRiver);
+    }
+    const clearBoardBtn = document.getElementById('clearBoardBtn');
+    if (clearBoardBtn) {
+        clearBoardBtn.addEventListener('click', clearBoard);
+    }
 }
 
 function generatePlayers() {
@@ -573,9 +591,165 @@ function togglePlayer(playerId) {
     updateUI();
 }
 
+// --- Card Picker Modal ---
+let pickerTarget = null;
+let pickerCardIdx = null;
+
+// --- Sekvenční režim přidělování karet ---
+let sequentialAssign = false;
+let assignIndex = { player: 0, card: 0, board: 0 };
+let assignHistory = [];
+
 function openCardPicker(target, cardIdx) {
-    // Implement card picker modal
-    console.log('Opening card picker for:', target, cardIdx);
+    // Pokud kliknu na hráče, začíná sekvenční režim
+    if (typeof target === 'number') {
+        sequentialAssign = true;
+        assignIndex.player = target;
+        assignIndex.card = players[target].cards[0] ? 1 : 0;
+        assignIndex.board = 0;
+    }
+    pickerTarget = target;
+    pickerCardIdx = cardIdx;
+    showCardPickerModal();
+}
+
+function showCardPickerModal() {
+    let modal = document.getElementById('cardPickerModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'cardPickerModal';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.background = 'rgba(0,0,0,0.5)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '9999';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div style="background:#fff;padding:24px;border-radius:12px;max-width:400px;max-height:80vh;overflow:auto;">
+        <h3>Vyberte kartu</h3>
+        <div id="pickerGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+        <button id="undoPickerBtn" style="margin-top:16px;margin-right:8px;">Undo</button>
+        <button id="closePickerBtn" style="margin-top:16px;">Zavřít</button>
+    </div>`;
+    document.getElementById('closePickerBtn').onclick = closeCardPicker;
+    document.getElementById('undoPickerBtn').onclick = undoAssignCard;
+    renderPickerGrid();
+    modal.onclick = (e) => { if (e.target === modal) closeCardPicker(); };
+}
+
+function closeCardPicker() {
+    const modal = document.getElementById('cardPickerModal');
+    if (modal) modal.remove();
+    pickerTarget = null;
+    pickerCardIdx = null;
+    sequentialAssign = false;
+    assignIndex = { player: 0, card: 0, board: 0 };
+}
+
+function renderPickerGrid() {
+    const grid = document.getElementById('pickerGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    CARD_VALUES.forEach(value => {
+        CARD_SUITS.forEach(suit => {
+            const card = value + suit;
+            const btn = document.createElement('button');
+            btn.textContent = cardToUnicode(card);
+            btn.style.fontSize = '1.2em';
+            btn.style.padding = '8px';
+            btn.style.cursor = 'pointer';
+            btn.onclick = () => selectCardSequential(card);
+            // Disable if card is already used
+            if (isCardUsed(card)) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+            grid.appendChild(btn);
+        });
+    });
+}
+
+function cardToUnicode(card) {
+    const value = card[0] === 'T' ? '10' : card[0];
+    const suit = card[1];
+    let suitChar = '';
+    if (suit === 'h') suitChar = '♥';
+    if (suit === 'd') suitChar = '♦';
+    if (suit === 'c') suitChar = '♣';
+    if (suit === 's') suitChar = '♠';
+    return value + suitChar;
+}
+
+function isCardUsed(card) {
+    // Check all player cards and community cards
+    for (const p of players) {
+        if (p.cards.includes(card)) return true;
+    }
+    if (communityCards.includes(card)) return true;
+    return false;
+}
+
+function selectCardSequential(card) {
+    if (sequentialAssign) {
+        // Nejprve hráči, pak board
+        if (assignIndex.player < players.length) {
+            players[assignIndex.player].cards[assignIndex.card] = card;
+            assignHistory.push({ type: 'player', player: assignIndex.player, card: assignIndex.card, value: card });
+            // Další karta pro stejného hráče, nebo další hráč
+            if (assignIndex.card === 0) {
+                assignIndex.card = 1;
+            } else {
+                assignIndex.player++;
+                assignIndex.card = 0;
+            }
+        } else if (assignIndex.board < 5) {
+            communityCards[assignIndex.board] = card;
+            assignHistory.push({ type: 'board', board: assignIndex.board, value: card });
+            assignIndex.board++;
+        }
+        updateUI();
+        // Pokud už jsou rozdané všechny karty, zavři picker
+        if (assignIndex.player >= players.length && assignIndex.board >= 5) {
+            closeCardPicker();
+        }
+    } else {
+        // fallback: klasické chování (při kliknutí na konkrétní kartu)
+        if (pickerTarget === 'community') {
+            communityCards[pickerCardIdx] = card;
+            assignHistory.push({ type: 'board', board: pickerCardIdx, value: card });
+        } else {
+            players[pickerTarget].cards[pickerCardIdx] = card;
+            assignHistory.push({ type: 'player', player: pickerTarget, card: pickerCardIdx, value: card });
+        }
+        closeCardPicker();
+        updateUI();
+    }
+}
+
+function undoAssignCard() {
+    if (assignHistory.length === 0) return;
+    const last = assignHistory.pop();
+    if (last.type === 'player') {
+        players[last.player].cards[last.card] = null;
+        // Pokud jsme v sekvenčním režimu, nastav index zpět
+        if (sequentialAssign) {
+            assignIndex.player = last.player;
+            assignIndex.card = last.card;
+        }
+    } else if (last.type === 'board') {
+        communityCards[last.board] = null;
+        if (sequentialAssign) {
+            assignIndex.player = players.length; // už jsme na boardu
+            assignIndex.board = last.board;
+        }
+    }
+    updateUI();
+    renderPickerGrid();
 }
 
 function generateRandomCards() {
@@ -605,6 +779,47 @@ function generateRandomCards() {
         used.add(card);
     }
     
+    updateUI();
+}
+
+function generateRandomFlop() {
+    const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
+    let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
+    for (let i = 0; i < 3; i++) {
+        let card;
+        do {
+            card = deck[Math.floor(Math.random() * deck.length)];
+        } while (used.has(card));
+        communityCards[i] = card;
+        used.add(card);
+    }
+    updateUI();
+}
+
+function generateRandomTurn() {
+    const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
+    let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
+    let card;
+    do {
+        card = deck[Math.floor(Math.random() * deck.length)];
+    } while (used.has(card));
+    communityCards[3] = card;
+    updateUI();
+}
+
+function generateRandomRiver() {
+    const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
+    let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
+    let card;
+    do {
+        card = deck[Math.floor(Math.random() * deck.length)];
+    } while (used.has(card));
+    communityCards[4] = card;
+    updateUI();
+}
+
+function clearBoard() {
+    communityCards = [];
     updateUI();
 }
 
@@ -638,7 +853,7 @@ function calculateProbabilities() {
 }
 
 function displayResults(results) {
-    const resultsSection = document.getElementById('resultsSection');
+        const resultsSection = document.getElementById('resultsSection');
     if (!resultsSection) return;
     
     resultsSection.innerHTML = `
@@ -653,8 +868,8 @@ function displayResults(results) {
             `).join('')}
         </div>
     `;
-    
-    resultsSection.style.display = 'block';
+        
+        resultsSection.style.display = 'block';
 }
 
 // Initialize FULL_DECK after all functions are defined
