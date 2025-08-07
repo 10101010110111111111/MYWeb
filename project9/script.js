@@ -1,1127 +1,968 @@
-// Poker Calculator Application
-// (Původní třída PokerCalculator byla odstraněna pro refaktorování.)
+// Poker Calculator - Vanilla JavaScript Implementation
 
-// --- Global state variables ---
+// Constants
+const CARD_VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+const CARD_SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
+const SUIT_SYMBOLS = {
+    hearts: '♥',
+    diamonds: '♦',
+    clubs: '♣',
+    spades: '♠'
+};
+const SUIT_COLORS = {
+    hearts: 'red',
+    diamonds: 'red',
+    clubs: 'black',
+    spades: 'black'
+};
+const HAND_RANKINGS = [
+    'High Card',
+    'One Pair', 
+    'Two Pair',
+    'Three of a Kind',
+    'Straight',
+    'Flush',
+    'Full House',
+    'Four of a Kind',
+    'Straight Flush',
+    'Royal Flush'
+];
+
+// Global State
 let players = [];
 let communityCards = [null, null, null, null, null];
-let currentPlayerCount = 2;
-let cardHistory = []; // Historie pro undo funkci
-
-// --- Constants from utils.js ---
-export const CARD_VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-export const CARD_SUITS = ['s', 'c', 'h', 'd'];
-export const RANK_NAMES = [
-  'high card',
-  'one pair',
-  'two pair',
-  'three of a kind',
-  'straight',
-  'flush',
-  'full house',
-  'four of a kind',
-  'straight flush',
-  'royal flush'
-];
-
-const NUMERICAL_VALUES = {
-  T: 10,
-  J: 11,
-  Q: 12,
-  K: 13,
-  A: 14
-};
-
-const STRAIGHTS = [
-  'AKQJT',
-  'KQJT9',
-  'QJT98',
-  'JT987',
-  'T9876',
-  '98765',
-  '87654',
-  '76543',
-  '65432',
-  '5432A'
-];
-
-// --- Utility functions from utils.js ---
-export function numericalValue (card) {
-  const cardStr = Array.isArray(card) ? card[0] : card[0];
-  return NUMERICAL_VALUES[cardStr] || parseInt(cardStr);
-}
-
-export function numericalSort (a, b) {
-  const aStr = Array.isArray(a) ? a[0] : a[0];
-  const bStr = Array.isArray(b) ? b[0] : b[0];
-  return numericalValue(bStr) - numericalValue(aStr);
-}
-
-export function convertToHex (input) {
-  const inputArray = Array.isArray(input) ? input : input.split('');
-  return inputArray
-    .map(c => numericalValue(c).toString(16))
-    .join('');
-}
-
-export function parseCards (string) {
-  if (!string) {
-    return undefined;
-  }
-  return string.match(/[AKQJT2-9.][schd.]/g) || undefined;
-}
-
-export function percent (number) {
-  if (number === 0) {
-    return '·';
-  }
-  if (number > 0 && number < 0.001) {
-    return '0.1%';
-  }
-  return `${round(number * 100)}%`;
-}
-
-export function seconds (ms) {
-  if (ms >= 1000) {
-    return `${round(ms / 1000)}s`;
-  }
-  return `${ms}ms`;
-}
-
-export function getStraight (hand) {
-  const values = Array.isArray(hand) ? hand.join('') : hand;
-  const suffix = values[0] === 'A' ? 'A' : ''; // Append A to capture 5432A
-  for (let i = 0; i !== STRAIGHTS.length; i++) {
-    if (`${values}${suffix}`.includes(STRAIGHTS[i])) {
-      return convertToHex(STRAIGHTS[i]);
-    }
-  }
-  return null;
-}
-
-export function padStart (string, length, padString = ' ') {
-  if (string.length >= length) {
-    return string;
-  }
-  return padString.repeat(length - string.length) + string;
-}
-
-export function padEnd (string, length, padString = ' ') {
-  if (string.length >= length) {
-    return string;
-  }
-  return string + padString.repeat(length - string.length);
-}
-
-function round (number, dp = 2) {
-  const multiplier = dp * 10;
-  return (Math.round(number * multiplier) / multiplier).toFixed(dp);
-}
-
-// --- Deck functions from deck.js ---
-export function createDeck (withoutCards = []) {
-  const deck = [];
-  for (let i = 0; i !== CARD_VALUES.length; i++) {
-    for (let j = 0; j !== CARD_SUITS.length; j++) {
-      const card = CARD_VALUES[i] + CARD_SUITS[j];
-      if (!withoutCards.includes(card)) {
-        deck.push(card);
-      }
-    }
-  }
-  return deck;
-}
-
-export function deal (withoutCards, count) {
-  const cards = [];
-  while (cards.length !== count) {
-    const index = Math.floor(Math.random() * FULL_DECK.length);
-    const card = FULL_DECK[index];
-    if (!cards.includes(card) && !withoutCards.includes(card)) {
-      cards.push(card);
-    }
-  }
-  return cards;
-}
-
-// --- Lookup data (simplified version) ---
-const lookup = {
-  rank: {}, // Will be populated with rank data
-  flush: {} // Will be populated with flush data
-};
-
-// --- Rank functions from rank.js ---
-export function rankValues (values) {
-  // Ensure values is an array
-  const valueArray = Array.isArray(values) ? values : values.split('');
-  
-  let total = 0;
-  let max = 0;
-  const cardMatches = {};
-  for (let i = 0; i !== valueArray.length; i++) {
-    cardMatches[valueArray[i]] = 0;
-    for (let j = 0; j !== valueArray.length; j++) {
-      if (i === j) continue; // TODO: Could this be i <= j?
-      const first = valueArray[i];
-      const second = valueArray[j];
-      if (first === second) {
-        cardMatches[first]++;
-        total++;
-        max = Math.max(cardMatches[first], max);
-      }
-    }
-  }
-  const matches = total / 2;
-  const straight = getStraight(dedupe(valueArray).join('')); // Dedupe to match straights like AKKKQJT
-  const sortedValues = valueArray.sort((a, b) => cardMatches[b] - cardMatches[a]);
-  const kickers = convertToHex(sortedValues.join(''));
-
-  if (max > 3) {
-    return undefined;
-  }
-  if (max === 3) {
-    return '7' + kickers.slice(0, 4) + getHighestKicker(kickers.slice(4)); // four of a kind
-  }
-  if (max === 2 && matches > 3) {
-    return '6' + kickers.slice(0, 5); // full house
-  }
-  if (straight) {
-    return '4' + straight; // straight
-  }
-  if (max === 2) {
-    return '3' + kickers.slice(0, 5); // three of a kind
-  }
-  if (max === 1 && matches > 1) {
-    return '2' + kickers.slice(0, 4) + getHighestKicker(kickers.slice(4)); // two pair
-  }
-  if (max === 1) {
-    return '1' + kickers.slice(0, 5); // one pair
-  }
-  return '0' + kickers.slice(0, 5); // high card
-}
-
-export function rankHand (input) {
-  const hand = input.slice(0).sort(numericalSort);
-  const values = hand.map(c => c[0]);
-  const suits = hand.map(c => c[1]);
-  
-  // Use rankValues for now since lookup data is not populated
-  const rank = rankValues(values.join(''));
-  const flush = getFlush(suits.sort().join(''));
-
-  if (!rank) {
-    throw Error(`Invalid hand: ${hand.join(' ')}`);
-  }
-
-  const straight = rank[0] === '4';
-
-  if (straight && flush) {
-    const flushed = hand.filter(c => c[1] === flush).map(c => c[0]);
-    const kickers = getStraight(flushed.join(''));
-    if (kickers) {
-      // royal or straight flush
-      return (kickers[0] === 'e' ? '9' : '8') + kickers;
-    }
-  }
-  if (flush) {
-    // Fix kickers for flush
-    // ie the highest cards of the flush suit
-    const flushCards = hand.filter(c => c[1] === flush).slice(0, 5);
-    const kickers = convertToHex(flushCards.map(c => c[0]).join(''));
-    return '5' + kickers; // flush
-  }
-  return rank;
-}
-
-export function getFlush (string) {
-  const match = string.match(/(s{5}|c{5}|d{5}|h{5})/);
-  return match ? match[0][0] : undefined;
-}
-
-function getHighestKicker (string) {
-  return string.split('').sort().reverse()[0];
-}
-
-function dedupe (array) {
-  return array.filter(function (item, index, array) {
-    return array.indexOf(item) === index;
-  });
-}
-
-// --- Calculate functions from calculate.js ---
-export function calculateEquity (hands, board = [], iterations = 100000, exhaustive = false) {
-  let results = hands.map(hand => ({
-    hand,
-    count: 0,
-            wins: 0,
-            ties: 0,
-    handChances: RANK_NAMES.map(name => ({ name, count: 0 }))
-  }));
-  if (board.length === 5) {
-    results = analyse(results, board);
-  } else if (board.length >= 3) {
-    const deck = createDeck(board.concat(...hands));
-    for (let i = 0; i !== deck.length; i++) {
-      if (board.length === 4) {
-        results = analyse(results, board.concat(deck[i]));
-        continue;
-      }
-      for (let j = 0; j !== deck.length; j++) {
-        if (i >= j) continue;
-        results = analyse(results, board.concat([ deck[i], deck[j] ]));
-      }
-    }
-  } else if (exhaustive) {
-    const deck = createDeck(board.concat(...hands));
-    for (let a = 0; a !== deck.length; a++) {
-      for (let b = 0; b !== deck.length; b++) {
-        if (a <= b) continue;
-        for (let c = 0; c !== deck.length; c++) {
-          if (b <= c) continue;
-          for (let d = 0; d !== deck.length; d++) {
-            if (c <= d) continue;
-            for (let e = 0; e !== deck.length; e++) {
-              if (d <= e) continue;
-              results = analyse(results, [deck[a], deck[b], deck[c], deck[d], deck[e]]);
-            }
-          }
-        }
-      }
-    }
-  } else {
-    for (let i = 0; i !== iterations; i++) {
-      const randomCards = deal([].concat(...hands), 5 - board.length);
-      results = analyse(results, board.concat(randomCards));
-    }
-  }
-  const maxWins = Math.max(...results.map(hand => hand.wins));
-  return results.map(hand => ({
-    ...hand,
-    favourite: hand.wins === maxWins
-  }));
-}
-
-function analyse (results, board) {
-  const ranks = results.map(result => {
-    if (result.hand.includes('..')) {
-      const randomCards = deal(board.concat(...results.map(r => r.hand)), 4);
-      const hand = result.hand.map((card, index) => {
-        if (card === '..') {
-          return randomCards[index];
-        }
-        return card;
-      });
-      return rankHand(hand.concat(board));
-    }
-    return rankHand(result.hand.concat(board));
-  });
-  const bestRank = ranks.slice(0).sort().reverse()[0];
-  const tie = ranks.filter(rank => rank === bestRank).length > 1;
-  for (let i = 0; i !== results.length; i++) {
-    if (ranks[i] === bestRank) {
-      if (tie) {
-        results[i].ties++;
-            } else {
-        results[i].wins++;
-      }
-    }
-    results[i].count++;
-    results[i].handChances[parseInt(ranks[i][0])].count++;
-  }
-        return results;
-    }
-    
-// --- Console functions from console.js ---
-const HAND_PATTERN = /^[AKQJT2-9.][schd.][AKQJT2-9.][schd.]$/;
-const CONSOLE_COLORS = {
-  black: '30',
-  red: '31',
-  green: '32',
-  yellow: '33',
-  blue: '34',
-  magenta: '35',
-  cyan: '36',
-  white: '37',
-  grey: '90'
-};
-
-export function color (string, color) {
-  if (!color || !CONSOLE_COLORS[color]) {
-    return string;
-  }
-  return `\x1b[${CONSOLE_COLORS[color]}m${string}\x1b[0m`;
-}
-
-export function colorCards (cards) {
-  return cards.map(colorCard).join(' ');
-}
-
-function colorCard (card) {
-  if (/^.[sc]$/.test(card)) {
-    return color(card, 'blue');
-  }
-  if (/^.[dh]$/.test(card)) {
-    return color(card, 'red');
-  }
-  if (card === '..') {
-    return color(card, 'yellow');
-  }
-  return card;
-}
-
-export function getHands (argv = []) {
-  return argv.filter(string => HAND_PATTERN.test(string));
-}
-
-export function hasOption (option, argv = []) {
-  return argv.includes(option) || argv.includes('-' + option[2]);
-}
-
-export function getOption (option, argv = []) {
-  const index = argv.indexOf(option);
-  if (index === -1) {
-    if (option.length !== 2) {
-      return getOption('-' + option[2], argv);
-    }
-    return undefined;
-  }
-  const value = argv[index + 1];
-  if (/^\d+$/.test(value)) {
-    return parseInt(value);
-  }
-  return value;
-}
-
-// --- Poker odds functions from poker-odds.js ---
-export function log (string, colorName) {
-  if (!string) {
-    return console.log('');
-  }
-  if (colorName) {
-    return console.log(`  ${color(string, colorName)}`);
-  }
-  console.log(`  ${string}`);
-}
-
-// --- Generate lookup functions from generate-lookup.js ---
-export function generateRankData () {
-  const data = {};
-  for (let a = 0; a !== CARD_VALUES.length; a++) {
-    for (let b = 0; b !== CARD_VALUES.length; b++) {
-      for (let c = 0; c !== CARD_VALUES.length; c++) {
-        for (let d = 0; d !== CARD_VALUES.length; d++) {
-          for (let e = 0; e !== CARD_VALUES.length; e++) {
-            for (let f = 0; f !== CARD_VALUES.length; f++) {
-              for (let g = 0; g !== CARD_VALUES.length; g++) {
-                if (a < b || b < c || c < d || d < e || e < f || f < g) {
-                  continue;
-                }
-                const values = [
-                  CARD_VALUES[a],
-                  CARD_VALUES[b],
-                  CARD_VALUES[c],
-                  CARD_VALUES[d],
-                  CARD_VALUES[e],
-                  CARD_VALUES[f],
-                  CARD_VALUES[g]
-                ];
-                data[values.join('')] = rankValues(values);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return data;
-}
-
-export function generateFlushData () {
-  const data = {};
-  for (let a = 0; a !== CARD_SUITS.length; a++) {
-    for (let b = 0; b !== CARD_SUITS.length; b++) {
-      for (let c = 0; c !== CARD_SUITS.length; c++) {
-        for (let d = 0; d !== CARD_SUITS.length; d++) {
-          for (let e = 0; e !== CARD_SUITS.length; e++) {
-            for (let f = 0; f !== CARD_SUITS.length; f++) {
-              for (let g = 0; g !== CARD_SUITS.length; g++) {
-                const key = [
-                  CARD_SUITS[a],
-                  CARD_SUITS[b],
-                  CARD_SUITS[c],
-                  CARD_SUITS[d],
-                  CARD_SUITS[e],
-                  CARD_SUITS[f],
-                  CARD_SUITS[g]
-                ].sort().join('');
-                data[key] = getFlush(key);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return data;
-}
-
-// --- UI State ---
 let selectedCards = new Set();
-let pickerTarget = null;
-let pickerCardIdx = null;
-let sequentialAssign = false;
-let assignIndex = { player: 0, card: 0, board: 0 };
+let isCalculating = false;
+let cardPickerTarget = null;
 
-// --- UI Setup ---
-document.addEventListener('DOMContentLoaded', () => {
-    setupEventListeners();
-    generatePlayers();
-    updateUI();
-});
+// DOM Elements
+const elements = {
+    playerCount: null,
+    playersGrid: null,
+    communityCards: null,
+    alert: null,
+    alertIcon: null,
+    alertMessage: null,
+    calculateBtn: null,
+    resetBtn: null,
+    randomCardsBtn: null,
+    randomFlopBtn: null,
+    randomTurnBtn: null,
+    randomRiverBtn: null,
+    clearBoardBtn: null,
+    progressCard: null,
+    progressFill: null,
+    progressPercentage: null,
+    resultsCard: null,
+    cardPickerModal: null,
+    cardPickerGrid: null,
+    cardPickerDescription: null,
+    cancelPickerBtn: null,
+    activePlayersCount: null,
+    playersWithCardsCount: null,
+    boardCardCount: null,
+    calculationTime: null,
+    totalCombinations: null,
+    resultsOverview: null,
+    resultsDetailed: null,
+    tabButtons: null,
+    tabContents: null
+};
 
-function setupEventListeners() {
-    const playerCountElement = document.getElementById('playerCount');
-    if (playerCountElement) {
-        playerCountElement.addEventListener('change', (e) => {
-            currentPlayerCount = parseInt(e.target.value);
-            generatePlayers();
-            updateUI();
-        });
-    }
-    
-    const calculateBtn = document.getElementById('calculateBtn');
-    if (calculateBtn) {
-        calculateBtn.addEventListener('click', calculateProbabilities);
-    }
-    
-    const resetBtn = document.getElementById('resetBtn');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', resetAll);
-    }
-    
-    const randomBtn = document.getElementById('randomBtn');
-    if (randomBtn) {
-        randomBtn.addEventListener('click', generateRandomCards);
-    }
-
-    // Nová tlačítka pro board
-    const randomFlopBtn = document.getElementById('randomFlopBtn');
-    if (randomFlopBtn) {
-        randomFlopBtn.addEventListener('click', generateRandomFlop);
-    }
-    const randomTurnBtn = document.getElementById('randomTurnBtn');
-    if (randomTurnBtn) {
-        randomTurnBtn.addEventListener('click', generateRandomTurn);
-    }
-    const randomRiverBtn = document.getElementById('randomRiverBtn');
-    if (randomRiverBtn) {
-        randomRiverBtn.addEventListener('click', generateRandomRiver);
-    }
-    const clearBoardBtn = document.getElementById('clearBoardBtn');
-    if (clearBoardBtn) {
-        clearBoardBtn.addEventListener('click', clearBoard);
-    }
+// Initialize DOM elements
+function initializeElements() {
+    elements.playerCount = document.getElementById('player-count');
+    elements.playersGrid = document.getElementById('players-grid');
+    elements.communityCards = document.getElementById('community-cards');
+    elements.alert = document.getElementById('alert');
+    elements.alertIcon = elements.alert?.querySelector('.alert-icon');
+    elements.alertMessage = elements.alert?.querySelector('.alert-message');
+    elements.calculateBtn = document.getElementById('calculate-btn');
+    elements.resetBtn = document.getElementById('reset-btn');
+    elements.randomCardsBtn = document.getElementById('random-cards-btn');
+    elements.randomFlopBtn = document.getElementById('random-flop-btn');
+    elements.randomTurnBtn = document.getElementById('random-turn-btn');
+    elements.randomRiverBtn = document.getElementById('random-river-btn');
+    elements.clearBoardBtn = document.getElementById('clear-board-btn');
+    elements.progressCard = document.getElementById('progress-card');
+    elements.progressFill = document.getElementById('progress-fill');
+    elements.progressPercentage = document.getElementById('progress-percentage');
+    elements.resultsCard = document.getElementById('results-card');
+    elements.cardPickerModal = document.getElementById('card-picker-modal');
+    elements.cardPickerGrid = document.getElementById('card-picker-grid');
+    elements.cardPickerDescription = document.getElementById('card-picker-description');
+    elements.cancelPickerBtn = document.getElementById('cancel-picker-btn');
+    elements.activePlayersCount = document.getElementById('active-players-count');
+    elements.playersWithCardsCount = document.getElementById('players-with-cards-count');
+    elements.boardCardCount = document.getElementById('board-card-count');
+    elements.calculationTime = document.getElementById('calculation-time');
+    elements.totalCombinations = document.getElementById('total-combinations');
+    elements.resultsOverview = document.getElementById('results-overview');
+    elements.resultsDetailed = document.getElementById('results-detailed');
+    elements.tabButtons = document.querySelectorAll('.tab-button');
+    elements.tabContents = document.querySelectorAll('.tab-content');
 }
 
+// Utility Functions
+function cardToString(card) {
+    return `${card.value}${card.suit[0]}`;
+}
+
+function isCardUsed(card) {
+    return selectedCards.has(cardToString(card));
+}
+
+function getCardValue(value) {
+    if (value === 'A') return 14;
+    if (value === 'K') return 13;
+    if (value === 'Q') return 12;
+    if (value === 'J') return 11;
+    return parseInt(value);
+}
+
+function showAlert(type, message) {
+    if (!elements.alert) return;
+    
+    elements.alert.className = `alert ${type}`;
+    elements.alertIcon.className = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+    elements.alertMessage.textContent = message;
+    elements.alert.classList.remove('hidden');
+    
+    setTimeout(() => {
+        elements.alert.classList.add('hidden');
+    }, 3000);
+}
+
+function addCardToSelected(card) {
+    selectedCards.add(cardToString(card));
+}
+
+function removeCardFromSelected(card) {
+    selectedCards.delete(cardToString(card));
+}
+
+// Player Management
 function generatePlayers() {
+    const count = parseInt(elements.playerCount.value);
     players = [];
-    for (let i = 0; i < currentPlayerCount; i++) {
+    
+    for (let i = 0; i < count; i++) {
         players.push({
             id: i,
+            name: `Player ${i + 1}`,
             cards: [null, null],
             active: true
         });
     }
-}
-
-function updateUI() {
+    
     renderPlayers();
-    renderCommunityCards();
+    updateCounts();
 }
 
-function renderPlayers() {
-    const grid = document.getElementById('playersGrid');
-    if (!grid) return;
+function togglePlayer(playerIndex) {
+    const player = players[playerIndex];
+    if (!player) return;
     
-    grid.innerHTML = '';
-    players.forEach((player, idx) => {
-        const div = document.createElement('div');
-        div.className = 'player-card';
-        div.innerHTML = `
-            <div class="player-header">
-                <span class="player-name">Hráč ${idx + 1}</span>
-                <div class="player-toggle">
-                    <div class="toggle-switch ${player.active ? 'active' : ''}" data-player="${idx}"></div>
-                </div>
-            </div>
-            <div class="player-cards">
-                <div class="card ${player.cards[0] ? 'selected' : ''}" data-player="${idx}" data-card="0">
-                    ${player.cards[0] || '<i class="fas fa-plus"></i>'}
-                </div>
-                <div class="card ${player.cards[1] ? 'selected' : ''}" data-player="${idx}" data-card="1">
-                    ${player.cards[1] || '<i class="fas fa-plus"></i>'}
-                </div>
-            </div>
-        `;
-        grid.appendChild(div);
-        
-        // Add event listeners
-        div.querySelectorAll('.card').forEach(cardEl => {
-            cardEl.addEventListener('click', () => {
-                openCardPicker(idx, parseInt(cardEl.dataset.card));
-            });
-        });
-        
-        div.querySelector('.toggle-switch').addEventListener('click', () => {
-            togglePlayer(idx);
-        });
-    });
-}
-
-function renderCommunityCards() {
-    const communitySection = document.querySelector('.community-cards');
-    if (!communitySection) return;
-    
-    communitySection.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-        const cardSlot = document.createElement('div');
-        cardSlot.className = 'card-slot';
-        cardSlot.innerHTML = communityCards[i] || '<i class="fas fa-plus"></i>';
-        cardSlot.addEventListener('click', () => {
-            openCardPicker('community', i);
-        });
-        communitySection.appendChild(cardSlot);
-    }
-}
-
-function togglePlayer(playerId) {
-    // Validace: zkontroluj, zda je playerId platný
-    if (playerId < 0 || playerId >= players.length) {
-        showError('Neplatný hráč!');
-        return;
-    }
-    
-    const player = players[playerId];
     const wasActive = player.active;
     
-    // Pokud deaktivujeme hráče, smaž jeho karty
     if (wasActive) {
-        if (player.cards[0] || player.cards[1]) {
-            if (confirm('Opravdu chcete deaktivovat hráče? Jeho karty budou smazány.')) {
-                player.cards = [null, null];
-                player.active = false;
-            } else {
-                return; // Uživatel zrušil
-            }
-        } else {
-            player.active = false;
-        }
+        // Remove cards from selected when deactivating
+        if (player.cards[0]) removeCardFromSelected(player.cards[0]);
+        if (player.cards[1]) removeCardFromSelected(player.cards[1]);
+        player.cards = [null, null];
+        player.active = false;
     } else {
         player.active = true;
     }
     
-    updateUI();
-    
-    if (wasActive) {
-        showSuccess(`Hráč ${playerId + 1} byl deaktivován`);
-    } else {
-        showSuccess(`Hráč ${playerId + 1} byl aktivován`);
-    }
+    renderPlayers();
+    updateCounts();
+    showAlert('success', `${player.name} ${player.active ? 'activated' : 'deactivated'}`);
 }
 
-// --- Card Picker Modal ---
-
-function openCardPicker(target, cardIdx) {
-    // Validace: zkontroluj, zda je target platný
-    if (target === 'community') {
-        // Pro community karty
-        if (cardIdx < 0 || cardIdx > 4) {
-            showError('Neplatná pozice karty na boardu!');
-            return;
-        }
-    } else {
-        // Pro hráče
-        if (target < 0 || target >= players.length) {
-            showError('Neplatný hráč!');
-            return;
-        }
-        if (cardIdx < 0 || cardIdx > 1) {
-            showError('Neplatná pozice karty hráče!');
-            return;
-        }
-        if (!players[target].active) {
-            showError('Hráč není aktivní! Nejdříve ho aktivujte.');
-            return;
-        }
+function setPlayerCard(playerIndex, cardIndex, card) {
+    const player = players[playerIndex];
+    if (!player) return;
+    
+    // Remove old card from selected
+    if (player.cards[cardIndex]) {
+        removeCardFromSelected(player.cards[cardIndex]);
     }
     
-    pickerTarget = target;
-    pickerCardIdx = cardIdx;
-    sequentialAssign = true;
-    assignIndex = { player: 0, card: 0, board: 0 };
+    // Set new card
+    player.cards[cardIndex] = card;
     
-    showCardPickerModal();
+    // Add new card to selected
+    if (card) {
+        addCardToSelected(card);
+    }
+    
+    renderPlayers();
+    updateCounts();
 }
 
-function showCardPickerModal() {
-    let modal = document.getElementById('cardPickerModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'cardPickerModal';
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.width = '100vw';
-        modal.style.height = '100vh';
-        modal.style.background = 'rgba(0,0,0,0.5)';
-        modal.style.display = 'flex';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
-        modal.style.zIndex = '9999';
-        document.body.appendChild(modal);
+// Community Cards Management
+function setCommunityCard(index, card) {
+    // Remove old card from selected
+    if (communityCards[index]) {
+        removeCardFromSelected(communityCards[index]);
     }
-    modal.innerHTML = `<div style="background:#fff;padding:24px;border-radius:12px;max-width:400px;max-height:80vh;overflow:auto;">
-        <h3>Vyberte kartu</h3>
-        <div id="pickerGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
-        <button id="undoPickerBtn" style="margin-top:16px;margin-right:8px;">Undo</button>
-        <button id="closePickerBtn" style="margin-top:16px;">Zavřít</button>
-    </div>`;
-    document.getElementById('closePickerBtn').onclick = closeCardPicker;
-    document.getElementById('undoPickerBtn').onclick = undoAssignCard;
-    renderPickerGrid();
-    modal.onclick = (e) => { if (e.target === modal) closeCardPicker(); };
+    
+    // Set new card
+    communityCards[index] = card;
+    
+    // Add new card to selected
+    if (card) {
+        addCardToSelected(card);
+    }
+    
+    renderCommunityCards();
+    updateCounts();
+}
+
+// Rendering Functions
+function renderCard(card, onClick) {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'poker-card';
+    
+    if (!card) {
+        cardEl.classList.add('empty');
+        cardEl.innerHTML = '+';
+        if (onClick) cardEl.addEventListener('click', onClick);
+        return cardEl;
+    }
+    
+    cardEl.classList.add(SUIT_COLORS[card.suit]);
+    cardEl.innerHTML = `
+        <div class="card-value">${card.value}</div>
+        <div class="card-suit">${SUIT_SYMBOLS[card.suit]}</div>
+    `;
+    
+    if (onClick) cardEl.addEventListener('click', onClick);
+    return cardEl;
+}
+
+function renderPlayers() {
+    if (!elements.playersGrid) return;
+    
+    elements.playersGrid.innerHTML = '';
+    
+    players.forEach((player, index) => {
+        const playerEl = document.createElement('div');
+        playerEl.className = `player-card ${player.active ? 'active' : 'inactive'}`;
+        
+        playerEl.innerHTML = `
+            <div class="player-header">
+                <div class="player-name">${player.name}</div>
+                <div class="player-toggle">
+                    <div class="toggle-switch ${player.active ? 'active' : ''}" data-player="${index}"></div>
+                    <span style="font-size: 0.875rem; color: var(--text-light);">Active</span>
+                </div>
+            </div>
+            <div class="player-cards" id="player-cards-${index}">
+            </div>
+        `;
+        
+        // Add toggle event listener
+        const toggle = playerEl.querySelector('.toggle-switch');
+        toggle.addEventListener('click', () => togglePlayer(index));
+        
+        // Add cards
+        const cardsContainer = playerEl.querySelector(`#player-cards-${index}`);
+        cardsContainer.appendChild(renderCard(player.cards[0], () => openCardPicker('player', index, 0)));
+        cardsContainer.appendChild(renderCard(player.cards[1], () => openCardPicker('player', index, 1)));
+        
+        elements.playersGrid.appendChild(playerEl);
+    });
+}
+
+function renderCommunityCards() {
+    if (!elements.communityCards) return;
+    
+    elements.communityCards.innerHTML = '';
+    
+    const labels = ['Flop 1', 'Flop 2', 'Flop 3', 'Turn', 'River'];
+    
+    communityCards.forEach((card, index) => {
+        const container = document.createElement('div');
+        container.className = 'community-card-container';
+        
+        const cardEl = renderCard(card, () => openCardPicker('community', index));
+        const label = document.createElement('div');
+        label.className = 'community-label';
+        label.textContent = labels[index];
+        
+        container.appendChild(cardEl);
+        container.appendChild(label);
+        elements.communityCards.appendChild(container);
+    });
+}
+
+function updateCounts() {
+    const activePlayers = players.filter(p => p.active);
+    const playersWithCards = players.filter(p => p.active && p.cards[0] && p.cards[1]);
+    const boardCards = communityCards.filter(card => card !== null);
+    
+    if (elements.activePlayersCount) elements.activePlayersCount.textContent = activePlayers.length;
+    if (elements.playersWithCardsCount) elements.playersWithCardsCount.textContent = playersWithCards.length;
+    if (elements.boardCardCount) elements.boardCardCount.textContent = boardCards.length;
+}
+
+// Card Picker
+function openCardPicker(type, index, cardIndex) {
+    if (type === 'player' && !players[index]?.active) {
+        showAlert('error', 'Player is not active! Activate them first.');
+        return;
+    }
+    
+    cardPickerTarget = { type, index, cardIndex };
+    
+    // Update description
+    let description = '';
+    if (type === 'player') {
+        description = `Choose a card for ${players[index].name} - Card ${cardIndex + 1}`;
+    } else {
+        const labels = ['Flop 1', 'Flop 2', 'Flop 3', 'Turn', 'River'];
+        description = `Choose a card for Community - ${labels[index]}`;
+    }
+    
+    if (elements.cardPickerDescription) {
+        elements.cardPickerDescription.textContent = description;
+    }
+    
+    renderCardPicker();
+    elements.cardPickerModal?.classList.remove('hidden');
 }
 
 function closeCardPicker() {
-    const modal = document.getElementById('cardPickerModal');
-    if (modal) modal.remove();
-    pickerTarget = null;
-    pickerCardIdx = null;
-    sequentialAssign = false;
-    assignIndex = { player: 0, card: 0, board: 0 };
+    cardPickerTarget = null;
+    elements.cardPickerModal?.classList.add('hidden');
 }
 
-function renderPickerGrid() {
-    const grid = document.getElementById('pickerGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    CARD_VALUES.forEach(value => {
-        CARD_SUITS.forEach(suit => {
-            const card = value + suit;
-            const btn = document.createElement('button');
-            btn.textContent = cardToUnicode(card);
-            btn.style.fontSize = '1.2em';
-            btn.style.padding = '8px';
-            btn.style.cursor = 'pointer';
-            btn.onclick = () => selectCardSequential(card);
-            // Disable if card is already used
-            if (isCardUsed(card)) {
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
+function selectCard(card) {
+    if (!cardPickerTarget) return;
+    
+    if (isCardUsed(card)) {
+        showAlert('error', 'This card is already in use!');
+        return;
+    }
+    
+    if (cardPickerTarget.type === 'player') {
+        setPlayerCard(cardPickerTarget.index, cardPickerTarget.cardIndex, card);
+    } else {
+        setCommunityCard(cardPickerTarget.index, card);
+    }
+    
+    closeCardPicker();
+    showAlert('success', 'Card assigned successfully!');
+}
+
+function renderCardPicker() {
+    if (!elements.cardPickerGrid) return;
+    
+    elements.cardPickerGrid.innerHTML = '';
+    
+    CARD_SUITS.forEach(suit => {
+        const row = document.createElement('div');
+        row.className = 'card-row';
+        
+        CARD_VALUES.forEach(value => {
+            const card = { value, suit };
+            const isUsed = isCardUsed(card);
+            
+            const cardEl = document.createElement('button');
+            cardEl.className = `picker-card ${SUIT_COLORS[suit]} ${isUsed ? 'disabled' : ''}`;
+            cardEl.innerHTML = `
+                <div class="picker-card-value">${value}</div>
+                <div class="picker-card-suit">${SUIT_SYMBOLS[suit]}</div>
+            `;
+            
+            if (!isUsed) {
+                cardEl.addEventListener('click', () => selectCard(card));
             }
-            grid.appendChild(btn);
+            
+            row.appendChild(cardEl);
         });
+        
+        elements.cardPickerGrid.appendChild(row);
     });
 }
 
-function cardToUnicode(card) {
-    const value = card[0] === 'T' ? '10' : card[0];
-    const suit = card[1];
-    let suitChar = '';
-    if (suit === 'h') suitChar = '♥';
-    if (suit === 'd') suitChar = '♦';
-    if (suit === 'c') suitChar = '♣';
-    if (suit === 's') suitChar = '♠';
-    return value + suitChar;
-}
-
-function isCardUsed(card) {
-    // Check all player cards and community cards
-    for (const p of players) {
-        if (p.cards.includes(card)) return true;
-    }
-    if (communityCards.includes(card)) return true;
-    return false;
-}
-
-function selectCardSequential(card) {
-    // Validace: zkontroluj, zda je karta už použita
-    if (isCardUsed(card)) {
-        showError('Tato karta už je použita! Vyberte jinou kartu.');
-        return;
-    }
-    
-    // Najdi další volnou pozici pro kartu
-    let target, cardIdx;
-    
-    // Nejdřív zkus najít volnou pozici u hráčů
-    for (let playerId = 0; playerId < players.length; playerId++) {
-        if (!players[playerId].active) continue;
+// Random Card Generation
+function getRandomCard() {
+    let attempts = 0;
+    while (attempts < 1000) {
+        const value = CARD_VALUES[Math.floor(Math.random() * CARD_VALUES.length)];
+        const suit = CARD_SUITS[Math.floor(Math.random() * CARD_SUITS.length)];
+        const card = { value, suit };
         
-        for (let cardPos = 0; cardPos < 2; cardPos++) {
-            if (!players[playerId].cards[cardPos]) {
-                target = playerId;
-                cardIdx = cardPos;
-                break;
-            }
+        if (!isCardUsed(card)) {
+            return card;
         }
-        if (target !== undefined) break;
+        attempts++;
     }
-    
-    // Pokud nejsou volné pozice u hráčů, použij board
-    if (target === undefined) {
-        for (let boardPos = 0; boardPos < 5; boardPos++) {
-            if (!communityCards[boardPos]) {
-                target = 'community';
-                cardIdx = boardPos;
-                break;
-            }
-        }
-    }
-    
-    // Pokud není volná pozice nikde
-    if (target === undefined) {
-        showError('Všechny pozice jsou obsazené! Nejdříve smažte nějaké karty.');
-        return;
-    }
-    
-    // Přiřaď kartu
-    if (target === 'community') {
-        communityCards[cardIdx] = card;
-    } else {
-        players[target].cards[cardIdx] = card;
-    }
-    
-    // Přidej do historie pro undo
-    cardHistory.push({ target, cardIdx, card });
-    
-    updateUI();
-    
-    // Zkontroluj, zda jsou všechny pozice obsazené
-    const allPlayerCardsAssigned = players.every(p => 
-        !p.active || (p.cards[0] && p.cards[1])
-    );
-    const allBoardCardsAssigned = communityCards.every(card => card !== null);
-    
-    if (allPlayerCardsAssigned && allBoardCardsAssigned) {
-        showSuccess('Všechny karty byly úspěšně přiřazeny!');
-        closeCardPicker();
-    }
+    throw new Error('Unable to find available card');
 }
-
-function undoAssignCard() {
-    if (cardHistory.length === 0) {
-        showWarning('Žádné karty k vrácení!');
-        return;
-    }
-    
-    const lastAction = cardHistory.pop();
-    
-    if (lastAction.target === 'community') {
-        communityCards[lastAction.cardIdx] = null;
-    } else {
-        players[lastAction.target].cards[lastAction.cardIdx] = null;
-    }
-    
-    updateUI();
-    showSuccess('Poslední karta byla vrácena!');
-}
-
-// --- Error handling utility ---
-function showError(message) {
-    alert(`❌ Chyba: ${message}`);
-}
-
-function showSuccess(message) {
-    alert(`✅ ${message}`);
-}
-
-function showWarning(message) {
-    alert(`⚠️ ${message}`);
-}
-
-// --- Vylepšené funkce pro tlačítka ---
 
 function generateRandomCards() {
-    // Validace: zkontroluj, zda jsou nějací aktivní hráči
-    const activePlayers = players.filter(p => p.active);
-    if (activePlayers.length === 0) {
-        showError('Nejdříve musíte mít alespoň jednoho aktivního hráče!');
-        return;
-    }
-    
-    const deck = createDeck();
-    let used = new Set();
-    
-    // Generate random cards for active players only
-    players.forEach(player => {
-        if (player.active) {
-            for (let i = 0; i < 2; i++) {
-                let card;
-                do {
-                    card = deck[Math.floor(Math.random() * deck.length)];
-                } while (used.has(card));
-                player.cards[i] = card;
-                used.add(card);
+    try {
+        // Clear all cards
+        selectedCards.clear();
+        
+        // Reset community cards
+        communityCards = [null, null, null, null, null];
+        
+        // Generate player cards
+        players.forEach(player => {
+            if (player.active) {
+                player.cards[0] = getRandomCard();
+                addCardToSelected(player.cards[0]);
+                player.cards[1] = getRandomCard();
+                addCardToSelected(player.cards[1]);
+            } else {
+                player.cards = [null, null];
             }
-        } else {
-            // Reset inactive players
-            player.cards = [null, null];
+        });
+        
+        // Generate community cards
+        for (let i = 0; i < 5; i++) {
+            communityCards[i] = getRandomCard();
+            addCardToSelected(communityCards[i]);
         }
-    });
-    
-    // Generate random community cards
-    communityCards = [];
-    for (let i = 0; i < 5; i++) {
-        let card;
-        do {
-            card = deck[Math.floor(Math.random() * deck.length)];
-        } while (used.has(card));
-        communityCards.push(card);
-        used.add(card);
+        
+        renderPlayers();
+        renderCommunityCards();
+        updateCounts();
+        showAlert('success', 'Random cards generated successfully!');
+    } catch (error) {
+        showAlert('error', 'Failed to generate random cards');
     }
-    
-    updateUI();
-    showSuccess('Náhodné karty byly úspěšně vygenerovány!');
 }
 
 function generateRandomFlop() {
-    // Validace: zkontroluj, zda jsou nějací aktivní hráči s kartami
-    const activePlayersWithCards = players.filter(p => p.active && p.cards[0] && p.cards[1]);
-    if (activePlayersWithCards.length === 0) {
-        showError('Nejdříve musíte mít alespoň jednoho aktivního hráče s kartami!');
-        return;
-    }
-    
-    // Validace: zkontroluj, zda už není flop vygenerovaný
-    if (communityCards[0] && communityCards[1] && communityCards[2]) {
-        showWarning('Flop už je vygenerovaný! Chcete ho přepsat?');
-        if (!confirm('Opravdu chcete přepsat současný flop?')) {
-            return;
+    try {
+        // Clear existing flop cards from selected
+        for (let i = 0; i < 3; i++) {
+            if (communityCards[i]) {
+                removeCardFromSelected(communityCards[i]);
+            }
         }
+        
+        // Generate new flop
+        for (let i = 0; i < 3; i++) {
+            communityCards[i] = getRandomCard();
+            addCardToSelected(communityCards[i]);
+        }
+        
+        renderCommunityCards();
+        updateCounts();
+        showAlert('success', 'Random flop generated!');
+    } catch (error) {
+        showAlert('error', 'Failed to generate random flop');
     }
-    
-    const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
-    let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
-    
-    for (let i = 0; i < 3; i++) {
-        let card;
-        do {
-            card = deck[Math.floor(Math.random() * deck.length)];
-        } while (used.has(card));
-        communityCards[i] = card;
-        used.add(card);
-    }
-    
-    updateUI();
-    showSuccess('Náhodný flop byl vygenerován!');
 }
 
 function generateRandomTurn() {
-    // Validace: zkontroluj, zda je flop vygenerovaný
     if (!communityCards[0] || !communityCards[1] || !communityCards[2]) {
-        showError('Nejdříve musíte vygenerovat flop!');
+        showAlert('error', 'Generate flop first!');
         return;
     }
     
-    // Validace: zkontroluj, zda už není turn vygenerovaný
-    if (communityCards[3]) {
-        showWarning('Turn už je vygenerovaný! Chcete ho přepsat?');
-        if (!confirm('Opravdu chcete přepsat současný turn?')) {
-            return;
+    try {
+        // Clear existing turn card
+        if (communityCards[3]) {
+            removeCardFromSelected(communityCards[3]);
         }
+        
+        // Generate new turn
+        communityCards[3] = getRandomCard();
+        addCardToSelected(communityCards[3]);
+        
+        renderCommunityCards();
+        updateCounts();
+        showAlert('success', 'Random turn generated!');
+    } catch (error) {
+        showAlert('error', 'Failed to generate random turn');
     }
-    
-    const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
-    let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
-    
-    let card;
-    do {
-        card = deck[Math.floor(Math.random() * deck.length)];
-    } while (used.has(card));
-    communityCards[3] = card;
-    used.add(card);
-    
-    updateUI();
-    showSuccess('Náhodný turn byl vygenerován!');
 }
 
 function generateRandomRiver() {
-    // Validace: zkontroluj, zda je turn vygenerovaný
     if (!communityCards[3]) {
-        showError('Nejdříve musíte vygenerovat turn!');
+        showAlert('error', 'Generate turn first!');
         return;
     }
     
-    // Validace: zkontroluj, zda už není river vygenerovaný
-    if (communityCards[4]) {
-        showWarning('River už je vygenerovaný! Chcete ho přepsat?');
-        if (!confirm('Opravdu chcete přepsat současný river?')) {
-            return;
+    try {
+        // Clear existing river card
+        if (communityCards[4]) {
+            removeCardFromSelected(communityCards[4]);
         }
+        
+        // Generate new river
+        communityCards[4] = getRandomCard();
+        addCardToSelected(communityCards[4]);
+        
+        renderCommunityCards();
+        updateCounts();
+        showAlert('success', 'Random river generated!');
+    } catch (error) {
+        showAlert('error', 'Failed to generate random river');
     }
-    
-    const deck = createDeck([...communityCards, ...players.flatMap(p => p.cards)]);
-    let used = new Set([...communityCards, ...players.flatMap(p => p.cards)]);
-    
-    let card;
-    do {
-        card = deck[Math.floor(Math.random() * deck.length)];
-    } while (used.has(card));
-    communityCards[4] = card;
-    used.add(card);
-    
-    updateUI();
-    showSuccess('Náhodný river byl vygenerován!');
 }
 
 function clearBoard() {
-    // Validace: zkontroluj, zda jsou nějaké karty na boardu
-    if (!communityCards.some(card => card !== null)) {
-        showWarning('Board je už prázdný!');
+    const hasCards = communityCards.some(card => card !== null);
+    if (!hasCards) {
+        showAlert('warning', 'Board is already empty!');
         return;
     }
     
-    if (confirm('Opravdu chcete smazat všechny karty z boardu?')) {
-        communityCards = [];
-        updateUI();
-        showSuccess('Board byl vyčištěn!');
-    }
+    // Remove community cards from selected
+    communityCards.forEach(card => {
+        if (card) removeCardFromSelected(card);
+    });
+    
+    communityCards = [null, null, null, null, null];
+    renderCommunityCards();
+    updateCounts();
+    showAlert('success', 'Board cleared!');
 }
 
 function resetAll() {
-    // Validace: zkontroluj, zda jsou nějaké změny k resetování
-    const hasPlayerCards = players.some(p => p.cards[0] || p.cards[1]);
-    const hasBoardCards = communityCards.some(card => card !== null);
+    selectedCards.clear();
     
-    if (!hasPlayerCards && !hasBoardCards) {
-        showWarning('Nic k resetování - vše je už prázdné!');
-        return;
-    }
+    players.forEach(player => {
+        player.cards = [null, null];
+        player.active = true;
+    });
     
-    if (confirm('Opravdu chcete resetovat všechny karty a nastavení?')) {
-        players.forEach(player => {
-            player.cards = [null, null];
-            player.active = true;
-        });
-        communityCards = [];
-        updateUI();
-        showSuccess('Vše bylo resetováno!');
-    }
+    communityCards = [null, null, null, null, null];
+    
+    renderPlayers();
+    renderCommunityCards();
+    updateCounts();
+    
+    // Hide results
+    elements.resultsCard?.classList.add('hidden');
+    
+    showAlert('success', 'Everything reset!');
 }
 
-function calculateProbabilities() {
-    // Validace: zkontroluj, zda jsou alespoň 2 aktivní hráči s kartami
+// Hand Evaluation
+function evaluateHand(cards) {
+    if (cards.length !== 7) {
+        throw new Error('Hand evaluation requires exactly 7 cards');
+    }
+
+    const values = cards.map(card => getCardValue(card.value));
+    const suits = cards.map(card => card.suit);
+    
+    // Count value frequencies
+    const valueCounts = {};
+    values.forEach(v => valueCounts[v] = (valueCounts[v] || 0) + 1);
+    
+    // Get sorted values for kicker comparison
+    const sortedValues = [...values].sort((a, b) => b - a);
+    
+    // Check for flush
+    const suitCounts = {};
+    suits.forEach(s => suitCounts[s] = (suitCounts[s] || 0) + 1);
+    const flushSuit = Object.keys(suitCounts).find(suit => suitCounts[suit] >= 5);
+    
+    // Check for straight
+    const uniqueValues = [...new Set(values)].sort((a, b) => a - b);
+    let straightHigh = 0;
+    
+    // Check for regular straight
+    for (let i = 0; i <= uniqueValues.length - 5; i++) {
+        if (uniqueValues[i + 4] - uniqueValues[i] === 4) {
+            straightHigh = uniqueValues[i + 4];
+            break;
+        }
+    }
+    
+    // Check for wheel (A-2-3-4-5)
+    if (!straightHigh && uniqueValues.includes(14)) {
+        const wheelValues = [2, 3, 4, 5, 14];
+        if (wheelValues.every(v => uniqueValues.includes(v))) {
+            straightHigh = 5; // 5 is high in wheel
+        }
+    }
+    
+    const isFlush = !!flushSuit;
+    const isStraight = straightHigh > 0;
+    
+    // Check for royal flush
+    if (isFlush && isStraight) {
+        const flushCards = cards.filter(card => card.suit === flushSuit);
+        const flushValues = flushCards.map(card => getCardValue(card.value));
+        const royalValues = [10, 11, 12, 13, 14];
+        
+        if (royalValues.every(v => flushValues.includes(v))) {
+            return { rank: 9, name: 'Royal Flush', kickers: [14] };
+        }
+        
+        // Check if straight flush
+        const flushUniqueValues = [...new Set(flushValues)].sort((a, b) => a - b);
+        let flushStraightHigh = 0;
+        
+        for (let i = 0; i <= flushUniqueValues.length - 5; i++) {
+            if (flushUniqueValues[i + 4] - flushUniqueValues[i] === 4) {
+                flushStraightHigh = flushUniqueValues[i + 4];
+                break;
+            }
+        }
+        
+        if (!flushStraightHigh && flushUniqueValues.includes(14)) {
+            const wheelValues = [2, 3, 4, 5, 14];
+            if (wheelValues.every(v => flushUniqueValues.includes(v))) {
+                flushStraightHigh = 5;
+            }
+        }
+        
+        if (flushStraightHigh > 0) {
+            return { rank: 8, name: 'Straight Flush', kickers: [flushStraightHigh] };
+        }
+    }
+    
+    // Check for four of a kind
+    const fourValue = Object.keys(valueCounts).find(v => valueCounts[parseInt(v)] === 4);
+    if (fourValue) {
+        const kicker = sortedValues.find(v => v !== parseInt(fourValue)) || 0;
+        return { rank: 7, name: 'Four of a Kind', kickers: [parseInt(fourValue), kicker] };
+    }
+    
+    // Check for full house
+    const threeValues = Object.keys(valueCounts).filter(v => valueCounts[parseInt(v)] === 3).map(v => parseInt(v));
+    const pairValues = Object.keys(valueCounts).filter(v => valueCounts[parseInt(v)] === 2).map(v => parseInt(v));
+    
+    if (threeValues.length > 0 && (pairValues.length > 0 || threeValues.length > 1)) {
+        const bestThree = Math.max(...threeValues);
+        const bestPair = threeValues.length > 1 
+            ? Math.max(...threeValues.filter(v => v !== bestThree))
+            : Math.max(...pairValues);
+        return { rank: 6, name: 'Full House', kickers: [bestThree, bestPair] };
+    }
+    
+    // Check for flush
+    if (isFlush) {
+        const flushCards = cards.filter(card => card.suit === flushSuit);
+        const flushValues = flushCards.map(card => getCardValue(card.value)).sort((a, b) => b - a).slice(0, 5);
+        return { rank: 5, name: 'Flush', kickers: flushValues };
+    }
+    
+    // Check for straight
+    if (isStraight) {
+        return { rank: 4, name: 'Straight', kickers: [straightHigh] };
+    }
+    
+    // Check for three of a kind
+    if (threeValues.length > 0) {
+        const threeValue = Math.max(...threeValues);
+        const kickers = sortedValues.filter(v => v !== threeValue).slice(0, 2);
+        return { rank: 3, name: 'Three of a Kind', kickers: [threeValue, ...kickers] };
+    }
+    
+    // Check for two pair
+    if (pairValues.length >= 2) {
+        const sortedPairs = pairValues.sort((a, b) => b - a).slice(0, 2);
+        const kicker = sortedValues.find(v => !sortedPairs.includes(v)) || 0;
+        return { rank: 2, name: 'Two Pair', kickers: [...sortedPairs, kicker] };
+    }
+    
+    // Check for one pair
+    if (pairValues.length > 0) {
+        const pairValue = Math.max(...pairValues);
+        const kickers = sortedValues.filter(v => v !== pairValue).slice(0, 3);
+        return { rank: 1, name: 'One Pair', kickers: [pairValue, ...kickers] };
+    }
+    
+    // High card
+    return { rank: 0, name: 'High Card', kickers: sortedValues.slice(0, 5) };
+}
+
+function compareHands(hand1, hand2) {
+    if (hand1.rank !== hand2.rank) {
+        return hand1.rank - hand2.rank;
+    }
+    
+    // Compare kickers
+    for (let i = 0; i < Math.max(hand1.kickers.length, hand2.kickers.length); i++) {
+        const kicker1 = hand1.kickers[i] || 0;
+        const kicker2 = hand2.kickers[i] || 0;
+        if (kicker1 !== kicker2) {
+            return kicker1 - kicker2;
+        }
+    }
+    
+    return 0; // Tie
+}
+
+// Probability Calculation
+async function calculateProbabilities() {
     const activePlayers = players.filter(p => p.active && p.cards[0] && p.cards[1]);
     
     if (activePlayers.length < 2) {
-        showError('Potřebujete alespoň 2 aktivní hráče s kartami pro výpočet!');
+        showAlert('error', 'Need at least 2 active players with cards!');
         return;
     }
     
-    // Validace: zkontroluj, zda jsou nějaké karty na boardu (alespoň flop)
     const boardCards = communityCards.filter(card => card !== null);
     if (boardCards.length < 3) {
-        showError('Potřebujete alespoň flop (3 karty) na boardu pro výpočet!');
+        showAlert('error', 'Need at least flop (3 cards) on board!');
         return;
     }
+
+    isCalculating = true;
+    elements.calculateBtn.disabled = true;
+    elements.progressCard?.classList.remove('hidden');
     
-    // Zobraz loading overlay
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-        loadingOverlay.style.display = 'flex';
-    }
-    
-    const hands = activePlayers.map(p => p.cards);
-    const board = boardCards;
-    
+    const startTime = Date.now();
+
     try {
-        // Použij menší počet iterací pro rychlejší výpočet
-        const results = calculateEquity(hands, board, 50000, false);
-        displayResults(results);
-        showSuccess('Výpočet dokončen!');
-    } catch (error) {
-        console.error('Chyba při výpočtu:', error);
-        showError('Došlo k chybě při výpočtu pravděpodobností. Zkontrolujte, zda nejsou duplicitní karty.');
-    } finally {
-        // Skryj loading overlay
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
+        // Create deck without used cards
+        const usedCardStrings = new Set();
+        activePlayers.forEach(player => {
+            player.cards.forEach(card => {
+                if (card) usedCardStrings.add(cardToString(card));
+            });
+        });
+        boardCards.forEach(card => usedCardStrings.add(cardToString(card)));
+
+        const availableDeck = [];
+        CARD_VALUES.forEach(value => {
+            CARD_SUITS.forEach(suit => {
+                const card = { value, suit };
+                if (!usedCardStrings.has(cardToString(card))) {
+                    availableDeck.push(card);
+                }
+            });
+        });
+
+        const neededCards = 5 - boardCards.length;
+        
+        // Generate all combinations of remaining cards
+        const combinations = [];
+        
+        if (neededCards === 1) {
+            availableDeck.forEach(card => combinations.push([card]));
+        } else if (neededCards === 2) {
+            for (let i = 0; i < availableDeck.length; i++) {
+                for (let j = i + 1; j < availableDeck.length; j++) {
+                    combinations.push([availableDeck[i], availableDeck[j]]);
+                }
+            }
         }
+
+        // Initialize results
+        const calculationResults = activePlayers.map(player => ({
+            player,
+            wins: 0,
+            ties: 0,
+            total: 0,
+            winPercentage: 0,
+            tiePercentage: 0,
+            handStats: Object.fromEntries(HAND_RANKINGS.map(rank => [rank, 0]))
+        }));
+
+        // Process each combination
+        for (let i = 0; i < combinations.length; i++) {
+            const combination = combinations[i];
+            const completeBoard = [...boardCards, ...combination];
+            
+            // Evaluate each player's hand
+            const playerHands = activePlayers.map((player, index) => {
+                const allCards = [...player.cards.filter(c => c !== null), ...completeBoard];
+                const hand = evaluateHand(allCards);
+                calculationResults[index].handStats[hand.name]++;
+                return { player, hand, index };
+            });
+
+            // Find winner(s)
+            let bestRank = -1;
+            let winners = [];
+
+            playerHands.forEach(({ hand, index }) => {
+                if (hand.rank > bestRank) {
+                    bestRank = hand.rank;
+                    winners = [index];
+                } else if (hand.rank === bestRank) {
+                    // Compare kickers
+                    const comparison = compareHands(hand, playerHands[winners[0]].hand);
+                    if (comparison > 0) {
+                        winners = [index];
+                    } else if (comparison === 0) {
+                        winners.push(index);
+                    }
+                }
+            });
+
+            // Update results
+            if (winners.length === 1) {
+                calculationResults[winners[0]].wins++;
+            } else {
+                winners.forEach(winnerIndex => {
+                    calculationResults[winnerIndex].ties++;
+                });
+            }
+
+            calculationResults.forEach(result => result.total++);
+
+            // Update progress
+            if (i % Math.max(1, Math.floor(combinations.length / 100)) === 0) {
+                const progress = (i / combinations.length) * 100;
+                if (elements.progressFill) elements.progressFill.style.width = `${progress}%`;
+                if (elements.progressPercentage) elements.progressPercentage.textContent = `${Math.round(progress)}%`;
+                await new Promise(resolve => setTimeout(resolve, 0)); // Allow UI update
+            }
+        }
+
+        // Calculate percentages
+        calculationResults.forEach(result => {
+            result.winPercentage = (result.wins / result.total) * 100;
+            result.tiePercentage = (result.ties / result.total) * 100;
+        });
+
+        displayResults(calculationResults, Date.now() - startTime);
+        showAlert('success', 'Calculation completed!');
+
+    } catch (error) {
+        console.error('Calculation error:', error);
+        showAlert('error', 'Calculation failed!');
+    } finally {
+        isCalculating = false;
+        elements.calculateBtn.disabled = false;
+        elements.progressCard?.classList.add('hidden');
     }
 }
 
-function displayResults(results) {
-    const resultsSection = document.getElementById('resultsSection');
-    if (!resultsSection) return;
+function displayResults(results, calculationTime) {
+    if (!elements.resultsCard || !elements.resultsOverview || !elements.resultsDetailed) return;
     
-    // Skryj loading overlay
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-        loadingOverlay.style.display = 'none';
-    }
+    // Update calculation info
+    if (elements.calculationTime) elements.calculationTime.textContent = calculationTime;
+    if (elements.totalCombinations) elements.totalCombinations.textContent = results[0]?.total.toLocaleString() || '0';
     
-    // Vypočítej celkový počet kombinací
-    const totalCombinations = results[0]?.count || 0;
-    const calculationTime = results[0]?.time || 0;
-    
-    // Vypočítej procenta pro každého hráče
-    const playerResults = results.map((result, idx) => {
-        const winPercent = (result.wins / result.count) * 100;
-        const tiePercent = (result.ties / result.count) * 100;
-        const losePercent = 100 - winPercent - tiePercent;
+    // Render overview
+    elements.resultsOverview.innerHTML = '';
+    results.forEach((result, index) => {
+        const playerEl = document.createElement('div');
+        playerEl.className = 'result-player';
         
-        return {
-            player: idx + 1,
-            cards: result.hand.join(' '),
-            winPercent: round(winPercent, 2),
-            tiePercent: round(tiePercent, 2),
-            losePercent: round(losePercent, 2)
-        };
-    });
-    
-    // Najdi vítěze (hráče s nejvyšším win%)
-    const winner = playerResults.reduce((max, current) => 
-        current.winPercent > max.winPercent ? current : max
-    );
-    
-    resultsSection.innerHTML = `
-        <div class="results-container">
-            <h2>Výsledky úplného výčtu</h2>
-            <div class="results-info">
-                <p><strong>Počet kombinací:</strong> <span id="simulationInfo">${totalCombinations.toLocaleString()}</span></p>
-                <p><strong>Čas výpočtu:</strong> <span id="calculationTime">${seconds(calculationTime)}</span></p>
-                <p><strong>Počet hráčů:</strong> ${playerResults.length}</p>
-            </div>
-            
-            <div class="results-grid">
-                <div class="results-overview">
-                    <div class="overview-header">
-                        <h3>📊 Přehled pravděpodobností</h3>
-                    </div>
-                    <div class="overview-stats">
-                        ${playerResults.map(player => `
-                            <div class="stat-row ${player.player === winner.player ? 'winner' : ''}">
-                                <span class="player-name">Hráč ${player.player} (${player.cards})</span>
-                                <div class="stat-values">
-                                    <span class="win-stat">Výhra: ${player.winPercent}%</span>
-                                    <span class="tie-stat">Remíza: ${player.tiePercent}%</span>
-                                    <span class="lose-stat">Prohra: ${player.losePercent}%</span>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
+        const losePercentage = 100 - result.winPercentage - result.tiePercentage;
+        
+        playerEl.innerHTML = `
+            <div class="result-header">
+                <div class="result-name">${result.player.name}</div>
+                <div class="result-cards">
+                    ${result.player.cards.map(card => card ? `
+                        <div class="poker-card ${SUIT_COLORS[card.suit]}" style="width: 40px; height: 50px; font-size: 0.75rem;">
+                            <div class="card-value">${card.value}</div>
+                            <div class="card-suit">${SUIT_SYMBOLS[card.suit]}</div>
+                        </div>
+                    ` : '').join('')}
                 </div>
             </div>
-            
-            <div class="winner-announcement">
-                <h3>🏆 ${winner.winPercent > 50 ? 'Vítěz' : 'Nejlepší šance'}</h3>
-                <p><strong>Hráč ${winner.player}</strong> má ${winner.winPercent}% šanci na výhru</p>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <div class="result-value win">${result.winPercentage.toFixed(1)}%</div>
+                    <div class="result-label">Win</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value tie">${result.tiePercentage.toFixed(1)}%</div>
+                    <div class="result-label">Tie</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value lose">${losePercentage.toFixed(1)}%</div>
+                    <div class="result-label">Lose</div>
+                </div>
             </div>
-        </div>
-    `;
+        `;
+        
+        elements.resultsOverview.appendChild(playerEl);
+    });
     
-    resultsSection.style.display = 'block';
+    // Render detailed stats
+    elements.resultsDetailed.innerHTML = '';
+    results.forEach((result, index) => {
+        const playerEl = document.createElement('div');
+        playerEl.className = 'detailed-player';
+        
+        playerEl.innerHTML = `
+            <div class="detailed-header">${result.player.name} - Hand Statistics</div>
+            <div class="hand-stats-grid">
+                ${HAND_RANKINGS.map(ranking => `
+                    <div class="hand-stat">
+                        <div class="hand-stat-value">${result.handStats[ranking]}</div>
+                        <div class="hand-stat-label">${ranking}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        elements.resultsDetailed.appendChild(playerEl);
+    });
+    
+    // Show results
+    elements.resultsCard.classList.remove('hidden');
 }
 
-// Initialize FULL_DECK after all functions are defined
-const FULL_DECK = createDeck();
+// Tab Management
+function initializeTabs() {
+    elements.tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+            
+            // Update button states
+            elements.tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update content visibility
+            elements.tabContents.forEach(content => {
+                if (content.id === `${tabName}-tab`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        });
+    });
+}
+
+// Event Listeners
+function setupEventListeners() {
+    // Player count change
+    elements.playerCount?.addEventListener('change', generatePlayers);
+    
+    // Action buttons
+    elements.calculateBtn?.addEventListener('click', calculateProbabilities);
+    elements.resetBtn?.addEventListener('click', resetAll);
+    elements.randomCardsBtn?.addEventListener('click', generateRandomCards);
+    elements.randomFlopBtn?.addEventListener('click', generateRandomFlop);
+    elements.randomTurnBtn?.addEventListener('click', generateRandomTurn);
+    elements.randomRiverBtn?.addEventListener('click', generateRandomRiver);
+    elements.clearBoardBtn?.addEventListener('click', clearBoard);
+    
+    // Card picker modal
+    elements.cancelPickerBtn?.addEventListener('click', closeCardPicker);
+    elements.cardPickerModal?.addEventListener('click', (e) => {
+        if (e.target === elements.cardPickerModal) {
+            closeCardPicker();
+        }
+    });
+    
+    // Initialize tabs
+    initializeTabs();
+}
+
+// Initialize Application
+function init() {
+    initializeElements();
+    setupEventListeners();
+    generatePlayers();
+    renderCommunityCards();
+    updateCounts();
+}
+
+// Start the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
