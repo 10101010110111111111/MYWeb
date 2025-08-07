@@ -708,10 +708,7 @@ async function calculateProbabilities() {
     }
     
     const boardCards = communityCards.filter(card => card !== null);
-    if (boardCards.length < 3) {
-        showAlert('error', 'Need at least flop (3 cards) on board!');
-        return;
-    }
+    // No minimum board cards required - can calculate with 0-5 community cards
 
     isCalculating = true;
     elements.calculateBtn.disabled = true;
@@ -740,16 +737,50 @@ async function calculateProbabilities() {
         });
 
         const neededCards = 5 - boardCards.length;
-        
+
         // Generate all combinations of remaining cards
         const combinations = [];
-        
-        if (neededCards === 1) {
+
+        if (neededCards === 0) {
+            // All 5 community cards are set
+            combinations.push([]);
+        } else if (neededCards === 1) {
             availableDeck.forEach(card => combinations.push([card]));
         } else if (neededCards === 2) {
             for (let i = 0; i < availableDeck.length; i++) {
                 for (let j = i + 1; j < availableDeck.length; j++) {
                     combinations.push([availableDeck[i], availableDeck[j]]);
+                }
+            }
+        } else if (neededCards === 3) {
+            for (let i = 0; i < availableDeck.length; i++) {
+                for (let j = i + 1; j < availableDeck.length; j++) {
+                    for (let k = j + 1; k < availableDeck.length; k++) {
+                        combinations.push([availableDeck[i], availableDeck[j], availableDeck[k]]);
+                    }
+                }
+            }
+        } else if (neededCards === 4) {
+            for (let i = 0; i < availableDeck.length; i++) {
+                for (let j = i + 1; j < availableDeck.length; j++) {
+                    for (let k = j + 1; k < availableDeck.length; k++) {
+                        for (let l = k + 1; l < availableDeck.length; l++) {
+                            combinations.push([availableDeck[i], availableDeck[j], availableDeck[k], availableDeck[l]]);
+                        }
+                    }
+                }
+            }
+        } else if (neededCards === 5) {
+            // No community cards set - generate all 5
+            for (let i = 0; i < availableDeck.length; i++) {
+                for (let j = i + 1; j < availableDeck.length; j++) {
+                    for (let k = j + 1; k < availableDeck.length; k++) {
+                        for (let l = k + 1; l < availableDeck.length; l++) {
+                            for (let m = l + 1; m < availableDeck.length; m++) {
+                                combinations.push([availableDeck[i], availableDeck[j], availableDeck[k], availableDeck[l], availableDeck[m]]);
+                            }
+                        }
+                    }
                 }
             }
         }
