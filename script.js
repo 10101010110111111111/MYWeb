@@ -91,6 +91,15 @@ const projectList = [
     status: "done",
     password: null,
     progress: 100
+  },
+  {
+    path: "./project11/index.html",
+    name: "Projekt 11 - Krypto Data Manager",
+    description: "Pokročilý nástroj pro správu a aktualizaci dat kryptoměn s možností nahrávání souborů, vytváření nových časových rámců a stahování až 5000 svíček na soubor. Obsahuje návodovou sekci s barevnými legendami a review panel.",
+    category: "Tools",
+    status: "done",
+    password: null,
+    progress: 100
   }
 ];
 
