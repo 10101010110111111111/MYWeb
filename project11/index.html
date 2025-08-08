@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krypto Data Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Krypto Data Manager</h1>
+            <p>Správa a aktualizace dat kryptoměn</p>
+        </header>
+
+        <main class="main-content">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <h2><i class="fas fa-upload"></i> Nahrát složku s daty</h2>
+                    <p>Nahrajte složku obsahující data kryptoměn (volitelné)</p>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" id="folderInput" multiple>
+                        <label for="folderInput" class="file-input-label">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Vybrat složku nebo soubory</span>
+                        </label>
+                    </div>
+                    
+                    <div id="selectedFiles" class="selected-files"></div>
+                </div>
+
+                <div class="settings-card">
+                    <h2><i class="fas fa-cog"></i> Nastavení</h2>
+                    
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <input type="checkbox" id="createNewFiles" checked>
+                            <span class="switch"></span>
+                            <span class="switch-text">Vytvářet nové soubory</span>
+                        </label>
+                        <p class="setting-description">
+                            Pokud je zapnuto, vytvoří se chybějící soubory pro všechny časové rámce. 
+                            Pokud je vypnuto, aktualizují se pouze existující soubory.
+                        </p>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Počet svíček na soubor:</span>
+                            <input type="number" id="candleLimit" value="5000" min="100" max="10000" class="number-input">
+                        </label>
+                        <p class="setting-description">
+                            Maximální počet svíček na jeden soubor (výchozí: 5000 svíček pro kompletní data)
+                        </p>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <input type="checkbox" id="useCsvExtension" checked>
+                            <span class="switch"></span>
+                            <span class="switch-text">Použít .csv příponu</span>
+                        </label>
+                        <p class="setting-description">
+                            Pokud je zapnuto, soubory budou mít příponu .csv místo .txt (vyhýbá se blokování Windows)
+                        </p>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <input type="checkbox" id="downloadWithoutZip">
+                            <span class="switch"></span>
+                            <span class="switch-text">Stáhnout bez ZIP (individuální soubory)</span>
+                        </label>
+                        <p class="setting-description">
+                            <strong style="color: #ff4444;">⚠️ DŮLEŽITÉ:</strong> Pokud je zapnuto, stáhnou se jednotlivé soubory místo ZIP 
+                            (<span style="color: #ff4444; font-weight: bold;">obchází blokování Windows, protože Windows jsou idioti</span>). 
+                            <strong>Varování:</strong> Stáhne se více souborů najednou! Možná se objeví dialog v levém horním rohu prohlížeče - 
+                            <span style="color: #ffaa00; font-weight: bold;">musíte zaškrtnout "Povolit" nebo "Ano"</span>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="download-card">
+                    <h2><i class="fas fa-download"></i> Stáhnout aktualizovaná data</h2>
+                    <p>Stáhněte kompletní složku s aktualizovanými daty</p>
+                    
+                    <button id="downloadBtn" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Stáhnout data
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Informace o struktuře</h3>
+                    <div class="structure-info">
+                        <p><strong>Očekávaná struktura složky:</strong></p>
+                        <ul>
+                            <li><code>BTC/USDT/</code> - složka pro Bitcoin</li>
+                            <li><code>ETH/USDT/</code> - složka pro Ethereum</li>
+                            <li><code>SOL/USDT/</code> - složka pro Solana</li>
+                            <li>atd...</li>
+                        </ul>
+                        <p><strong>Soubory v každé složce:</strong></p>
+                        <ul>
+                            <li><code>1m.csv</code> - 1 minuta</li>
+                            <li><code>5m.csv</code> - 5 minut</li>
+                            <li><code>30m.csv</code> - 30 minut</li>
+                            <li><code>1H.csv</code> - 1 hodina</li>
+                            <li><code>4H.csv</code> - 4 hodiny</li>
+                            <li><code>12H.csv</code> - 12 hodin</li>
+                            <li><code>24H.csv</code> - 24 hodiny</li>
+                            <li><code>1W.csv</code> - 1 týden</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <h3><i class="fas fa-cog"></i> Status</h3>
+                    <div id="status" class="status">
+                        <p>Připraveno k použití</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Návodová sekce -->
+        <section class="guide-section">
+            <div class="guide-container">
+                <h2><i class="fas fa-book"></i> Návod a informace</h2>
+                
+                <div class="guide-grid">
+                    <div class="guide-card">
+                        <h3><i class="fas fa-cog"></i> Jak funguje nastavení</h3>
+                        <div class="guide-content">
+                            <h4>Vytváření nových souborů:</h4>
+                            <p><strong>ZAPNUTO:</strong> Pokud nahrajete složku s pouze <code>ETH_USDT_1W.txt</code>, program vytvoří chybějící soubory (1m, 5m, 30m, 1H, 4H, 12H, 24H).</p>
+                            <p><strong>VYPNUTO:</strong> Aktualizuje se pouze existující soubor <code>ETH_USDT_1W.txt</code>.</p>
+                            
+                            <h4>Počet svíček:</h4>
+                            <p>Nastavte kolik svíček chcete na soubor (100-10000). Výchozí: 5000 svíček.</p>
+                            
+                            <h4>Přípona souborů:</h4>
+                            <p><strong>.csv:</strong> Doporučeno - vyhýbá se blokování Windows</p>
+                            <p><strong>.txt:</strong> Základní formát</p>
+                            
+                            <h4>Stahování bez ZIP:</h4>
+                            <p><span style="color: #ff4444; font-weight: bold;">⚠️ DŮLEŽITÉ:</span> Pokud je zapnuto, stáhnou se jednotlivé soubory místo ZIP 
+                            (<span style="color: #ff4444; font-weight: bold;">obchází blokování Windows, protože Windows jsou idioti</span>).</p>
+                            <p><strong>Varování:</strong> Stáhne se více souborů najednou! Možná se objeví dialog v levém horním rohu prohlížeče - 
+                            <span style="color: #ffaa00; font-weight: bold;">musíte zaškrtnout "Povolit" nebo "Ano"</span>.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-upload"></i> Možnosti nahrávání</h3>
+                        <div class="guide-content">
+                            <h4>Možnost 1: Jeden soubor</h4>
+                            <p>Nahrajte pouze jeden soubor např. <code>ETH_USDT_1W.txt</code>. Program najde a doplní chybějící data. Po stisknutí "Stáhnout" se stáhne stejný soubor rozšířený o nové informace.</p>
+                            
+                            <h4>Možnost 2: Složka s více soubory</h4>
+                            <p>Nahrajte složku obsahující více souborů. Po stisknutí "Stáhnout" se stáhnou všechny soubory rozšířené o chybějící data.</p>
+                            
+                            <h4>Možnost 3: Bez nahrávání</h4>
+                            <p>Pokud nenahrajete nic a kliknete "Stáhnout", stáhne se kompletní sada dat pro všechny výchozí kryptoměny.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-chart-line"></i> Formát dat v souborech</h3>
+                        <div class="guide-content">
+                            <p>Každý řádek obsahuje data jedné svíčky ve formátu:</p>
+                            <div class="data-example">
+                                <span class="data-timestamp">-1269328241632</span>,<span class="data-open">44680.23042855</span>,<span class="data-high">44969.34695406</span>,<span class="data-low">44389.44536033</span>,<span class="data-close">44725.78554588</span>,<span class="data-volume">1479437.45</span>
+                            </div>
+                            <div class="data-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color timestamp-color"></span>
+                                    <span class="legend-label">Timestamp (časová značka)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color open-color"></span>
+                                    <span class="legend-label">Open (otevírací cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color high-color"></span>
+                                    <span class="legend-label">High (nejvyšší cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color low-color"></span>
+                                    <span class="legend-label">Low (nejnižší cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color close-color"></span>
+                                    <span class="legend-label">Close (zavírací cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color volume-color"></span>
+                                    <span class="legend-label">Volume (objem obchodů)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-list"></i> Review panel</h3>
+                        <div class="guide-content">
+                            <div id="reviewPanel" class="review-panel">
+                                <h4>Přehled stažených souborů:</h4>
+                                <div id="reviewContent" class="review-content">
+                                    <p>Zde se zobrazí přehled stažených souborů a počet svíček v každém souboru.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
