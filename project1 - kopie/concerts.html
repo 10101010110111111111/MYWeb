@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koncerty - ČIHY</title>
+    <meta name="description" content="Nadcházející koncerty a termíny turné pro Jméno Kapely">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigace -->
+    <nav class="navbar navbar-fixed">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/logo.jpg" alt="Logo kapely" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Domů</a>
+                </li>
+                <li class="nav-item">
+                    <a href="aboutus.html" class="nav-link">O nás</a>
+                </li>
+                <li class="nav-item">
+                    <a href="concerts.html" class="nav-link active">Koncerty</a>
+                </li>
+                <li class="nav-item">
+                    <a href="shop.html" class="nav-link">Obchod</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hlavička stránky -->
+    <header class="page-header-simple">
+        <div class="container">
+            <h1 class="page-title">Koncerty a turné</h1>
+            <p class="page-subtitle">Přidej se k nám naživo pro nezapomenutelný zážitek</p>
+        </div>
+    </header>
+
+    <!-- Hlavní obsah -->
+    <main class="main-content">
+        <!-- Sekce filtrů -->
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters">
+                    <h3>Filtrovat koncerty</h3>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">Vše</button>
+                        <button class="filter-btn" data-filter="upcoming">Nadcházející</button>
+                        <button class="filter-btn" data-filter="past">Minulé</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nadcházející koncerty -->
+        <section class="concerts-section">
+            <div class="container">
+                <h2 class="section-title">Nadcházející vystoupení</h2>
+                <div class="concerts-list" id="concertsList">
+                    <!-- Překlady jednotlivých koncertů jsou zachovány jako v originále, mění se pouze jazykové části. Místa a názvy hal se nemění -->
+                    <div class="concert-card upcoming" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">15</span>
+                            <span class="date-month">LED</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Madison Square Garden</h3>
+                            <p class="concert-location">New York, NY, USA</p>
+                            <p class="concert-time">20:00</p>
+                            <p class="concert-description">Speciální host: Opening Band Name</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Koupit vstupenky</button>
+                            <span class="concert-status available">Dostupné</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card upcoming" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">22</span>
+                            <span class="date-month">LED</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">The Forum</h3>
+                            <p class="concert-location">Los Angeles, CA, USA</p>
+                            <p class="concert-time">19:30</p>
+                            <p class="concert-description">Turné k vydání alba</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Koupit vstupenky</button>
+                            <span class="concert-status available">Dostupné</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card upcoming" data-location="europe">
+                        <div class="concert-date">
+                            <span class="date-day">05</span>
+                            <span class="date-month">ÚNO</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">O2 Arena</h3>
+                            <p class="concert-location">Londýn, Velká Británie</p>
+                            <p class="concert-time">20:00</p>
+                            <p class="concert-description">Zahájení evropského turné</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Koupit vstupenky</button>
+                            <span class="concert-status limited">Omezené</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card upcoming" data-location="canada">
+                        <div class="concert-date">
+                            <span class="date-day">18</span>
+                            <span class="date-month">ÚNO</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Rogers Centre</h3>
+                            <p class="concert-location">Toronto, ON, Kanada</p>
+                            <p class="concert-time">19:00</p>
+                            <p class="concert-description">Finále kanadského turné</p>
+                        </div>
+                        <div class="concert-actions">
+                            <button class="btn btn-primary">Koupit vstupenky</button>
+                            <span class="concert-status available">Dostupné</span>
+                        </div>
+                    </div>
+
+                    <!-- Minulé koncerty -->
+                    <div class="concert-card past" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">10</span>
+                            <span class="date-month">PRO</span>
+                            <span class="date-year">2024</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Red Rocks Amphitheatre</h3>
+                            <p class="concert-location">Morrison, CO, USA</p>
+                            <p class="concert-time">20:00</p>
+                            <p class="concert-description">Vyprodáno</p>
+                        </div>
+                        <div class="concert-actions">
+                            <div class="concert-media">
+                                <img src="/placeholder.svg?height=100&width=150" alt="Foto z koncertu" class="concert-thumb">
+                            </div>
+                            <span class="concert-status completed">Dokončeno</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card past" data-location="europe">
+                        <div class="concert-date">
+                            <span class="date-day">25</span>
+                            <span class="date-month">LIS</span>
+                            <span class="date-year">2024</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Bercy Arena</h3>
+                            <p class="concert-location">Paříž, Francie</p>
+                            <p class="concert-time">20:30</p>
+                            <p class="concert-description">Závěr evropské části turné</p>
+                        </div>
+                        <div class="concert-actions">
+                            <div class="concert-media">
+                                <img src="/placeholder.svg?height=100&width=150" alt="Foto z koncertu" class="concert-thumb">
+                            </div>
+                            <span class="concert-status completed">Dokončeno</span>
+                        </div>
+                    </div>
+
+                    <div class="concert-card past" data-location="usa">
+                        <div class="concert-date">
+                            <span class="date-day">15</span>
+                            <span class="date-month">ŘÍJ</span>
+                            <span class="date-year">2024</span>
+                        </div>
+                        <div class="concert-info">
+                            <h3 class="concert-venue">Chicago Theatre</h3>
+                            <p class="concert-location">Chicago, IL, USA</p>
+                            <p class="concert-time">19:30</p>
+                            <p class="concert-description">Intimní akustické vystoupení</p>
+                        </div>
+                        <div class="concert-actions">
+                            <div class="concert-media">
+                                <img src="/placeholder.svg?height=100&width=150" alt="Foto z koncertu" class="concert-thumb">
+                            </div>
+                            <span class="concert-status completed">Dokončeno</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Přihlášení k odběru novinek -->
+        <section class="newsletter-section">
+            <div class="container">
+                <div class="newsletter-content">
+                    <h2>Zůstaň v obraze</h2>
+                    <p>Dostávej upozornění na nové termíny a exkluzivní předprodeje</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Zadej svůj e-mail" class="newsletter-input">
+                        <button type="submit" class="btn btn-primary">Odebírat</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Paticka -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="images/logo.jpg" alt="Logo kapely" class="footer-logo">
+                    <p class="footer-slogan">"Hudba je naše vášeň, fanoušci jsou naše inspirace"</p>
+                </div>
+               <div class="footer-section">
+                    <h4>Kontakt</h4>
+                    <p>Email: cihy@gmail.com</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">Facebook</a>
+                        <a href="https://www.instagram.com/cihyofficial/" class="social-link">Instagram</a>
+                        <a href="#" class="social-link">Twitter</a>
+                        <a href="https://www.youtube.com/channel/UCN35SuaKSeEVBOVY7Hch-ow" class="social-link">YouTube</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Rychlý kontakt</h4>
+                    <form class="contact-form">
+                        <input type="email" placeholder="Tvůj e-mail" class="form-input">
+                        <textarea placeholder="Tvoje zpráva" class="form-textarea"></textarea>
+                        <button type="submit" class="btn btn-secondary">Odeslat</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

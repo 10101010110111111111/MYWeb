@@ -51,19 +51,19 @@ body {
     gap: 20px;
 }
 
-.upload-card, .download-card, .info-card, .status-card, .settings-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+.upload-card, .download-card, .info-card, .status-card, .settings-card, .review-panel {
+    background: var(--card-bg);
     border-radius: 15px;
     padding: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
-.upload-card:hover, .download-card:hover, .info-card:hover, .status-card:hover, .settings-card:hover {
+.upload-card:hover, .download-card:hover, .info-card:hover, .status-card:hover, .settings-card:hover, .review-panel:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .upload-card h2, .download-card h2, .info-card h3, .status-card h3, .settings-card h2 {
@@ -516,8 +516,12 @@ body {
 }
 
 .review-content {
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
 }
 
 .review-item {

@@ -1,0 +1,6 @@
+---
+description: 
+práce s githubem můžeš provádět jen když napíšu že to máš dělat nikdy to nedělej automaticky
+globs:
+alwaysApply: true
+---

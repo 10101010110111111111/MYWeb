@@ -35,50 +35,44 @@
                     <h2><i class="fas fa-cog"></i> Nastavení</h2>
                     
                     <div class="setting-item">
-                        <label class="switch-label">
-                            <input type="checkbox" id="createNewFiles" checked>
-                            <span class="switch"></span>
-                            <span class="switch-text">Vytvářet nové soubory</span>
-                        </label>
-                        <p class="setting-description">
-                            Pokud je zapnuto, vytvoří se chybějící soubory pro všechny časové rámce. 
-                            Pokud je vypnuto, aktualizují se pouze existující soubory.
-                        </p>
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="createNewFiles">
+                                <span class="switch"></span>
+                                <span class="switch-text">Vytvářet nové soubory</span>
+                            </label>
+                        </div>
                     </div>
-
+                    
                     <div class="setting-item">
-                        <label class="setting-label">
-                            <span>Počet svíček na soubor:</span>
-                            <input type="number" id="candleLimit" value="5000" min="100" max="10000" class="number-input">
-                        </label>
-                        <p class="setting-description">
-                            Maximální počet svíček na jeden soubor (výchozí: 5000 svíček pro kompletní data)
-                        </p>
+                        <div class="setting-description">
+                            <label class="setting-label">Počet svíček na soubor:</label>
+                            <input type="number" id="candleLimit" value="10000" min="1" max="10000" class="number-input">
+                        </div>
                     </div>
-
+                    
                     <div class="setting-item">
-                        <label class="switch-label">
-                            <input type="checkbox" id="useCsvExtension" checked>
-                            <span class="switch"></span>
-                            <span class="switch-text">Použít .csv příponu</span>
-                        </label>
-                        <p class="setting-description">
-                            Pokud je zapnuto, soubory budou mít příponu .csv místo .txt (vyhýbá se blokování Windows)
-                        </p>
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="useCsvExtension">
+                                <span class="switch"></span>
+                                <span class="switch-text">Použít .csv příponu</span>
+                            </label>
+                        </div>
                     </div>
-
+                    
                     <div class="setting-item">
-                        <label class="switch-label">
-                            <input type="checkbox" id="downloadWithoutZip">
-                            <span class="switch"></span>
-                            <span class="switch-text">Stáhnout bez ZIP (individuální soubory)</span>
-                        </label>
-                        <p class="setting-description">
-                            <strong style="color: #ff4444;">⚠️ DŮLEŽITÉ:</strong> Pokud je zapnuto, stáhnou se jednotlivé soubory místo ZIP 
-                            (<span style="color: #ff4444; font-weight: bold;">obchází blokování Windows, protože Windows jsou idioti</span>). 
-                            <strong>Varování:</strong> Stáhne se více souborů najednou! Možná se objeví dialog v levém horním rohu prohlížeče - 
-                            <span style="color: #ffaa00; font-weight: bold;">musíte zaškrtnout "Povolit" nebo "Ano"</span>.
-                        </p>
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="downloadWithoutZip" checked>
+                                <span class="switch"></span>
+                                <span class="switch-text">Stáhnout bez ZIP (individuální soubory)</span>
+                            </label>
+                            <div class="warning-text">
+                                ⚠️ <strong>VAROVÁNÍ:</strong> Windows jsou idioti a mohou blokovat stahování! 
+                                Pokud se objeví výzva v levém horním rohu, povolte stahování více souborů!
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -118,10 +112,19 @@
                     </div>
                 </div>
 
+                <!-- Status Section -->
                 <div class="status-card">
-                    <h3><i class="fas fa-cog"></i> Status</h3>
-                    <div id="status" class="status">
-                        <p>Připraveno k použití</p>
+                    <h3><i class="fas fa-info-circle"></i> Status</h3>
+                    <div id="status" class="status-content">
+                        Připraveno k použití. Vyberte složku nebo stáhněte výchozí data.
+                    </div>
+                </div>
+
+                <!-- Review Panel -->
+                <div class="review-panel">
+                    <h3><i class="fas fa-list-alt"></i> Review Panel</h3>
+                    <div id="reviewContent" class="review-content">
+                        Zde se zobrazí přehled stažených souborů a počtu svíček.
                     </div>
                 </div>
             </div>
@@ -200,18 +203,6 @@
                                 <div class="legend-item">
                                     <span class="legend-color volume-color"></span>
                                     <span class="legend-label">Volume (objem obchodů)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="guide-card">
-                        <h3><i class="fas fa-list"></i> Review panel</h3>
-                        <div class="guide-content">
-                            <div id="reviewPanel" class="review-panel">
-                                <h4>Přehled stažených souborů:</h4>
-                                <div id="reviewContent" class="review-content">
-                                    <p>Zde se zobrazí přehled stažených souborů a počet svíček v každém souboru.</p>
                                 </div>
                             </div>
                         </div>
