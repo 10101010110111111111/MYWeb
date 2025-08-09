@@ -11,10 +11,32 @@ class CryptoDataManager {
         this.downloadWithoutZipSwitch = document.getElementById('downloadWithoutZip');
         this.reviewContent = document.getElementById('reviewContent');
         
+
+        
+        // Progress bar elements
+        this.progressContainer = document.getElementById('progressContainer');
+        this.progressFill = document.getElementById('progressFill');
+        this.progressText = document.getElementById('progressText');
+        this.progressActivity = document.getElementById('progressActivity');
+        this.activityText = document.getElementById('activityText');
+        
         this.timeframes = ['1m', '5m', '30m', '1H', '4H', '12H', '24H', '1W'];
-        this.defaultCryptos = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'ADA/USDT', 'AVAX/USDT', 'MATIC/USDT'];
+        
+        // Rozšířený seznam kryptoměn
+        this.allCryptos = [
+            'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'ADA/USDT', 
+            'AVAX/USDT', 'MATIC/USDT', 'DOT/USDT', 'LINK/USDT', 'UNI/USDT',
+            'LTC/USDT', 'BCH/USDT', 'XLM/USDT', 'VET/USDT', 'FIL/USDT',
+            'ATOM/USDT', 'NEAR/USDT', 'FTM/USDT', 'ALGO/USDT', 'ICP/USDT',
+            'XRP/USDT', 'DOGE/USDT', 'SHIB/USDT', 'TRX/USDT', 'EOS/USDT'
+        ];
+        
+        this.visibleCryptos = 5; // Počet zobrazených kryptoměn
+        this.cryptoStates = this.loadCryptoStates();
+        this.selectedTargetFolder = null;
         
         this.initializeEventListeners();
+        this.renderCryptoList();
     }
 
     initializeEventListeners() {
@@ -190,8 +212,12 @@ class CryptoDataManager {
                 const lastCandle = candles.length > 0 ? candles[candles.length - 1] : null;
                 
                 // Získání nových dat od poslední svíčky
+                console.log(`📈 Doplňuji nová data pro ${cryptoPair} ${timeframe} (${candles.length} existujících)`);
                 const newCandles = await this.fetchNewCandles(cryptoPair, timeframe, lastCandle, candleLimit);
+                console.log(`✅ Staženo ${newCandles.length} nových svíček`);
+                
                 const updatedCandles = [...candles, ...newCandles];
+                console.log(`🎯 Celkem: ${updatedCandles.length} svíček pro ${cryptoPair} ${timeframe}`);
                 
                 processedData.get(cryptoPair).set(timeframe, updatedCandles);
             }
@@ -213,24 +239,76 @@ class CryptoDataManager {
     }
 
     async generateDefaultData() {
-        this.updateStatus('Generuji výchozí data pro všechny kryptoměny...', 'processing');
+        this.updateStatus('Stahuji skutečná data z Binance...', 'processing');
+        this.showProgress('Připravuji stahování dat...');
         
         const defaultData = new Map();
         const candleLimit = parseInt(this.candleLimitInput.value);
-        const totalCryptos = this.defaultCryptos.length;
+        const activeCryptos = this.getActiveCryptos();
+        const totalOperations = activeCryptos.length * this.timeframes.length;
+        let successCount = 0;
+        let errorCount = 0;
+        let completedOperations = 0;
         
-        for (let i = 0; i < this.defaultCryptos.length; i++) {
-            const cryptoPair = this.defaultCryptos[i];
+        // Okamžitá odezva
+        this.updateActivity(`🔢 Připravuji ${totalOperations} operací...`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        for (let i = 0; i < activeCryptos.length; i++) {
+            const cryptoPair = activeCryptos[i];
             defaultData.set(cryptoPair, new Map());
             
-            this.updateStatus(`Generuji data pro ${cryptoPair}... (${i + 1}/${totalCryptos})`, 'processing');
-            
-            for (const timeframe of this.timeframes) {
-                const candles = await this.fetchNewCandles(cryptoPair, timeframe, null, candleLimit);
-                defaultData.get(cryptoPair).set(timeframe, candles);
+            for (let j = 0; j < this.timeframes.length; j++) {
+                const timeframe = this.timeframes[j];
+                
+                // Update progress BEFORE operation
+                const currentProgress = `${cryptoPair} ${timeframe} (${i + 1}/${activeCryptos.length})`;
+                const currentActivity = `📊 Stahuji ${cryptoPair} ${timeframe}...`;
+                this.updateProgress(completedOperations, totalOperations, currentProgress, currentActivity);
+                
+                try {
+                    const candles = await this.fetchNewCandles(cryptoPair, timeframe, null, candleLimit);
+                    if (candles && candles.length > 0) {
+                        defaultData.get(cryptoPair).set(timeframe, candles);
+                        successCount++;
+                        console.log(`✅ ${cryptoPair} ${timeframe}: ${candles.length} svíček`);
+                    } else {
+                        console.warn(`⚠️ ${cryptoPair} ${timeframe}: Žádná data`);
+                        errorCount++;
+                    }
+                } catch (error) {
+                    console.error(`❌ ${cryptoPair} ${timeframe}: ${error.message}`);
+                    errorCount++;
+                    // Skip this crypto/timeframe combination but continue with others
+                }
+                
+                // Update progress AFTER operation
+                completedOperations++;
+                const finalProgress = `Dokončeno: ${cryptoPair} ${timeframe}`;
+                this.updateProgress(completedOperations, totalOperations, finalProgress);
+                
+                // Rate limiting between requests
+                await new Promise(resolve => setTimeout(resolve, 150));
             }
+            
+            // Remove crypto if no data was downloaded
+            if (defaultData.get(cryptoPair).size === 0) {
+                defaultData.delete(cryptoPair);
+                console.warn(`🗑️ Odstraňuji ${cryptoPair} - žádná data se nepodařila stáhnout`);
+            }
+            
+            // Show crypto completion
+            const cryptoProgress = Math.round(((i + 1) / activeCryptos.length) * 100);
+            this.updateStatus(`Dokončeno: ${cryptoPair} (${cryptoProgress}% celkem)`, 'processing');
         }
         
+        this.hideProgress();
+        
+        if (defaultData.size === 0) {
+            throw new Error('Nepodařilo se stáhnout žádná data z Binance API. Zkontrolujte internetové připojení.');
+        }
+        
+        this.updateStatus(`✅ Staženo ${successCount} souborů, ${errorCount} chyb z Binance API`, 'success');
         return defaultData;
     }
 
@@ -267,58 +345,110 @@ class CryptoDataManager {
     }
 
     async fetchNewCandles(cryptoPair, timeframe, lastCandle = null, limit = 5000) {
-        // Simulace získání dat z Binance API
-        // V reálné implementaci by zde byl skutečný API call
+        this.updateStatus(`Stahování skutečných dat z Binance pro ${cryptoPair} ${timeframe}...`);
         
-        const candles = [];
-        const now = Date.now();
-        const intervalMs = this.getTimeframeInterval(timeframe);
-        
-        let startTime = lastCandle ? lastCandle.timestamp + intervalMs : now - (limit * intervalMs);
-        
-        // Optimalizace pro větší množství dat - zpracování v dávkách
-        const batchSize = 1000;
-        const totalBatches = Math.ceil(limit / batchSize);
-        
-        for (let batch = 0; batch < totalBatches; batch++) {
-            const batchStart = batch * batchSize;
-            const batchEnd = Math.min((batch + 1) * batchSize, limit);
+        try {
+            // Convert our format to Binance format
+            const symbol = cryptoPair.replace('/', '');
+            const interval = this.convertTimeframeForBinance(timeframe);
             
-            for (let i = batchStart; i < batchEnd; i++) {
-                const timestamp = startTime + (i * intervalMs);
-                if (timestamp > now) break;
+            const allCandles = [];
+            const maxPerRequest = 1000; // Binance limit
+            let remaining = limit;
+            let endTime = Date.now();
+            
+            // Make multiple API calls if needed (for more than 1000 candles)
+            while (remaining > 0 && allCandles.length < limit) {
+                const currentLimit = Math.min(remaining, maxPerRequest);
                 
-                // Simulace cenových dat s lepší volatilitou pro delší časové období
-                const basePrice = this.getBasePrice(cryptoPair);
-                const timeProgress = i / limit; // Progres v čase pro realističtější data
-                const volatility = 0.02 + (timeProgress * 0.01); // Zvýšení volatility v čase
+                // Binance API endpoint
+                const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&endTime=${endTime}&limit=${currentLimit}`;
                 
-                // Realističtější cenový pohyb
-                const trend = Math.sin(timeProgress * Math.PI * 2) * 0.01; // Cyklický trend
-                const open = basePrice * (1 + trend + (Math.random() - 0.5) * volatility);
-                const high = open * (1 + Math.random() * volatility * 0.5);
-                const low = open * (1 - Math.random() * volatility * 0.5);
-                const close = open * (1 + (Math.random() - 0.5) * volatility * 0.3);
-                const volume = Math.random() * 1000000 * (1 + Math.random() * 2);
+                console.log(`🔗 Stahování ${currentLimit} svíček z Binance:`, url);
                 
-                candles.push({
-                    timestamp: timestamp,
-                    open: parseFloat(open.toFixed(8)),
-                    high: parseFloat(high.toFixed(8)),
-                    low: parseFloat(low.toFixed(8)),
-                    close: parseFloat(close.toFixed(8)),
-                    volume: parseFloat(volume.toFixed(2))
-                });
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('Rate limit exceeded - příliš mnoho požadavků na Binance API');
+                    }
+                    throw new Error(`Binance API error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    console.log('Binance vrátilo prázdná data - dosažen konec dostupných dat');
+                    break;
+                }
+                
+                // Convert Binance format to our format
+                const candles = data.map(kline => ({
+                    timestamp: parseInt(kline[0]), // Open time
+                    open: parseFloat(kline[1]),
+                    high: parseFloat(kline[2]),
+                    low: parseFloat(kline[3]),
+                    close: parseFloat(kline[4]),
+                    volume: parseFloat(kline[5])
+                }));
+                
+                // Add to beginning (older data first)
+                allCandles.unshift(...candles);
+                
+                // Update for next request (go further back in time)
+                if (candles.length > 0) {
+                    endTime = candles[0].timestamp - 1;
+                }
+                
+                remaining -= candles.length;
+                
+                console.log(`✅ Staženo ${candles.length} svíček, celkem: ${allCandles.length}/${limit}`);
+                this.updateStatus(`📡 Staženo ${allCandles.length}/${limit} svíček z Binance...`, 'processing');
+                
+                // Rate limiting - wait between requests
+                if (remaining > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                // Safety break if we got less data than requested
+                if (candles.length < currentLimit) {
+                    console.log('Dosažen konec dostupných dat na Binance');
+                    break;
+                }
             }
             
-            // Uvolnění UI thread pro plynulé renderování
-            if (batch < totalBatches - 1) {
-                await new Promise(resolve => setTimeout(resolve, 0));
-            }
+            // Sort by timestamp to ensure proper order
+            allCandles.sort((a, b) => a.timestamp - b.timestamp);
+            
+            console.log(`✅ Celkem staženo ${allCandles.length} skutečných svíček z Binance pro ${cryptoPair}`);
+            this.updateStatus(`✅ Staženo ${allCandles.length} skutečných svíček z Binance`, 'success');
+            
+            return allCandles;
+            
+        } catch (error) {
+            console.error('❌ Chyba při stahování z Binance:', error);
+            this.updateStatus(`❌ CHYBA: ${error.message} - Žádná data nestažena!`, 'error');
+            
+            // NO FALLBACK - return empty array instead of fake data
+            throw new Error(`Nepodařilo se stáhnout data z Binance: ${error.message}`);
         }
-        
-        return candles;
     }
+
+    convertTimeframeForBinance(timeframe) {
+        const mapping = {
+            '1m': '1m',
+            '5m': '5m',
+            '30m': '30m',
+            '1H': '1h',
+            '4H': '4h',
+            '12H': '12h',
+            '24H': '1d',
+            '1W': '1w'
+        };
+        return mapping[timeframe] || '1h';
+    }
+
+
 
     getTimeframeInterval(timeframe) {
         const intervals = {
@@ -418,38 +548,65 @@ class CryptoDataManager {
         this.reviewContent.innerHTML = reviewHtml;
     }
 
-    downloadWithoutZip(data, fileExtension) {
-        // Stahování jednotlivých souborů místo ZIP
-        let downloadCount = 0;
+    async downloadWithoutZip(data, fileExtension) {
         const totalFiles = this.countTotalFiles(data);
+        let downloadedFiles = 0;
+        const batchSize = 8; // Stahujeme po 8 souborech (jeden časový rámec)
         
-        data.forEach((timeframes, cryptoPair) => {
-            const folderName = cryptoPair.replace('/', '_');
+        // Kontrola vybrané cílové složky
+        this.updateStatus(`Začínám stahování ${totalFiles} souborů...`, 'processing');
+        this.showProgress();
+        
+
+        
+        for (const [cryptoPair, timeframes] of data) {
+            this.updateStatus(`Stahuji data pro ${cryptoPair}...`, 'processing');
             
-            timeframes.forEach((candles, timeframe) => {
+            let batchCount = 0;
+            for (const [timeframe, candles] of timeframes) {
+                const fileName = `${cryptoPair.replace('/', '_')}_${timeframe}${fileExtension}`;
                 const content = this.formatCandleData(candles);
-                const fileName = `${folderName}_${timeframe}${fileExtension}`;
                 
-                // Vytvoření blob a stažení souboru
+                // Vytvoření a stažení souboru
                 const blob = new Blob([content], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = fileName;
+                
+                // Pokud je vybraná cílová složka, pokusíme se ji použít
+                if (this.selectedTargetFolder) {
+                    // Vytvoříme relativní cestu k souboru
+                    const relativePath = `${this.selectedTargetFolder}/${fileName}`;
+                    a.setAttribute('data-downloadurl', `text/plain:${fileName}:${url}`);
+                }
+                
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                downloadCount++;
-                this.updateStatus(`Stahuji soubory... (${downloadCount}/${totalFiles})`, 'processing');
-            });
-        });
+                downloadedFiles++;
+                batchCount++;
+                this.updateProgress(downloadedFiles, totalFiles, fileName);
+                
+                // Pokud jsme dosáhli velikosti batch, počkáme déle
+                if (batchCount >= batchSize) {
+                    this.updateStatus(`Staženo ${downloadedFiles}/${totalFiles} souborů. Čekám na dokončení stahování...`, 'processing');
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // 2 sekundy pauza
+                    batchCount = 0;
+                } else {
+                    // Krátký delay mezi soubory v rámci batch
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+        }
         
-        setTimeout(() => {
-            this.updateStatus(`Úspěšně staženo ${downloadCount} souborů!`, 'success');
-        }, 1000);
+        this.hideProgress();
+        this.updateStatus(`Úspěšně staženo ${downloadedFiles} souborů!`, 'success');
     }
+
+
     
     countTotalFiles(data) {
         let count = 0;
@@ -464,9 +621,190 @@ class CryptoDataManager {
             `${candle.timestamp},${candle.open},${candle.high},${candle.low},${candle.close},${candle.volume}`
         ).join('\n');
     }
+
+    loadCryptoStates() {
+        const saved = localStorage.getItem('cryptoDataManager_states');
+        if (saved) {
+            const states = JSON.parse(saved);
+            // Zajistíme, že všechny kryptoměny mají stav
+            const completeStates = {};
+            this.allCryptos.forEach(crypto => {
+                completeStates[crypto] = states[crypto] !== undefined ? states[crypto] : true;
+            });
+            return completeStates;
+        } else {
+            // Výchozí stav - všechny zapnuté
+            const defaultStates = {};
+            this.allCryptos.forEach(crypto => {
+                defaultStates[crypto] = true;
+            });
+            return defaultStates;
+        }
+    }
+
+    saveCryptoStates() {
+        localStorage.setItem('cryptoDataManager_states', JSON.stringify(this.cryptoStates));
+    }
+
+    getActiveCryptos() {
+        return this.allCryptos.filter(crypto => this.cryptoStates[crypto]);
+    }
+
+    renderCryptoList() {
+        const cryptoListElement = document.getElementById('cryptoList');
+        if (!cryptoListElement) return;
+
+        cryptoListElement.innerHTML = ''; // Vymaže předchozí seznam
+
+        const activeCryptos = this.getActiveCryptos();
+        const totalCryptos = this.allCryptos.length;
+        const visibleCryptos = this.visibleCryptos;
+
+        let shownCount = 0;
+        for (let i = 0; i < totalCryptos; i++) {
+            const crypto = this.allCryptos[i];
+            const isActive = activeCryptos.includes(crypto);
+
+            const cryptoItem = document.createElement('div');
+            cryptoItem.className = 'crypto-item';
+            cryptoItem.innerHTML = `
+                <input type="checkbox" id="crypto-${i}" ${isActive ? 'checked' : ''}>
+                <label for="crypto-${i}">${crypto}</label>
+            `;
+            cryptoListElement.appendChild(cryptoItem);
+
+            cryptoItem.addEventListener('change', () => {
+                this.cryptoStates[crypto] = cryptoItem.querySelector('input').checked;
+                this.saveCryptoStates();
+                this.updateCryptoSummary();
+            });
+
+            shownCount++;
+            if (shownCount >= visibleCryptos) break;
+        }
+
+        // Přidáme tlačítko pro zobrazení/skrytí dalších kryptoměn
+        if (totalCryptos > 5) {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = this.visibleCryptos === totalCryptos ? 'show-less-btn' : 'show-more-btn';
+            
+            if (this.visibleCryptos === totalCryptos) {
+                toggleBtn.textContent = `Schovat další (${totalCryptos - 5})`;
+                toggleBtn.addEventListener('click', () => {
+                    this.visibleCryptos = 5;
+                    this.renderCryptoList();
+                });
+            } else {
+                toggleBtn.textContent = `Zobrazit další (${totalCryptos - visibleCryptos})`;
+                toggleBtn.addEventListener('click', () => {
+                    this.visibleCryptos = totalCryptos;
+                    this.renderCryptoList();
+                });
+            }
+            cryptoListElement.appendChild(toggleBtn);
+        }
+
+        // Přidáme tlačítka pro ovládání všech
+        const controlButtons = document.createElement('div');
+        controlButtons.className = 'crypto-controls';
+        controlButtons.innerHTML = `
+            <button class="control-btn" id="selectAllBtn">Zapnout všechny</button>
+            <button class="control-btn" id="deselectAllBtn">Vypnout všechny</button>
+        `;
+        cryptoListElement.appendChild(controlButtons);
+
+        // Event listeners pro tlačítka
+        document.getElementById('selectAllBtn').addEventListener('click', () => {
+            this.allCryptos.forEach(crypto => {
+                this.cryptoStates[crypto] = true;
+            });
+            this.saveCryptoStates();
+            this.renderCryptoList();
+            this.updateCryptoSummary();
+        });
+
+        document.getElementById('deselectAllBtn').addEventListener('click', () => {
+            this.allCryptos.forEach(crypto => {
+                this.cryptoStates[crypto] = false;
+            });
+            this.saveCryptoStates();
+            this.renderCryptoList();
+            this.updateCryptoSummary();
+        });
+
+        this.updateCryptoSummary();
+    }
+
+    updateCryptoSummary() {
+        const activeCount = this.getActiveCryptos().length;
+        const totalCount = this.allCryptos.length;
+        const summaryElement = document.getElementById('cryptoSummary');
+        if (summaryElement) {
+            summaryElement.textContent = `Aktivní: ${activeCount}/${totalCount} kryptoměn`;
+        }
+    }
+
+
+
+
+
+    showProgress(activity = 'Zahajuji zpracování...') {
+        if (this.progressContainer) {
+            this.progressContainer.style.display = 'flex';
+            this.showActivity(activity);
+        }
+    }
+
+    hideProgress() {
+        if (this.progressContainer) {
+            this.progressContainer.style.display = 'none';
+            this.hideActivity();
+        }
+    }
+
+    showActivity(text) {
+        if (this.progressActivity && this.activityText) {
+            this.progressActivity.style.display = 'flex';
+            this.activityText.textContent = text;
+        }
+    }
+
+    hideActivity() {
+        if (this.progressActivity) {
+            this.progressActivity.style.display = 'none';
+        }
+    }
+
+    updateActivity(text) {
+        this.showActivity(text);
+    }
+
+    updateProgress(current, total, description = '', activity = '') {
+        if (!this.progressFill || !this.progressText) return;
+        
+        // Pokud je current 0, zobraz indeterminate progress
+        if (current === 0 && total > 0) {
+            this.progressFill.classList.add('indeterminate');
+            this.progressFill.style.width = '100%';
+            this.progressText.textContent = 'Inicializace...';
+        } else {
+            this.progressFill.classList.remove('indeterminate');
+            const percentage = Math.round((current / total) * 100);
+            this.progressFill.style.width = `${percentage}%`;
+            
+            if (description) {
+                this.progressText.textContent = `${percentage}% - ${description}`;
+            } else {
+                this.progressText.textContent = `${percentage}% (${current}/${total})`;
+            }
+        }
+        
+        if (activity) {
+            this.updateActivity(activity);
+        }
+    }
 }
 
-// Inicializace aplikace
 document.addEventListener('DOMContentLoaded', () => {
     new CryptoDataManager();
 });
