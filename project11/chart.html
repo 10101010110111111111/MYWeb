@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krypto Chart Viewer</title>
+    <link rel="stylesheet" href="shared-navigation.css">
+    <link rel="stylesheet" href="chart-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-candlestick"></i>
+                <span>Krypto Tools</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-database"></i>
+                    Data Manager
+                </a>
+                <a href="advanced.html" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    Advanced Manager
+                </a>
+                <a href="chart.html" class="nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    Chart Viewer
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-candlestick"></i> Krypto Chart Viewer</h1>
+            <p>Analýza a zobrazení grafů kryptoměn s pokročilými nástroji</p>
+        </header>
+
+        <main class="main-content">
+            <!-- File Upload Section -->
+            <div class="upload-section">
+                <div class="upload-card">
+                    <h2><i class="fas fa-upload"></i> Nahrát data</h2>
+                    <p>Nahrajte soubor s daty kryptoměn ve formátu CSV nebo TXT</p>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" id="dataFileInput" accept=".csv,.txt">
+                        <label for="dataFileInput" class="file-input-label">
+                            <i class="fas fa-file-upload"></i>
+                            <span>Vybrat soubor s daty</span>
+                        </label>
+                    </div>
+                    
+                    <div id="fileInfo" class="file-info"></div>
+                </div>
+
+                <!-- Chart Controls -->
+                <div class="controls-card">
+                    <h3><i class="fas fa-tools"></i> Nástroje grafu</h3>
+                    <div class="chart-controls">
+                        <div class="control-group">
+                            <label>Typ grafu:</label>
+                            <select id="chartType" class="control-select">
+                                <option value="candlestick">Svíčkový graf</option>
+                                <option value="line">Čárový graf</option>
+                                <option value="ohlc">OHLC graf</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>Časové období:</label>
+                            <select id="timeRange" class="control-select">
+                                <option value="all">Všechna data</option>
+                                <option value="last100">Posledních 100</option>
+                                <option value="last500">Posledních 500</option>
+                                <option value="last1000">Posledních 1000</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Drawing Tools -->
+                    <div class="drawing-tools">
+                        <h4><i class="fas fa-pencil-ruler"></i> Kreslící nástroje</h4>
+                        <div class="tool-buttons">
+                            <button class="tool-btn active" data-tool="cursor">
+                                <i class="fas fa-mouse-pointer"></i>
+                                Kurzor
+                            </button>
+                            <button class="tool-btn" data-tool="line">
+                                <i class="fas fa-slash"></i>
+                                Přímka
+                            </button>
+                            <button class="tool-btn" data-tool="horizontal">
+                                <i class="fas fa-minus"></i>
+                                Horizontální
+                            </button>
+                            <button class="tool-btn" data-tool="vertical">
+                                <i class="fas fa-grip-lines-vertical"></i>
+                                Vertikální
+                            </button>
+                            <button class="tool-btn" data-tool="rectangle">
+                                <i class="fas fa-square"></i>
+                                Obdélník
+                            </button>
+                            <button class="tool-btn" data-tool="circle">
+                                <i class="fas fa-circle"></i>
+                                Kruh
+                            </button>
+                            <button class="tool-btn danger" data-tool="clear">
+                                <i class="fas fa-eraser"></i>
+                                Vymazat vše
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-section">
+                <div class="chart-container">
+                    <div id="chartPlaceholder" class="chart-placeholder">
+                        <div class="placeholder-content">
+                            <i class="fas fa-chart-candlestick"></i>
+                            <h3>Nahrajte soubor s daty</h3>
+                            <p>Pro zobrazení grafu nahrajte soubor s daty kryptoměn</p>
+                        </div>
+                    </div>
+                    <canvas id="cryptoChart" style="display: none;"></canvas>
+                    <canvas id="drawingCanvas" class="drawing-canvas"></canvas>
+                    <div class="vertical-zoom-hint">Vertikální zoom</div>
+                </div>
+                
+                <!-- Chart Info -->
+                <div class="chart-info">
+                    <div class="info-item">
+                        <span class="info-label">Název:</span>
+                        <span id="cryptoName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Počet svíček:</span>
+                        <span id="candleCount">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Časový rozsah:</span>
+                        <span id="timeSpan">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Poslední cena:</span>
+                        <span id="lastPrice">-</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div id="statusMessage" class="status-message">
+                Připraveno k načtení dat
+            </div>
+            <div class="mouse-coordinates">
+                <span id="mouseCoords">X: 0, Y: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="chart-script.js"></script>
+</body>
+</html>

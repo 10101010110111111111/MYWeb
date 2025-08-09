@@ -1,3 +1,17 @@
+:root {
+    --primary-bg: #0d1421;
+    --secondary-bg: #1e2329;
+    --card-bg: #2b3139;
+    --accent-color: #f0b90b;
+    --accent-hover: #d9a441;
+    --text-primary: #ffffff;
+    --text-secondary: #b7bdc6;
+    --border-color: #363c47;
+    --success-color: #02c076;
+    --danger-color: #f84960;
+    --warning-color: #ffa726;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,11 +20,13 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
     min-height: 100vh;
-    color: #ffffff;
+    color: var(--text-primary);
     line-height: 1.6;
 }
+
+/* Navigation styles moved to shared-navigation.css */
 
 .container {
     max-width: 1200px;
@@ -27,7 +43,7 @@ body {
 .header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    background: linear-gradient(45deg, var(--accent-color), #fff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -35,7 +51,7 @@ body {
 
 .header p {
     font-size: 1.1rem;
-    opacity: 0.9;
+    color: var(--text-secondary);
 }
 
 .main-content {
@@ -56,7 +72,7 @@ body {
     border-radius: 15px;
     padding: 25px;
     margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
 }
@@ -68,7 +84,7 @@ body {
 
 .upload-card h2, .download-card h2, .info-card h3, .status-card h3, .settings-card h2 {
     margin-bottom: 15px;
-    color: #ffd700;
+    color: var(--accent-color);
     font-size: 1.3rem;
 }
 
@@ -565,4 +581,420 @@ body {
     .guide-container h2 {
         font-size: 1.6rem;
     }
+}
+
+/* Crypto List Styles */
+.crypto-summary {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-size: 1.1em;
+}
+
+.crypto-list {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.crypto-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+    border: 1px solid transparent;
+}
+
+.crypto-item:last-child {
+    margin-bottom: 0;
+}
+
+.crypto-item:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.crypto-item input[type="checkbox"] {
+    margin-right: 15px;
+    transform: scale(1.3);
+    accent-color: var(--accent-color);
+}
+
+.crypto-item label {
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.crypto-item:hover label {
+    color: white;
+}
+
+.show-more-btn, .show-less-btn {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    margin: 20px 0 15px 0;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.show-more-btn:hover, .show-less-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.show-less-btn {
+    background: linear-gradient(135deg, #6c757d, #495057);
+}
+
+.show-less-btn:hover {
+    background: linear-gradient(135deg, #5a6268, #343a40);
+}
+
+.crypto-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-color);
+}
+
+.control-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.control-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn:active {
+    transform: scale(0.98);
+}
+
+/* Animace pro zobrazení/skrytí */
+.crypto-item {
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Progress Bar Styles */
+.progress-container {
+    margin-top: 15px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9em;
+}
+
+/* Download Options Styles */
+.download-options {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.folder-selector {
+    margin-bottom: 15px;
+}
+
+.folder-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.folder-input-wrapper {
+    position: relative;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.folder-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.folder-input-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--card-bg);
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.reset-folder-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+}
+
+.reset-folder-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.reset-folder-btn:active {
+    transform: scale(0.98);
+}
+
+.folder-info {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid #ffc107;
+    border-radius: 4px;
+}
+
+.folder-info small {
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
+/* Styl pro vybranou složku */
+.folder-selected {
+    border-color: var(--accent-color) !important;
+    background: rgba(76, 175, 80, 0.1) !important;
+    color: var(--accent-color) !important;
+}
+
+.folder-selected span {
+    color: var(--accent-color) !important;
+    font-weight: 600;
+}
+
+/* Download Info Styles */
+.download-info {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.info-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--secondary-bg);
+    color: var(--text-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.info-message i {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+}
+
+/* Progress Bar Styles */
+.progress-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.progress-fill.indeterminate {
+    width: 100% !important;
+    background: linear-gradient(90deg, 
+        var(--accent-color) 0%, 
+        var(--accent-hover) 25%, 
+        var(--accent-color) 50%, 
+        var(--accent-hover) 75%, 
+        var(--accent-color) 100%);
+    background-size: 200% 100%;
+    animation: indeterminateProgress 2s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes indeterminateProgress {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    min-height: 18px;
+}
+
+.progress-activity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(240, 185, 11, 0.1);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-color);
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.progress-activity .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

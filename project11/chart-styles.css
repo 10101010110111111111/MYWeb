@@ -1,0 +1,443 @@
+/* Chart Application Styles */
+:root {
+    --primary-bg: #0d1421;
+    --secondary-bg: #1e2329;
+    --card-bg: #2b3139;
+    --accent-color: #f0b90b;
+    --accent-hover: #d9a441;
+    --text-primary: #ffffff;
+    --text-secondary: #b7bdc6;
+    --border-color: #363c47;
+    --success-color: #02c076;
+    --danger-color: #f84960;
+    --warning-color: #ffa726;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Navigation styles moved to shared-navigation.css */
+
+/* Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    background: linear-gradient(45deg, var(--accent-color), #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+/* Main Content */
+.main-content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* Upload Section */
+.upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.upload-card, .controls-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.upload-card h2, .controls-card h3 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-card p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* File Input */
+.file-input-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--secondary-bg);
+    color: var(--text-secondary);
+    padding: 20px;
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.file-input-label:hover {
+    border-color: var(--accent-color);
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    transform: translateY(-2px);
+}
+
+.file-info {
+    background: var(--secondary-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--success-color);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Chart Controls */
+.chart-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.control-select {
+    background: var(--secondary-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.control-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* Drawing Tools */
+.drawing-tools h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tool-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--secondary-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tool-btn:hover {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    border-color: var(--accent-color);
+}
+
+.tool-btn.active {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    border-color: var(--accent-color);
+}
+
+.tool-btn.danger {
+    background: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+    grid-column: 1 / -1;
+}
+
+.tool-btn.danger:hover {
+    background: #d43851;
+}
+
+/* Chart Section */
+.chart-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.chart-container {
+    position: relative;
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    min-height: 600px;
+}
+
+.chart-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 560px;
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.placeholder-content i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: var(--accent-color);
+}
+
+.placeholder-content h3 {
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.drawing-canvas {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    pointer-events: auto;
+    z-index: 10;
+    background: transparent;
+}
+
+/* Chart Info */
+.chart-info {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: var(--secondary-bg);
+    border-radius: 8px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.info-item span:last-child {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* Status Bar */
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    z-index: 1000;
+}
+
+.status-message {
+    color: var(--text-secondary);
+}
+
+.mouse-coordinates {
+    color: var(--accent-color);
+    font-family: 'Courier New', monospace;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .upload-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+    
+    .nav-link {
+        justify-content: center;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .chart-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .tool-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-bar {
+        flex-direction: column;
+        gap: 5px;
+        padding: 15px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.upload-card, .controls-card, .chart-container, .chart-info {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Chart specific styles */
+#cryptoChart {
+    max-width: 100%;
+    max-height: 560px;
+    cursor: crosshair;
+}
+
+/* Vertical zoom indicator */
+.chart-container:hover .vertical-zoom-hint {
+    opacity: 1;
+}
+
+.vertical-zoom-hint {
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    background: rgba(240, 185, 11, 0.9);
+    color: #000;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 20;
+}
+
+/* Chart controls enhancement */
+.chart-container::before {
+    content: "💡 Tip: Kolečko myši = horizontální zoom | Kolečko nad pravou osou = vertikální zoom | Tažení = posouvání";
+    position: absolute;
+    top: -25px;
+    left: 0;
+    right: 0;
+    background: rgba(43, 49, 57, 0.95);
+    color: var(--text-secondary);
+    padding: 5px 10px;
+    border-radius: 5px 5px 0 0;
+    font-size: 12px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+}
