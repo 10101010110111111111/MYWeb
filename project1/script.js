@@ -7,10 +7,10 @@ let slideInterval
 // ===== DOM CONTENT LOADED =====
 document.addEventListener("DOMContentLoaded", () => {
   initializeNavigation()
-  // Wait a bit longer for images to load
+  // Wait a bit for images to load
   setTimeout(() => {
     initializeCarousel()
-  }, 100)
+  }, 50)
   initializeFilters()
   initializeShop()
   initializeGallery()
@@ -25,25 +25,23 @@ function initializeCarousel() {
   
   if (slides.length === 0) return
   
-  // Set background images with fallback
+  // Set background images - each slide gets its own image
   slides.forEach((slide, index) => {
     const bgImage = slide.getAttribute('data-bg')
     if (bgImage) {
-      // Create a test image to check if it loads
+      // Set the image directly first
+      slide.style.backgroundImage = `url('${bgImage}')`
+      
+      // Then test if it loads properly
       const testImg = new Image()
       testImg.onload = () => {
+        // Image loaded successfully, keep it
         slide.style.backgroundImage = `url('${bgImage}')`
       }
       testImg.onerror = () => {
-        // Fallback to next available image
-        const fallbackImages = [
-          'images/HeroSection/36402.jpeg',
-          'images/HeroSection/36421.jpeg',
-          'images/HeroSection/kapela.jpg'
-        ]
-        const fallbackIndex = index % fallbackImages.length
-        slide.style.backgroundImage = `url('${fallbackImages[fallbackIndex]}')`
-        console.warn(`Failed to load image: ${bgImage}, using fallback: ${fallbackImages[fallbackIndex]}`)
+        // Only use fallback if the original image completely fails
+        console.warn(`Failed to load image: ${bgImage}`)
+        // Keep the original image anyway, it might work later
       }
       testImg.src = bgImage
     }
