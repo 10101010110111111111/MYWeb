@@ -234,6 +234,7 @@ p {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-color: #1e2e47; /* Fallback color if image fails to load */
 }
 
 .carousel-slide.active {
