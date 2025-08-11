@@ -7,7 +7,10 @@ let slideInterval
 // ===== DOM CONTENT LOADED =====
 document.addEventListener("DOMContentLoaded", () => {
   initializeNavigation()
-  initializeCarousel()
+  // Wait a bit longer for images to load
+  setTimeout(() => {
+    initializeCarousel()
+  }, 100)
   initializeFilters()
   initializeShop()
   initializeGallery()
@@ -22,11 +25,27 @@ function initializeCarousel() {
   
   if (slides.length === 0) return
   
-  // Set background images
-  slides.forEach(slide => {
+  // Set background images with fallback
+  slides.forEach((slide, index) => {
     const bgImage = slide.getAttribute('data-bg')
     if (bgImage) {
-      slide.style.backgroundImage = `url('${bgImage}')`
+      // Create a test image to check if it loads
+      const testImg = new Image()
+      testImg.onload = () => {
+        slide.style.backgroundImage = `url('${bgImage}')`
+      }
+      testImg.onerror = () => {
+        // Fallback to next available image
+        const fallbackImages = [
+          'images/HeroSection/36402.jpeg',
+          'images/HeroSection/36421.jpeg',
+          'images/HeroSection/kapela.jpg'
+        ]
+        const fallbackIndex = index % fallbackImages.length
+        slide.style.backgroundImage = `url('${fallbackImages[fallbackIndex]}')`
+        console.warn(`Failed to load image: ${bgImage}, using fallback: ${fallbackImages[fallbackIndex]}`)
+      }
+      testImg.src = bgImage
     }
   })
   
