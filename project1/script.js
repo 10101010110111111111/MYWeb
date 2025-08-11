@@ -1,16 +1,103 @@
 // ===== GLOBAL VARIABLES =====
 let cart = []
 let cartCount = 0
+let currentSlideIndex = 0
+let slideInterval
 
 // ===== DOM CONTENT LOADED =====
 document.addEventListener("DOMContentLoaded", () => {
   initializeNavigation()
+  initializeCarousel()
   initializeFilters()
   initializeShop()
   initializeGallery()
   initializeForms()
   updateCartDisplay()
 })
+
+// ===== HERO CAROUSEL =====
+function initializeCarousel() {
+  const slides = document.querySelectorAll('.carousel-slide')
+  const dots = document.querySelectorAll('.dot')
+  
+  if (slides.length === 0) return
+  
+  // Set background images
+  slides.forEach(slide => {
+    const bgImage = slide.getAttribute('data-bg')
+    if (bgImage) {
+      slide.style.backgroundImage = `url('${bgImage}')`
+    }
+  })
+  
+  // Start automatic slideshow
+  startSlideshow()
+  
+  // Pause on hover
+  const carousel = document.querySelector('.hero-carousel')
+  if (carousel) {
+    carousel.addEventListener('mouseenter', stopSlideshow)
+    carousel.addEventListener('mouseleave', startSlideshow)
+  }
+}
+
+function startSlideshow() {
+  stopSlideshow() // Clear any existing interval
+  slideInterval = setInterval(() => {
+    changeSlide(1)
+  }, 3000) // Change slide every 3 seconds
+}
+
+function stopSlideshow() {
+  if (slideInterval) {
+    clearInterval(slideInterval)
+  }
+}
+
+function changeSlide(direction) {
+  const slides = document.querySelectorAll('.carousel-slide')
+  const dots = document.querySelectorAll('.dot')
+  
+  if (slides.length === 0) return
+  
+  // Remove active class from current slide and dot
+  slides[currentSlideIndex].classList.remove('active')
+  dots[currentSlideIndex].classList.remove('active')
+  
+  // Calculate new slide index
+  currentSlideIndex += direction
+  
+  if (currentSlideIndex >= slides.length) {
+    currentSlideIndex = 0
+  } else if (currentSlideIndex < 0) {
+    currentSlideIndex = slides.length - 1
+  }
+  
+  // Add active class to new slide and dot
+  slides[currentSlideIndex].classList.add('active')
+  dots[currentSlideIndex].classList.add('active')
+}
+
+function currentSlide(n) {
+  const slides = document.querySelectorAll('.carousel-slide')
+  const dots = document.querySelectorAll('.dot')
+  
+  if (slides.length === 0) return
+  
+  // Remove active class from current slide and dot
+  slides[currentSlideIndex].classList.remove('active')
+  dots[currentSlideIndex].classList.remove('active')
+  
+  // Set new slide index
+  currentSlideIndex = n - 1
+  
+  // Add active class to new slide and dot
+  slides[currentSlideIndex].classList.add('active')
+  dots[currentSlideIndex].classList.add('active')
+  
+  // Restart slideshow
+  startSlideshow()
+}
 
 // ===== NAVIGATION FUNCTIONS =====
 function initializeNavigation() {
