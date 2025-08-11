@@ -30,51 +30,36 @@ window.addEventListener("load", () => {
 function initializeCarousel() {
   const slides = document.querySelectorAll('.carousel-slide')
   const dots = document.querySelectorAll('.dot')
-  
+
   if (slides.length === 0) return
-  
+
   console.log('Initializing carousel with', slides.length, 'slides')
-  
+
   // Set background images - each slide gets its own image
   slides.forEach((slide, index) => {
     const bgImage = slide.getAttribute('data-bg')
     console.log(`Slide ${index + 1}: ${bgImage}`)
-    
+
     if (bgImage) {
-      // Set the image directly first
+      // Apply background image
       slide.style.backgroundImage = `url('${bgImage}')`
       console.log(`Set background for slide ${index + 1}: ${bgImage}`)
-      
-      // For first slide, wait for image to load then show it
-      if (index === 0) {
-        const firstSlideImg = new Image()
-        firstSlideImg.onload = () => {
-          slide.style.opacity = '1'
-          slide.style.zIndex = '10'
-          console.log(`First slide loaded and visible: ${bgImage}`)
-        }
-        firstSlideImg.src = bgImage
-      }
-      
-      // Then test if it loads properly
+
+      // Probe load status (log only)
       const testImg = new Image()
       testImg.onload = () => {
-        // Image loaded successfully, keep it
-        slide.style.backgroundImage = `url('${bgImage}')`
         console.log(`Image loaded successfully for slide ${index + 1}: ${bgImage}`)
       }
       testImg.onerror = () => {
-        // Only use fallback if the original image completely fails
         console.error(`Failed to load image: ${bgImage}`)
-        // Keep the original image anyway, it might work later
       }
       testImg.src = bgImage
     }
   })
-  
+
   // Start automatic slideshow
   startSlideshow()
-  
+
   // Pause on hover
   const carousel = document.querySelector('.hero-carousel')
   if (carousel) {
@@ -99,22 +84,22 @@ function stopSlideshow() {
 function changeSlide(direction) {
   const slides = document.querySelectorAll('.carousel-slide')
   const dots = document.querySelectorAll('.dot')
-  
+
   if (slides.length === 0) return
-  
+
   // Remove active class from current slide and dot
   slides[currentSlideIndex].classList.remove('active')
   dots[currentSlideIndex].classList.remove('active')
-  
+
   // Calculate new slide index
   currentSlideIndex += direction
-  
+
   if (currentSlideIndex >= slides.length) {
     currentSlideIndex = 0
   } else if (currentSlideIndex < 0) {
     currentSlideIndex = slides.length - 1
   }
-  
+
   // Add active class to new slide and dot
   slides[currentSlideIndex].classList.add('active')
   dots[currentSlideIndex].classList.add('active')
@@ -123,20 +108,20 @@ function changeSlide(direction) {
 function currentSlide(n) {
   const slides = document.querySelectorAll('.carousel-slide')
   const dots = document.querySelectorAll('.dot')
-  
+
   if (slides.length === 0) return
-  
+
   // Remove active class from current slide and dot
   slides[currentSlideIndex].classList.remove('active')
   dots[currentSlideIndex].classList.remove('active')
-  
+
   // Set new slide index
   currentSlideIndex = n - 1
-  
+
   // Add active class to new slide and dot
   slides[currentSlideIndex].classList.add('active')
   dots[currentSlideIndex].classList.add('active')
-  
+
   // Restart slideshow
   startSlideshow()
 }
