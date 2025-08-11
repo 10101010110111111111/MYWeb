@@ -7,15 +7,19 @@ let slideInterval
 // ===== DOM CONTENT LOADED =====
 document.addEventListener("DOMContentLoaded", () => {
   initializeNavigation()
-  // Wait a bit for images to load
-  setTimeout(() => {
-    initializeCarousel()
-  }, 50)
   initializeFilters()
   initializeShop()
   initializeGallery()
   initializeForms()
   updateCartDisplay()
+})
+
+// ===== WINDOW LOAD =====
+window.addEventListener("load", () => {
+  // Wait for all images to load, then initialize carousel
+  setTimeout(() => {
+    initializeCarousel()
+  }, 100)
 })
 
 // ===== HERO CAROUSEL =====
@@ -25,22 +29,28 @@ function initializeCarousel() {
   
   if (slides.length === 0) return
   
+  console.log('Initializing carousel with', slides.length, 'slides')
+  
   // Set background images - each slide gets its own image
   slides.forEach((slide, index) => {
     const bgImage = slide.getAttribute('data-bg')
+    console.log(`Slide ${index + 1}: ${bgImage}`)
+    
     if (bgImage) {
       // Set the image directly first
       slide.style.backgroundImage = `url('${bgImage}')`
+      console.log(`Set background for slide ${index + 1}: ${bgImage}`)
       
       // Then test if it loads properly
       const testImg = new Image()
       testImg.onload = () => {
         // Image loaded successfully, keep it
         slide.style.backgroundImage = `url('${bgImage}')`
+        console.log(`Image loaded successfully for slide ${index + 1}: ${bgImage}`)
       }
       testImg.onerror = () => {
         // Only use fallback if the original image completely fails
-        console.warn(`Failed to load image: ${bgImage}`)
+        console.error(`Failed to load image: ${bgImage}`)
         // Keep the original image anyway, it might work later
       }
       testImg.src = bgImage
