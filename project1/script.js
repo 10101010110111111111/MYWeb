@@ -7,6 +7,10 @@ let slideInterval
 // ===== DOM CONTENT LOADED =====
 document.addEventListener("DOMContentLoaded", () => {
   initializeNavigation()
+  // Wait a bit for images to load
+  setTimeout(() => {
+    initializeCarousel()
+  }, 10)
   initializeFilters()
   initializeShop()
   initializeGallery()
@@ -40,6 +44,17 @@ function initializeCarousel() {
       // Set the image directly first
       slide.style.backgroundImage = `url('${bgImage}')`
       console.log(`Set background for slide ${index + 1}: ${bgImage}`)
+      
+      // For first slide, wait for image to load then show it
+      if (index === 0) {
+        const firstSlideImg = new Image()
+        firstSlideImg.onload = () => {
+          slide.style.opacity = '1'
+          slide.style.zIndex = '10'
+          console.log(`First slide loaded and visible: ${bgImage}`)
+        }
+        firstSlideImg.src = bgImage
+      }
       
       // Then test if it loads properly
       const testImg = new Image()
