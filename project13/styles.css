@@ -12,6 +12,26 @@ body {
   line-height: 1.6;
 }
 
+/* Mobile improvements */
+html { scroll-behavior: smooth; }
+img, svg, video { max-width: 100%; height: auto; }
+table { width: 100%; overflow-x: auto; display: block; }
+.max-w-6xl, .max-w-4xl { padding-left: 1rem; padding-right: 1rem; }
+.btn { touch-action: manipulation; }
+.btn, .filter-btn { min-height: 38px; }
+.grid.md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1024px) {
+  .grid.md\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .grid, .flex { gap: .75rem; }
+  .py-8 { padding-top: 1rem; padding-bottom: 1rem; }
+  .card { padding: .875rem; }
+  .card-title { font-size: .95rem; }
+  .action-btn { height: 2.5rem; font-size: .8rem; }
+  .terminal-input { font-size: .8rem; padding: .45rem .6rem; }
+}
+
 /* Utility classes */
 .min-h-screen {
   min-height: 100vh;
@@ -693,7 +713,7 @@ input[type="checkbox"] {
 .upload-zone {
   border: 2px dashed #4b5563;
   border-radius: 0.5rem;
-  padding: 1.25rem 1rem;
+  padding: 1rem .75rem;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
