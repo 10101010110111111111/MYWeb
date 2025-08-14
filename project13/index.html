@@ -21,15 +21,11 @@
             </svg>
             <span class="text-xl font-mono text-green-400">sender</span>
           </div>
-          <div class="flex gap-3">
-            <button onclick="showLogin()" class="btn btn-outline">login</button>
-            <button onclick="showRegister()" class="btn btn-primary">register</button>
-          </div>
         </div>
       </div>
     </header>
 
-    <!-- Navbar (global) -->
+    <!-- Global navigation will be inserted here by nav.js -->
 
     <section class="py-16 px-4">
       <div class="max-w-4xl mx-auto text-center">
@@ -128,6 +124,62 @@
         </div>
       </div>
     </section>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="text-xl font-mono text-green-400">$ login</h3>
+          <button class="close-btn" onclick="closeModal('login-modal')">&times;</button>
+        </div>
+        <form id="login-form">
+          <div class="mb-4">
+            <label class="block text-sm font-mono text-gray-300 mb-2">username:</label>
+            <input type="text" id="login-username" class="terminal-input" placeholder="Enter username" required>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-mono text-gray-300 mb-2">password:</label>
+            <input type="password" id="login-password" class="terminal-input" placeholder="Enter password" required>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary flex-1">login</button>
+            <button type="button" class="btn btn-outline" onclick="closeModal('login-modal')">cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="text-xl font-mono text-green-400">$ register</h3>
+          <button class="close-btn" onclick="closeModal('register-modal')">&times;</button>
+        </div>
+        <form id="register-form">
+          <div class="mb-4">
+            <label class="block text-sm font-mono text-gray-300 mb-2">username:</label>
+            <input type="text" id="register-username" class="terminal-input" placeholder="Enter username" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-mono text-gray-300 mb-2">email:</label>
+            <input type="email" id="register-email" class="terminal-input" placeholder="Enter email" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-mono text-gray-300 mb-2">password:</label>
+            <input type="password" id="register-password" class="terminal-input" placeholder="Enter password" required>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-mono text-gray-300 mb-2">admin code (optional):</label>
+            <input type="text" id="register-code" class="terminal-input" placeholder="Enter admin code">
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" class="btn btn-primary flex-1">register</button>
+            <button type="button" class="btn btn-outline" onclick="closeModal('register-modal')">cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <footer class="border-t border-gray-700 bg-gray-800 py-8">
       <div class="max-w-6xl mx-auto px-4 text-center">

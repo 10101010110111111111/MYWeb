@@ -20,9 +20,245 @@ table { width: 100%; overflow-x: auto; display: block; }
 .btn { touch-action: manipulation; }
 .btn, .filter-btn { min-height: 38px; }
 .grid.md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Global Navigation Styles */
+.global-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+  background-color: rgba(31, 41, 55, 0.95);
+}
+
+.global-nav .nav-link {
+  position: relative;
+  padding: 0.5rem 0;
+  transition: all 0.2s ease;
+}
+
+.global-nav .nav-link:hover {
+  transform: translateY(-1px);
+}
+
+.global-nav .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #4ade80;
+  border-radius: 1px;
+}
+
+/* Navigation link states */
+.global-nav .nav-link.active {
+  color: #4ade80 !important;
+  font-weight: 600;
+}
+
+.global-nav .nav-link:hover {
+  color: #4ade80 !important;
+}
+
+/* Mobile navigation container */
+.global-nav #nav-links {
+  transition: all 0.3s ease;
+}
+
+.global-nav #nav-links.hidden {
+  display: none !important;
+}
+
+.global-nav #nav-links.flex {
+  display: flex !important;
+}
+
+/* Mobile menu button styling */
+.global-nav #mobile-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.global-nav #mobile-menu-btn:hover {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+
+.global-nav #mobile-menu-btn:focus {
+  outline: 2px solid #4ade80;
+  outline-offset: 2px;
+}
+
+/* Mobile Navigation */
+@media (max-width: 768px) {
+  .global-nav {
+    position: relative;
+  }
+  
+  .global-nav #nav-links {
+    background-color: rgba(31, 41, 55, 0.98);
+    border-top: 1px solid #374151;
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .global-nav #nav-links a {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #374151;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .global-nav #nav-links a:last-child {
+    border-bottom: none;
+  }
+  
+  .global-nav #mobile-menu-btn {
+    transition: transform 0.2s ease;
+  }
+  
+  .global-nav #mobile-menu-btn:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Mobile menu button animation */
+  .global-nav #mobile-menu-btn svg {
+    transition: transform 0.2s ease;
+  }
+  
+  .global-nav #mobile-menu-btn:hover svg {
+    transform: rotate(90deg);
+  }
+  
+  /* Mobile form improvements */
+  .terminal-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Mobile card improvements */
+  .card {
+    margin: 0.5rem 0;
+  }
+  
+  /* Mobile button improvements */
+  .btn {
+    min-height: 44px; /* Better touch target */
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Mobile grid improvements */
+  .grid.lg\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Mobile filter improvements */
+  .filter-btn {
+    flex: 1;
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+  
+  /* Mobile search improvements */
+  #search-input {
+    width: 100% !important;
+    margin-bottom: 1rem;
+  }
+  
+  /* Mobile admin tab improvements */
+  .admin-tab {
+    flex: 1;
+    min-height: 44px;
+    font-size: 0.875rem;
+  }
+  
+  /* Mobile action button improvements */
+  .action-btn {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Mobile modal improvements */
+  .modal-content {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+  }
+  
+  /* Mobile table improvements */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile upload zone improvements */
+  .upload-zone {
+    min-height: 120px;
+    padding: 1.5rem;
+  }
+  
+  /* Mobile package stats improvements */
+  .grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  /* Mobile text improvements */
+  .text-4xl {
+    font-size: 2rem;
+  }
+  
+  .text-3xl {
+    font-size: 1.75rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  
+  /* Mobile spacing improvements */
+  .py-16 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  
+  .py-12 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  .py-8 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  /* Mobile form layout improvements */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  /* Mobile button group improvements */
+  .flex.gap-4 {
+    gap: 0.75rem;
+  }
+  
+  .flex.gap-3 {
+    gap: 0.5rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .grid.md\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
 @media (max-width: 640px) {
   .grid, .flex { gap: .75rem; }
   .py-8 { padding-top: 1rem; padding-bottom: 1rem; }
@@ -30,6 +266,32 @@ table { width: 100%; overflow-x: auto; display: block; }
   .card-title { font-size: .95rem; }
   .action-btn { height: 2.5rem; font-size: .8rem; }
   .terminal-input { font-size: .8rem; padding: .45rem .6rem; }
+  
+  /* Mobile header adjustments */
+  .global-nav .max-w-6xl {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .global-nav .text-xl {
+    font-size: 1.125rem;
+  }
+  
+  /* Mobile button adjustments */
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Mobile grid adjustments */
+  .grid.md\:grid-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .grid.md\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Utility classes */
@@ -395,6 +657,19 @@ table { width: 100%; overflow-x: auto; display: block; }
 
 .action-btn:hover.bg-orange-600 {
   box-shadow: 0 0 30px rgba(234, 88, 12, 0.5);
+}
+
+/* Hover styles for action buttons */
+.hover\:bg-blue-700:hover {
+  background-color: #1d4ed8;
+}
+
+.hover\:bg-purple-700:hover {
+  background-color: #7c3aed;
+}
+
+.hover\:bg-orange-700:hover {
+  background-color: #c2410c;
 }
 
 /* Card styles */
@@ -1051,3 +1326,89 @@ table tr:hover {
 }
 .nav-link:hover { color: #4ade80; }
 .nav-link.active { color: #4ade80; }
+
+/* Additional mobile-friendly features */
+@media (max-width: 480px) {
+  /* Extra small mobile devices */
+  .max-w-6xl, .max-w-4xl, .max-w-2xl {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .card {
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+  }
+  
+  .btn {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  .action-btn {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Mobile navigation improvements */
+  .global-nav {
+    padding: 0.75rem 0;
+  }
+  
+  .global-nav .text-xl {
+    font-size: 1rem;
+  }
+  
+  .global-nav .h-6 {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+  
+  /* Mobile form improvements */
+  .terminal-input {
+    padding: 0.625rem 0.75rem;
+    font-size: 16px;
+  }
+  
+  /* Mobile modal improvements */
+  .modal-content {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  /* Mobile upload improvements */
+  .upload-zone {
+    min-height: 100px;
+    padding: 1rem;
+  }
+  
+  .upload-content svg {
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+/* Touch-friendly improvements for all mobile devices */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover,
+  .action-btn:hover,
+  .filter-btn:hover,
+  .admin-tab:hover {
+    transform: none;
+  }
+  
+  .btn:active,
+  .action-btn:active,
+  .filter-btn:active,
+  .admin-tab:active {
+    transform: scale(0.98);
+  }
+  
+  .global-nav .nav-link:hover {
+    transform: none;
+  }
+  
+  .global-nav .nav-link:active {
+    transform: scale(0.98);
+  }
+}

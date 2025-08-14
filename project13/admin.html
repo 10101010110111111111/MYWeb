@@ -15,30 +15,15 @@
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
                         <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                         </svg>
                         <a href="dashboard.html" class="text-xl font-mono text-red-400">sender [ADMIN]</a>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-red-400 font-mono" id="user-info">$ whoami: loading...</span>
-                        <button onclick="logout()" class="btn btn-outline">logout</button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <nav class="navbar">
-            <div class="max-w-6xl mx-auto px-4 py-4">
-                <ul class="nav-links">
-                    <li><a class="nav-link" href="index.html">Dirviewer</a></li>
-                    <li><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-                    <li><a class="nav-link" href="upload.html">Upload</a></li>
-                    <li><a class="nav-link" href="packages.html">Packages</a></li>
-                    <li><a class="nav-link" href="retrieve.html">Retrieve</a></li>
-                    <li><a class="nav-link" href="admin.html">Admin</a></li>
-                </ul>
-            </div>
-        </nav>
+        <!-- Globální navbar se vkládá skriptem -->
 
         <main class="py-8 px-4">
             <div class="max-w-6xl mx-auto">
@@ -288,6 +273,7 @@
 
     <script src="auth.js"></script>
     <script src="admin.js"></script>
+    <script src="global-nav.js"></script>
     <script src="nav.js"></script>
 </body>
 </html>
