@@ -22,14 +22,19 @@
         .controls { display:flex; gap:.5rem; }
         .mono { font-family: "JetBrains Mono", monospace; }
         .path { color:#60a5fa; }
+        /* Navbar */
+        .navbar { position: sticky; top: 0; z-index: 100; background:#111827; border-bottom:1px solid #374151; }
+        .nav-links { display:flex; gap:1rem; list-style:none; align-items:center; }
+        .nav-links a { color:#9ca3af; text-decoration:none; font-family:"JetBrains Mono", monospace; font-size:0.875rem; }
+        .nav-links a:hover { color:#4ade80; }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gray-900 text-gray-100">
+    <div id="top" class="min-h-screen bg-gray-900 text-gray-100">
         <header class="border-b border-gray-700 bg-gray-800">
             <div class="max-w-6xl mx-auto px-4 py-4 viewer-header">
                 <h1 class="text-3xl font-mono text-green-400">$ dirviewer --browse</h1>
-                <div class="controls">
+                <div id="controls" class="controls">
                     <button id="pickFolderBtn" class="btn btn-primary">Vybrat složku</button>
                     <button id="expandAllBtn" class="btn btn-outline">Rozbalit vše</button>
                     <button id="collapseAllBtn" class="btn btn-outline">Sbalit vše</button>
@@ -37,9 +42,21 @@
             </div>
         </header>
 
+        <nav class="navbar">
+            <div class="max-w-6xl mx-auto px-4 py-4">
+                <ul class="nav-links">
+                    <li><a href="#top">Nahoru</a></li>
+                    <li><a href="#picker">Výběr složky</a></li>
+                    <li><a href="#results">Výsledek</a></li>
+                    <li><a href="#tree">Strom</a></li>
+                    <li><a href="#controls">Ovládání</a></li>
+                </ul>
+            </div>
+        </nav>
+
         <main class="py-8 px-4">
             <div class="max-w-6xl mx-auto">
-                <section class="mb-8">
+                <section id="picker" class="mb-8">
                     <div id="dropZone" class="drop-zone">
                         <div class="upload-content">
                             <svg class="h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +69,7 @@
                     </div>
                 </section>
 
-                <section>
+                <section id="results">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Výsledek <span id="summary" class="badge"></span></h3>
