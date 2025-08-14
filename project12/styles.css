@@ -1,0 +1,119 @@
+:root {
+  --bg: radial-gradient(1200px 800px at 10% 10%, #0f172a 0%, #020617 55%, #000 100%);
+  --accent: #7c3aed;
+  --accent-2: #22d3ee;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg) fixed;
+  color: #e5e7eb;
+  display: grid;
+  place-items: center;
+  gap: 2rem;
+}
+
+.row {
+  display: grid;
+  place-items: center;
+  width: min(90vw, 64rem);
+  height: clamp(120px, 24vmin, 260px);
+}
+
+.square {
+  width: clamp(80px, 12vmin, 140px);
+  height: clamp(80px, 12vmin, 140px);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow:
+    0 10px 30px rgba(124, 58, 237, 0.25),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+/* dekorativní mřížka */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 70%);
+  pointer-events: none;
+}
+
+/* demo oblast */
+#docs-demos {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.docs-demo {
+  width: min(92vw, 72rem);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+
+.docs-demo .large.row { height: clamp(200px, 40vmin, 420px); }
+.docs-demo .small.row { height: auto; padding: 0 1rem 1.25rem; }
+.docs-demo .col { display: grid; place-items: center; height: 100%; }
+
+.label {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+/* Scroll demo layout */
+#scroll-auto-play-on-scroll {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.scroll-container {
+  width: min(92vw, 72rem);
+  height: min(80vh, 900px);
+  overflow: auto;
+  border-radius: 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.scroll-content { min-height: 160vh; }
+.scroll-section { min-height: 60vh; display: grid; place-items: center; }
+.scroll-section.padded { padding: 3rem 1.25rem; }
+
+.square-grid .square { margin: 0 auto; }
+
+#scroll-auto-play-on-scroll pre {
+  position: relative;
+  left: 3rem;
+  width: 12rem;
+}
+
+#scroll-auto-play-on-scroll .circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 1rem;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  box-shadow: 0 10px 30px rgba(20, 184, 166, 0.25), inset 0 0 0 2px rgba(255,255,255,0.06);
+}
+
+
