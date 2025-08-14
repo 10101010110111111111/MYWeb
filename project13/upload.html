@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload - Sender</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="min-h-screen bg-gray-900 text-gray-100">
+        <header class="border-b border-gray-700 bg-gray-800">
+            <div class="max-w-6xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <a href="dashboard.html" class="text-xl font-mono text-green-400">sender</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-green-400 font-mono" id="user-info">$ whoami: loading...</span>
+                        <button onclick="logout()" class="btn btn-outline">logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="py-8 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-mono text-green-400 mb-2">$ upload --files</h1>
+                    <p class="text-gray-400 font-mono">Upload files and create packages for sharing</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Upload Area -->
+                    <div class="space-y-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    File Selection
+                                </h3>
+                            </div>
+
+                            <div id="drop-zone" class="upload-zone">
+                                <div class="upload-content">
+                                    <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    <p class="text-gray-400 font-mono mb-2">Drag & drop files here</p>
+                                    <p class="text-gray-500 font-mono text-sm mb-4">or click to browse</p>
+                                    <button type="button" onclick="document.getElementById('file-input').click()" class="btn btn-primary">
+                                        Select Files
+                                    </button>
+                                </div>
+                                <input type="file" id="file-input" multiple accept="*/*" style="display: none;">
+                            </div>
+
+                            <div id="file-list" class="mt-4 space-y-2" style="display: none;">
+                                <h4 class="font-mono text-green-400 mb-2">Selected Files:</h4>
+                                <div id="selected-files"></div>
+                            </div>
+                        </div>
+
+                        <!-- Package Configuration -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Package Configuration
+                                </h3>
+                            </div>
+
+                            <form id="upload-form" class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-400 font-mono mb-2">package name:</label>
+                                    <input type="text" id="package-name" class="terminal-input" required 
+                                           placeholder="my-awesome-package">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-400 font-mono mb-2">visibility:</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="visibility" value="public" checked class="radio-input">
+                                            <span class="font-mono text-sm">public - anyone can download</span>
+                                        </label>
+                                        <label class="flex items-center gap-2">
+                                            <input type="radio" name="visibility" value="private" class="radio-input">
+                                            <span class="font-mono text-sm">private - requires secret key</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="secret-key-field" style="display: none;">
+                                    <label class="block text-gray-400 font-mono mb-2">secret key:</label>
+                                    <input type="text" id="secret-key" class="terminal-input" 
+                                           placeholder="enter a secret key for private access">
+                                </div>
+
+                                <div>
+                                    <label class="block text-gray-400 font-mono mb-2">description (optional):</label>
+                                    <textarea id="description" class="terminal-input" rows="3" 
+                                              placeholder="describe your package..."></textarea>
+                                </div>
+
+                                <button type="submit" id="upload-btn" class="btn btn-primary w-full" disabled>
+                                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    Create Package
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Upload Progress & Info -->
+                    <div class="space-y-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Upload Status
+                                </h3>
+                            </div>
+
+                            <div id="upload-status" class="space-y-4">
+                                <div class="text-gray-400 font-mono text-sm">
+                                    Ready to upload files...
+                                </div>
+                            </div>
+
+                            <div id="upload-progress" style="display: none;">
+                                <div class="mb-2">
+                                    <div class="flex justify-between text-sm font-mono">
+                                        <span class="text-gray-400">Progress:</span>
+                                        <span class="text-green-400" id="progress-text">0%</span>
+                                    </div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progress-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Supported File Types
+                                </h3>
+                            </div>
+
+                            <div class="space-y-2 text-sm font-mono">
+                                <div class="text-gray-400">✓ Images: jpg, png, gif, svg, webp</div>
+                                <div class="text-gray-400">✓ Videos: mp4, avi, mov, webm</div>
+                                <div class="text-gray-400">✓ Code: js, ts, py, java, cpp, html, css</div>
+                                <div class="text-gray-400">✓ Archives: zip, tar, gz, rar</div>
+                                <div class="text-gray-400">✓ Documents: pdf, txt, md, docx</div>
+                                <div class="text-gray-400">✓ And many more...</div>
+                            </div>
+
+                            <div class="mt-4 p-3 bg-gray-800 rounded border border-gray-600">
+                                <div class="text-yellow-400 font-mono text-sm mb-1">Limits:</div>
+                                <div class="text-gray-400 font-mono text-xs">
+                                    • Max file size: 100MB<br>
+                                    • Max files per package: 50<br>
+                                    • Max package size: 500MB
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="upload.js"></script>
+</body>
+</html>

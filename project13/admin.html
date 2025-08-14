@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Sender</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="min-h-screen bg-gray-900 text-gray-100">
+        <header class="border-b border-gray-700 bg-gray-800">
+            <div class="max-w-6xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        <a href="dashboard.html" class="text-xl font-mono text-red-400">sender [ADMIN]</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-red-400 font-mono" id="user-info">$ whoami: loading...</span>
+                        <button onclick="logout()" class="btn btn-outline">logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="py-8 px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-mono text-red-400 mb-2">$ sudo admin --dashboard</h1>
+                    <p class="text-gray-400 font-mono">System administration and management</p>
+                </div>
+
+                <!-- Admin Navigation -->
+                <div class="mb-8">
+                    <div class="flex gap-4 mb-6">
+                        <button id="tab-overview" class="admin-tab active" onclick="adminDashboard.switchTab('overview')">
+                            Overview
+                        </button>
+                        <button id="tab-packages" class="admin-tab" onclick="adminDashboard.switchTab('packages')">
+                            All Packages
+                        </button>
+                        <button id="tab-users" class="admin-tab" onclick="adminDashboard.switchTab('users')">
+                            User Management
+                        </button>
+                        <button id="tab-system" class="admin-tab" onclick="adminDashboard.switchTab('system')">
+                            System Tools
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overview-tab" class="tab-content">
+                    <!-- System Stats -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="card admin-stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-2xl font-mono text-green-400" id="total-packages-stat">0</div>
+                                    <div class="text-sm font-mono text-gray-400">Total Packages</div>
+                                </div>
+                                <svg class="h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="card admin-stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-2xl font-mono text-blue-400" id="total-users-stat">0</div>
+                                    <div class="text-sm font-mono text-gray-400">Total Users</div>
+                                </div>
+                                <svg class="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="card admin-stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-2xl font-mono text-yellow-400" id="total-downloads-stat">0</div>
+                                    <div class="text-sm font-mono text-gray-400">Total Downloads</div>
+                                </div>
+                                <svg class="h-8 w-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="card admin-stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-2xl font-mono text-purple-400" id="storage-used-stat">0 MB</div>
+                                    <div class="text-sm font-mono text-gray-400">Storage Used</div>
+                                </div>
+                                <svg class="h-8 w-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Recent Packages
+                                </h3>
+                            </div>
+                            <div id="recent-packages-list" class="space-y-2">
+                                <!-- Recent packages will be populated here -->
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    System Status
+                                </h3>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-mono text-sm text-gray-400">Server Status:</span>
+                                    <span class="px-2 py-1 text-xs font-mono rounded bg-green-600 text-black">Online</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-mono text-sm text-gray-400">Database:</span>
+                                    <span class="px-2 py-1 text-xs font-mono rounded bg-green-600 text-black">Connected</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-mono text-sm text-gray-400">Storage:</span>
+                                    <span class="px-2 py-1 text-xs font-mono rounded bg-yellow-600 text-black">75% Used</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-mono text-sm text-gray-400">Uptime:</span>
+                                    <span class="font-mono text-sm text-green-400">24d 12h 45m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Packages Tab -->
+                <div id="packages-tab" class="tab-content" style="display: none;">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <input type="text" id="admin-search-input" class="terminal-input" placeholder="search all packages..." 
+                                   style="width: 400px;" onkeyup="adminDashboard.searchAllPackages()">
+                            <div class="flex gap-2">
+                                <button onclick="adminDashboard.exportPackages()" class="btn btn-outline">
+                                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Export Data
+                                </button>
+                                <button onclick="adminDashboard.clearAllPackages()" class="btn btn-outline text-red-400">
+                                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Clear All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="admin-packages-container" class="space-y-4">
+                        <!-- All packages will be populated here -->
+                    </div>
+                </div>
+
+                <!-- User Management Tab -->
+                <div id="users-tab" class="tab-content" style="display: none;">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-mono text-red-400">User Management</h3>
+                            <button onclick="adminDashboard.addUser()" class="btn btn-primary">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add User
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-600">
+                                        <th class="text-left py-3 px-4 font-mono text-green-400">Username</th>
+                                        <th class="text-left py-3 px-4 font-mono text-green-400">Email</th>
+                                        <th class="text-left py-3 px-4 font-mono text-green-400">Role</th>
+                                        <th class="text-left py-3 px-4 font-mono text-green-400">Packages</th>
+                                        <th class="text-left py-3 px-4 font-mono text-green-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Users will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Tools Tab -->
+                <div id="system-tab" class="tab-content" style="display: none;">
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    System Maintenance
+                                </h3>
+                            </div>
+                            <div class="space-y-4">
+                                <button onclick="adminDashboard.cleanupStorage()" class="btn btn-outline w-full">
+                                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Cleanup Storage
+                                </button>
+                                <button onclick="adminDashboard.optimizeDatabase()" class="btn btn-outline w-full">
+                                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                                    </svg>
+                                    Optimize Database
+                                </button>
+                                <button onclick="adminDashboard.generateReport()" class="btn btn-outline w-full">
+                                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Generate Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    System Logs
+                                </h3>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded border border-gray-600 font-mono text-sm max-h-64 overflow-y-auto">
+                                <div id="system-logs">
+                                    <div class="text-green-400">[INFO] System initialized</div>
+                                    <div class="text-blue-400">[DEBUG] Database connection established</div>
+                                    <div class="text-yellow-400">[WARN] Storage usage at 75%</div>
+                                    <div class="text-green-400">[INFO] Admin dashboard loaded</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

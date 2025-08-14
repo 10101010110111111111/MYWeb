@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@sender.com",
+      "password": "admin123",
+      "isAdmin": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "packages": [
+    {
+      "id": 1,
+      "name": "project_files.zip",
+      "type": "public",
+      "size": 2400000,
+      "files": ["index.html", "style.css", "script.js"],
+      "userId": 1,
+      "createdAt": "2024-01-01T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "secret_docs.pdf",
+      "type": "private",
+      "secretKey": "secret123",
+      "size": 1800000,
+      "files": ["document.pdf"],
+      "userId": 1,
+      "createdAt": "2024-01-01T15:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "screenshots.zip",
+      "type": "public",
+      "size": 15200000,
+      "files": ["screen1.png", "screen2.png", "screen3.png"],
+      "userId": 1,
+      "createdAt": "2024-01-01T20:00:00.000Z"
+    }
+  ]
+}

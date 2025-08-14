@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packages - Sender</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="min-h-screen bg-gray-900 text-gray-100">
+        <header class="border-b border-gray-700 bg-gray-800">
+            <div class="max-w-6xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <a href="dashboard.html" class="text-xl font-mono text-green-400">sender</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-green-400 font-mono" id="user-info">$ whoami: loading...</span>
+                        <button onclick="logout()" class="btn btn-outline">logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="py-8 px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-mono text-green-400 mb-2">$ ls packages/</h1>
+                    <p class="text-gray-400 font-mono">Manage your uploaded packages</p>
+                </div>
+
+                <!-- Package Filters -->
+                <div class="mb-6">
+                    <div class="flex gap-4 mb-4">
+                        <button id="filter-all" class="filter-btn active" onclick="packageManager.filterPackages('all')">
+                            All Packages
+                        </button>
+                        <button id="filter-my" class="filter-btn" onclick="packageManager.filterPackages('my')">
+                            My Packages
+                        </button>
+                        <button id="filter-public" class="filter-btn" onclick="packageManager.filterPackages('public')">
+                            Public
+                        </button>
+                        <button id="filter-private" class="filter-btn" onclick="packageManager.filterPackages('private')">
+                            Private
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-4">
+                            <input type="text" id="search-input" class="terminal-input" placeholder="search packages..." 
+                                   style="width: 300px;" onkeyup="packageManager.searchPackages()">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.location.href='upload.html'" class="btn btn-primary">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                New Package
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Package Stats -->
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="card text-center">
+                        <div class="text-2xl font-mono text-green-400" id="total-packages">0</div>
+                        <div class="text-sm font-mono text-gray-400">Total Packages</div>
+                    </div>
+                    <div class="card text-center">
+                        <div class="text-2xl font-mono text-blue-400" id="my-packages">0</div>
+                        <div class="text-sm font-mono text-gray-400">My Packages</div>
+                    </div>
+                    <div class="card text-center">
+                        <div class="text-2xl font-mono text-yellow-400" id="public-packages">0</div>
+                        <div class="text-sm font-mono text-gray-400">Public</div>
+                    </div>
+                    <div class="card text-center">
+                        <div class="text-2xl font-mono text-purple-400" id="private-packages">0</div>
+                        <div class="text-sm font-mono text-gray-400">Private</div>
+                    </div>
+                </div>
+
+                <!-- Package List -->
+                <div id="packages-container" class="space-y-4">
+                    <div class="text-center text-gray-400 font-mono">Loading packages...</div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" style="display: none;" class="text-center py-12">
+                    <svg class="h-16 w-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <h3 class="text-xl font-mono text-gray-400 mb-2">No packages found</h3>
+                    <p class="text-gray-500 font-mono mb-4">Upload your first package to get started</p>
+                    <button onclick="window.location.href='upload.html'" class="btn btn-primary">
+                        Upload Package
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Package Details Modal -->
+    <div id="package-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="font-mono text-green-400" id="modal-title">Package Details</h2>
+                <button class="close-btn" onclick="packageManager.closeModal()">&times;</button>
+            </div>
+            <div id="modal-body">
+                <!-- Package details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Private Package Access Modal -->
+    <div id="private-access-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="font-mono text-green-400">Private Package Access</h2>
+                <button class="close-btn" onclick="packageManager.closePrivateModal()">&times;</button>
+            </div>
+            <form id="private-access-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-400 font-mono mb-2">Enter secret key:</label>
+                    <input type="password" id="private-key-input" class="terminal-input" required 
+                           placeholder="secret key for private package">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Access Package</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Package Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="font-mono text-green-400">Edit Package</h2>
+                <button class="close-btn" onclick="packageManager.closeEditModal()">&times;</button>
+            </div>
+            <form id="edit-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-400 font-mono mb-2">package name:</label>
+                    <input type="text" id="edit-name" class="terminal-input" required>
+                </div>
+                <div>
+                    <label class="block text-gray-400 font-mono mb-2">description:</label>
+                    <textarea id="edit-description" class="terminal-input" rows="3"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-400 font-mono mb-2">visibility:</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="edit-visibility" value="public" class="radio-input">
+                            <span class="font-mono text-sm">public</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="radio" name="edit-visibility" value="private" class="radio-input">
+                            <span class="font-mono text-sm">private</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="edit-secret-field" style="display: none;">
+                    <label class="block text-gray-400 font-mono mb-2">secret key:</label>
+                    <input type="text" id="edit-secret" class="terminal-input">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-1">Save Changes</button>
+                    <button type="button" onclick="packageManager.closeEditModal()" class="btn btn-outline">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="packages.js"></script>
+</body>
+</html>

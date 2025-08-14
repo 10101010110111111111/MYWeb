@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sender</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="min-h-screen bg-gray-900 text-gray-100">
+        <header class="border-b border-gray-700 bg-gray-800">
+            <div class="max-w-6xl mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <a href="index.html" class="text-xl font-mono text-green-400">sender</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-green-400 font-mono" id="user-info">$ whoami: loading...</span>
+                        <button onclick="logout()" class="btn btn-outline">logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="py-8 px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-mono text-green-400 mb-2">$ dashboard --user</h1>
+                    <p class="text-gray-400 font-mono">Welcome to your developer workspace</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                Quick Upload
+                            </h3>
+                        </div>
+                        <p class="text-gray-400 mb-4 font-mono text-sm">Upload files quickly</p>
+                        <button onclick="navigateTo('upload.html')" class="btn btn-primary w-full">
+                            Start Upload
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                                My Packages
+                            </h3>
+                        </div>
+                        <p class="text-gray-400 mb-4 font-mono text-sm">Manage your uploads</p>
+                        <button onclick="navigateTo('packages.html')" class="btn btn-primary w-full">
+                            View Packages
+                        </button>
+                    </div>
+
+                    <div class="card" id="admin-card" style="display: none;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                Admin Panel
+                            </h3>
+                        </div>
+                        <p class="text-gray-400 mb-4 font-mono text-sm">System administration</p>
+                        <button onclick="navigateTo('admin.html')" class="btn btn-primary w-full">
+                            Admin Dashboard
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Activity Log
+                        </h3>
+                    </div>
+                    <div class="space-y-2" id="activity-log">
+                        <div class="text-sm font-mono text-gray-400">$ tail -f activity.log</div>
+                        <div class="text-sm font-mono text-green-400">User authenticated successfully</div>
+                        <div class="text-sm font-mono text-blue-400">Dashboard loaded</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+</body>
+</html>
