@@ -1007,3 +1007,27 @@ table tr:hover {
 /* Dirviewer specifics */
 #tree .dir > ul { display: none; }
 #tree .dir.open > ul { display: block; }
+
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #111827;
+  border-bottom: 1px solid #374151;
+}
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.nav-link {
+  color: #9ca3af;
+  text-decoration: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+}
+.nav-link:hover { color: #4ade80; }
+.nav-link.active { color: #4ade80; }

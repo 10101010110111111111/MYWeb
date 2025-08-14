@@ -22,11 +22,6 @@
         .controls { display:flex; gap:.5rem; }
         .mono { font-family: "JetBrains Mono", monospace; }
         .path { color:#60a5fa; }
-        /* Navbar */
-        .navbar { position: sticky; top: 0; z-index: 100; background:#111827; border-bottom:1px solid #374151; }
-        .nav-links { display:flex; gap:1rem; list-style:none; align-items:center; flex-wrap: wrap; }
-        .nav-links a { color:#9ca3af; text-decoration:none; font-family:"JetBrains Mono", monospace; font-size:0.875rem; }
-        .nav-links a:hover { color:#4ade80; }
     </style>
 </head>
 <body>
@@ -45,16 +40,16 @@
         <nav class="navbar">
             <div class="max-w-6xl mx-auto px-4 py-4">
                 <ul class="nav-links">
-                    <li><a href="#top">Nahoru</a></li>
-                    <li><a href="#picker">Výběr složky</a></li>
-                    <li><a href="#results">Výsledek</a></li>
-                    <li><a href="#tree">Strom</a></li>
-                    <li><a href="#controls">Ovládání</a></li>
-                    <li><a href="dashboard.html">Sender: Dashboard</a></li>
-                    <li><a href="upload.html">Sender: Upload</a></li>
-                    <li><a href="packages.html">Sender: Packages</a></li>
-                    <li><a href="retrieve.html">Sender: Retrieve</a></li>
-                    <li><a href="admin.html">Sender: Admin</a></li>
+                    <li><a class="nav-link" href="index.html">Dirviewer</a></li>
+                    <li><a class="nav-link" href="#picker">Výběr složky</a></li>
+                    <li><a class="nav-link" href="#results">Výsledek</a></li>
+                    <li><a class="nav-link" href="#tree">Strom</a></li>
+                    <li><a class="nav-link" href="#controls">Ovládání</a></li>
+                    <li><a class="nav-link" href="dashboard.html">Sender: Dashboard</a></li>
+                    <li><a class="nav-link" href="upload.html">Sender: Upload</a></li>
+                    <li><a class="nav-link" href="packages.html">Sender: Packages</a></li>
+                    <li><a class="nav-link" href="retrieve.html">Sender: Retrieve</a></li>
+                    <li><a class="nav-link" href="admin.html">Sender: Admin</a></li>
                 </ul>
             </div>
         </nav>
@@ -94,5 +89,6 @@
     </div>
 
     <script src="dirviewer.js"></script>
+    <script src="nav.js"></script>
 </body>
 </html>
