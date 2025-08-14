@@ -1,107 +1,15 @@
 // ===== MARIAN'S PORTFOLIO - ENHANCED JAVASCRIPT =====
 
 // Project data with better descriptions, passwords and status
-const projectList = [
-  {
-    path: "./project1/index.html",
-    name: "Projekt 1 - WEB Skupiny Čihy",
-    description: "Moderní webová aplikace/obchodní web",
-    category: "Web Development",
-    status: "in-progress",
-    password: null,
-    progress: 21
-  },
-  {
-    path: "./project2/index.html", 
-    name: "Projekt 2 - conect 5 piškvorky",
-    description: "cvičení ai a programování ai",
-    category: "Gaming",
-    status: "done",
-    password: null,
-    progress: 100
-  },
-  {
-    path: "./project3/index.html",
-    name: "Projekt 3 - BJ Full Counter",
-    description: "Top secret",
-    category: "Tools",
-    status: "done",
-    password: "tools2024",
-    progress: 100
-  },
-  {
-    path: "./project4/index.html",
-    name: "Projekt 4 - Texas Hold'em Simulator",
-    description: "Simulátor handu v pokeru Texas Hold'em",
-    category: "Gaming",
-    status: "done",
-    password: null,
-    progress: 100
-  },
-  {
-    path: "./project5/index.html",
-    name: "Projekt 5 - Black Jack Simulator",
-    description: "Simulace Black Jacku",
-    category: "Gaming",
-    status: "done",
-    password: "blackjack2024",
-    progress: 100
-  },
-  {
-    path: "./project6/index.html",
-    name: "Projekt 6 - DropShop E-commerce",
-    description: "Dropshipping e-shop s moderním designem",
-    category: "Web Development",
-    status: "done",
-    password: "dropshop2024",
-    progress: 100
-  },
-  {
-    path: "./project7/index.html",
-    name: "Projekt 7 - Time Coin Tracker",
-    description: "Aplikace pro sledování a správu času pomocí coin systému",
-    category: "Productivity",
-    status: "in-progress",
-    password: null,
-    progress: 85
-  },
-  {
-    path: "./project8/index.html",
-    name: "Projekt 8 - Image Cropper",
-    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním (zrušeno)",
-    category: "Tools",
-    status: "cancelled",
-    password: null,
-    progress: 0
-  },
-  {
-    path: "./project9/index.html",
-    name: "Projekt 9 - Poker Calculator",
-    description: "Kalkulačka pravděpodobností pro Texas Hold'em s Monte Carlo simulací",
-    category: "Gaming",
-    status: "done",
-    password: null,
-    progress: 100
-  },
-  {
-    path: "./project10/index.html",
-    name: "Projekt 10 - Atomové návyky",
-    description: "Webová aplikace o knize Atomové návyky s trackerem návyků a audioknihou",
-    category: "Productivity",
-    status: "done",
-    password: null,
-    progress: 100
-  },
-  {
-    path: "./project11/index.html",
-    name: "Projekt 11 - Krypto Data Manager",
-    description: "Pokročilý nástroj pro správu a aktualizaci dat kryptoměn s možností nahrávání souborů, vytváření nových časových rámců a stahování až 5000 svíček na soubor. Obsahuje návodovou sekci s barevnými legendami a review panel.",
+  ,{
+    path: "./project13/index.html",
+    name: "Projekt 13 - Sender",
+    description: "Webov� appka pro sd�len� soubor� (lok�ln� demo)",
     category: "Tools",
     status: "done",
     password: null,
     progress: 100
   }
-];
 
 // DOM Elements
 const themeToggle = document.getElementById("themeToggle");
