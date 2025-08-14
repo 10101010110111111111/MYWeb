@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111827">
+    <title>Projekt 13 – Prohlížeč struktury složek</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .viewer-header { display: flex; align-items: center; justify-content: space-between; }
+        .drop-zone { border: 2px dashed #4b5563; border-radius: 8px; padding: 1.25rem; text-align: center; background:#1f2937; transition: .2s; }
+        .drop-zone.dragover { background:#111827; border-color:#4ade80; }
+        .tree { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.4; }
+        .tree ul { list-style: none; padding-left: 1rem; }
+        .tree .dir > .row { cursor: pointer; }
+        .row { display:flex; align-items:center; gap:.5rem; padding:.125rem 0; }
+        .badge { font-size: .7rem; color:#9ca3af; }
+        .muted { color:#9ca3af; }
+        .toggle { width: .9rem; height: .9rem; display:inline-flex; align-items:center; justify-content:center; border:1px solid #4b5563; border-radius:2px; font-size:.6rem; color:#9ca3af; }
+        .controls { display:flex; gap:.5rem; }
+        .mono { font-family: "JetBrains Mono", monospace; }
+        .path { color:#60a5fa; }
+    </style>
+    <script>document.documentElement.setAttribute('lang','cs');</script>
+    <script>document.addEventListener('DOMContentLoaded',()=>document.title='$ dirviewer --browse');</script>
+    <link rel="preload" as="script" href="global-nav.js">
+</head>
+<body>
+    <div id="top" class="min-h-screen bg-gray-900 text-gray-100">
+        <header class="border-b border-gray-700 bg-gray-800">
+            <div class="max-w-6xl mx-auto px-4 py-4 viewer-header">
+                <h1 class="text-3xl font-mono text-green-400">$ dirviewer --browse</h1>
+                <div id="controls" class="controls">
+                    <button id="pickFolderBtn" class="btn btn-primary">Vybrat složku</button>
+                    <button id="expandAllBtn" class="btn btn-outline">Rozbalit vše</button>
+                    <button id="collapseAllBtn" class="btn btn-outline">Sbalit vše</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Globální navbar se vkládá skriptem -->
+
+        <main class="py-8 px-4">
+            <div class="max-w-6xl mx-auto">
+                <section id="picker" class="mb-8">
+                    <div id="dropZone" class="drop-zone">
+                        <div class="upload-content">
+                            <svg class="h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="text-gray-400 font-mono">Přetáhni sem složku nebo</p>
+                            <button id="browseBtn" class="btn btn-primary" style="margin-top:.5rem">Vybrat složku</button>
+                            <input id="folderInput" type="file" webkitdirectory multiple style="display:none" />
+                        </div>
+                    </div>
+                </section>
+
+                <section id="results">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Výsledek <span id="summary" class="badge"></span></h3>
+                            <div class="muted mono" id="rootPath"></div>
+                        </div>
+                        <div id="tree" class="tree"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="border-t border-gray-700 bg-gray-800 py-4">
+            <div class="max-w-6xl mx-auto px-4 text-center">
+                <p class="text-gray-500 font-mono text-sm">dirviewer – lokální prohlížeč struktury (běží pouze v prohlížeči)</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="dirviewer.js"></script>
+    <script src="global-nav.js"></script>
+    <script src="nav.js"></script>
+</body>
+</html>
+

@@ -1,81 +1,144 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projekt 13 – Prohlížeč struktury složek</title>
-    <meta name="theme-color" content="#111827">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        .viewer-header { display: flex; align-items: center; justify-content: space-between; }
-        .drop-zone { border: 2px dashed #4b5563; border-radius: 8px; padding: 1.25rem; text-align: center; background:#1f2937; transition: .2s; }
-        .drop-zone.dragover { background:#111827; border-color:#4ade80; }
-        .tree { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.4; }
-        .tree ul { list-style: none; padding-left: 1rem; }
-        .tree .dir > .row { cursor: pointer; }
-        .row { display:flex; align-items:center; gap:.5rem; padding:.125rem 0; }
-        .badge { font-size: .7rem; color:#9ca3af; }
-        .muted { color:#9ca3af; }
-        .toggle { width: .9rem; height: .9rem; display:inline-flex; align-items:center; justify-content:center; border:1px solid #4b5563; border-radius:2px; font-size:.6rem; color:#9ca3af; }
-        .controls { display:flex; gap:.5rem; }
-        .mono { font-family: "JetBrains Mono", monospace; }
-        .path { color:#60a5fa; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>Sender - File Sharing for Developers</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="top" class="min-h-screen bg-gray-900 text-gray-100">
-        <header class="border-b border-gray-700 bg-gray-800">
-            <div class="max-w-6xl mx-auto px-4 py-4 viewer-header">
-                <h1 class="text-3xl font-mono text-green-400">$ dirviewer --browse</h1>
-                <div id="controls" class="controls">
-                    <button id="pickFolderBtn" class="btn btn-primary">Vybrat složku</button>
-                    <button id="expandAllBtn" class="btn btn-outline">Rozbalit vše</button>
-                    <button id="collapseAllBtn" class="btn btn-outline">Sbalit vše</button>
-                </div>
+  <div class="min-h-screen bg-gray-900 text-gray-100">
+    <header class="border-b border-gray-700 bg-gray-800">
+      <div class="max-w-6xl mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span class="text-xl font-mono text-green-400">sender</span>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="showLogin()" class="btn btn-outline">login</button>
+            <button onclick="showRegister()" class="btn btn-primary">register</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navbar (global) -->
+
+    <section class="py-16 px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl font-mono text-green-400 mb-4 terminal-text">$ sender --help</h1>
+        <p class="text-gray-400 mb-8 font-mono">Fast file sharing for developers. Upload, share, download.</p>
+
+        <div class="grid md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+          <a href="upload.html" class="action-btn bg-blue-600 hover:bg-blue-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <span class="font-mono">upload</span>
+          </a>
+          <a href="retrieve.html" class="action-btn bg-purple-600 hover:bg-purple-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span class="font-mono">retrieve</span>
+          </a>
+          <a href="packages.html" class="action-btn bg-orange-600 hover:bg-orange-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <span class="font-mono">packages</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-12 px-4 bg-gray-800">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-mono text-green-400 mb-6 flex items-center gap-2">
+          <span class="text-gray-500">$</span> ls recent_packages/
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="recent-packages">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">react-utils</h3>
             </div>
-        </header>
+            <div class="text-sm font-mono text-gray-400">author: dev_user</div>
+            <div class="text-sm font-mono text-gray-400">uploaded: 2h ago</div>
+            <div class="text-sm font-mono text-gray-400 mb-3">downloads: 42</div>
+            <a href="#" class="btn btn-primary">download</a>
+          </div>
 
-        <!-- Globální navbar je generován skriptem global-nav.js -->
-
-        <main class="py-8 px-4">
-            <div class="max-w-6xl mx-auto">
-                <section id="picker" class="mb-8">
-                    <div id="dropZone" class="drop-zone">
-                        <div class="upload-content">
-                            <svg class="h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                            </svg>
-                            <p class="text-gray-400 font-mono">Přetáhni sem složku nebo</p>
-                            <button id="browseBtn" class="btn btn-primary" style="margin-top:.5rem">Vybrat složku</button>
-                            <input id="folderInput" type="file" webkitdirectory multiple style="display:none" />
-                        </div>
-                    </div>
-                </section>
-
-                <section id="results">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Výsledek <span id="summary" class="badge"></span></h3>
-                            <div class="muted mono" id="rootPath"></div>
-                        </div>
-                        <div id="tree" class="tree"></div>
-                    </div>
-                </section>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">api-helpers</h3>
             </div>
-        </main>
+            <div class="text-sm font-mono text-gray-400">author: coder123</div>
+            <div class="text-sm font-mono text-gray-400">uploaded: 4h ago</div>
+            <div class="text-sm font-mono text-gray-400 mb-3">downloads: 18</div>
+            <a href="#" class="btn btn-primary">download</a>
+          </div>
 
-        <footer class="border-t border-gray-700 bg-gray-800 py-4">
-            <div class="max-w-6xl mx-auto px-4 text-center">
-                <p class="text-gray-500 font-mono text-sm">dirviewer – lokální prohlížeč struktury (běží pouze v prohlížeči)</p>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">config-files</h3>
             </div>
-        </footer>
-    </div>
+            <div class="text-sm font-mono text-gray-400">author: sysadmin</div>
+            <div class="text-sm font-mono text-gray-400">uploaded: 6h ago</div>
+            <div class="text-sm font-mono text-gray-400 mb-3">downloads: 73</div>
+            <a href="#" class="btn btn-primary">download</a>
+          </div>
 
-    <script src="dirviewer.js"></script>
-    <script src="global-nav.js"></script>
-    <script src="nav.js"></script>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">scripts-bundle</h3>
+            </div>
+            <div class="text-sm font-mono text-gray-400">author: automation</div>
+            <div class="text-sm font-mono text-gray-400">uploaded: 8h ago</div>
+            <div class="text-sm font-mono text-gray-400 mb-3">downloads: 29</div>
+            <a href="#" class="btn btn-primary">download</a>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">docker-setup</h3>
+            </div>
+            <div class="text-sm font-mono text-gray-400">author: devops_pro</div>
+            <div class="text-sm font-mono text-gray-400">uploaded: 12h ago</div>
+            <div class="text-sm font-mono text-gray-400 mb-3">downloads: 156</div>
+            <a href="#" class="btn btn-primary">download</a>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">test-data</h3>
+            </div>
+            <div class="text-sm font-mono text-gray-400">author: qa_engineer</div>
+            <div class="text-sm font-mono text-gray-400">uploaded: 1d ago</div>
+            <div class="text-sm font-mono text-gray-400 mb-3">downloads: 91</div>
+            <a href="#" class="btn btn-primary">download</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="border-t border-gray-700 bg-gray-800 py-8">
+      <div class="max-w-6xl mx-auto px-4 text-center">
+        <p class="text-gray-500 font-mono text-sm">sender v1.0.0 | built for developers</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="auth.js"></script>
+  <script src="global-nav.js"></script>
+  <script src="nav.js"></script>
 </body>
 </html>
