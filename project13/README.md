@@ -1,66 +1,75 @@
-# �� React Projekt 13 - GitHub Pages
+# 🚚 Zásilkovna - React Aplikace
 
 ## 📋 Popis
 
-Tento projekt je **čistá React aplikace** s automatickým nasazením na GitHub Pages pomocí GitHub Actions.
+Tento projekt je **čistá React aplikace** pro posílání zásilek s moderním designem a funkcionalitou.
 
-## 🚀 Rychlé Nasazení
+## 🚀 Rychlé Spuštění
 
-### GitHub Pages:
-1. ✅ **Povolte GitHub Pages** v repository settings
-2. ✅ **Vyberte "GitHub Actions"** jako source
-3. ✅ **Pushněte kód** - automaticky se nasadí!
+### Lokální vývoj:
+```bash
+# Instalace dependencies
+npm install
+
+# Spuštění development serveru
+npm start
+
+# Build pro produkci
+npm run build
+```
+
+### Online nasazení:
+1. **GitHub Pages** - automaticky po push
+2. **Vercel** - import repository
+3. **Netlify** - drag & drop build složky
 
 ## 🔧 Technologie
 
 - **React 18** - Moderní React framework
-- **Vite** - Rychlý build systém
-- **GitHub Actions** - Automatické nasazení
-- **GitHub Pages** - Hosting zdarma
+- **Create React App** - Oficiální build systém
+- **CSS3** - Moderní styly s gradientem
+- **JavaScript ES6+** - Moderní syntax
 
 ## 📁 Struktura
 
 ```
 project13/
+├── public/                 # Statické soubory
+│   └── index.html         # HTML template
 ├── src/                    # React komponenty
-│   ├── App.jsx            # Hlavní komponenta
-│   ├── main.jsx           # Entry point
+│   ├── App.js             # Hlavní komponenta
 │   ├── App.css            # Styly komponenty
+│   ├── index.js           # Entry point
 │   └── index.css          # Globální styly
-├── .github/workflows/      # GitHub Actions
-├── index.html              # HTML template
-├── vite.config.js          # Vite konfigurace
-└── package.json            # Dependencies
+├── package.json            # Dependencies
+└── README.md               # Dokumentace
 ```
+
+## 🌟 Funkce
+
+- **📝 Formulář pro zásilky** - kompletní s validací
+- **🔍 Sledování zásilek** - v reálném čase
+- **🎨 Moderní design** - responzivní UI
+- **⚡ Rychlé načítání** - optimalizované React
+- **📱 Mobilní friendly** - funguje všude
+
+## 🎯 Použití
+
+1. **Otevřete aplikaci** - `npm start`
+2. **Vyplňte formulář** - odesílatel a příjemce
+3. **Odešlete zásilku** - klikněte na tlačítko
+4. **Sledujte zásilku** - zadejte číslo
 
 ## 🌐 Nasazení
 
-Po pushnutí na GitHub se automaticky:
-1. ✅ **Sestaví projekt** pomocí Vite
-2. ✅ **Nasadí na GitHub Pages**
-3. ✅ **Poskytne live URL**
+### GitHub Pages:
+- Automaticky po push na main branch
+- URL: `https://username.github.io/repository/project13/`
 
-## 🛠️ Lokální vývoj
-
-```bash
-# Instalace dependencies
-pnpm install
-
-# Spuštění development serveru
-pnpm dev
-
-# Build pro produkci
-pnpm build
-
-# Preview build
-pnpm preview
-```
-
-## 🔗 Live URL
-
-Projekt bude dostupný na:
-`https://10101010110111111111.github.io/MYWeb/project13/`
+### Vercel:
+- Import repository
+- Automatický deploy
 
 ---
 
-**🎉 Projekt je připraven k nasazení na GitHub Pages!**
+**🎉 Projekt je připraven k použití!**
