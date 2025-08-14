@@ -1,13 +1,392 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="cs">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>React Projekt 13 - GitHub Pages</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚚 Zásilkovna - Rychlé doručení</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            color: white;
+            margin: 3rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .service-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .shipping-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            margin: 3rem 0;
+        }
+        
+        .form-title {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .tracking {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+        
+        .tracking h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .tracking-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tracking-input input {
+            flex: 1;
+        }
+        
+        .track-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .track-btn:hover {
+            background: #219a52;
+        }
+        
+        .footer {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🚚 Zásilkovna</div>
+            <div class="nav-links">
+                <a href="#sluzby">Služby</a>
+                <a href="#zasilka">Poslat zásilku</a>
+                <a href="#sledovani">Sledování</a>
+                <a href="#kontakt">Kontakt</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <h1>🚚 Rychlé doručení zásilek</h1>
+            <p>Doručíme vaši zásilku kamkoliv v ČR do 24 hodin!</p>
+        </section>
+
+        <section id="sluzby" class="services">
+            <div class="service-card">
+                <h3>📦 Standardní doručení</h3>
+                <p>Doručení do 2-3 pracovních dnů po celé ČR. Ideální pro běžné zásilky.</p>
+            </div>
+            <div class="service-card">
+                <h3>⚡ Expresní doručení</h3>
+                <p>Doručení do 24 hodin v rámci ČR. Perfektní pro urgentní zásilky.</p>
+            </div>
+            <div class="service-card">
+                <h3>🌍 Mezinárodní doručení</h3>
+                <p>Doručení do celé Evropy a světa. Spolehlivé a rychlé.</p>
+            </div>
+        </section>
+
+        <section id="zasilka" class="shipping-form">
+            <h2 class="form-title">📝 Poslat zásilku</h2>
+            <form id="shippingForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="senderName">Jméno odesílatele *</label>
+                        <input type="text" id="senderName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senderPhone">Telefon odesílatele *</label>
+                        <input type="tel" id="senderPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senderEmail">Email odesílatele *</label>
+                        <input type="email" id="senderEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senderAddress">Adresa odesílatele *</label>
+                        <input type="text" id="senderAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipientName">Jméno příjemce *</label>
+                        <input type="text" id="recipientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipientPhone">Telefon příjemce *</label>
+                        <input type="tel" id="recipientPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipientAddress">Adresa příjemce *</label>
+                        <input type="text" id="recipientAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="packageType">Typ balíčku</label>
+                        <select id="packageType">
+                            <option value="small">Malý balíček (do 2kg)</option>
+                            <option value="medium">Střední balíček (2-10kg)</option>
+                            <option value="large">Velký balíček (10kg+)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deliveryType">Typ doručení</label>
+                        <select id="deliveryType">
+                            <option value="standard">Standardní (2-3 dny)</option>
+                            <option value="express">Expresní (24h)</option>
+                            <option value="international">Mezinárodní</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label for="description">Popis obsahu</label>
+                        <textarea id="description" rows="3" placeholder="Popište obsah zásilky..."></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">🚚 Odeslat zásilku</button>
+            </form>
+        </section>
+
+        <section id="sledovani" class="tracking">
+            <h3>🔍 Sledování zásilky</h3>
+            <div class="tracking-input">
+                <input type="text" id="trackingNumber" placeholder="Zadejte číslo zásilky...">
+                <button class="track-btn" onclick="trackPackage()">Sledovat</button>
+            </div>
+            <div id="trackingResult"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Zásilkovna. Všechna práva vyhrazena.</p>
+    </footer>
+
+    <script>
+        // Formulář pro zásilku
+        document.getElementById('shippingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Zde by byl kód pro odeslání dat na server
+            alert('✅ Zásilka byla úspěšně odeslána! Budeme vás kontaktovat.');
+            
+            // Reset formuláře
+            this.reset();
+        });
+
+        // Sledování zásilky
+        function trackPackage() {
+            const trackingNumber = document.getElementById('trackingNumber').value;
+            const resultDiv = document.getElementById('trackingResult');
+            
+            if (!trackingNumber) {
+                resultDiv.innerHTML = '<p style="color: red;">Zadejte číslo zásilky!</p>';
+                return;
+            }
+            
+            // Simulace sledování
+            resultDiv.innerHTML = `
+                <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <h4>📦 Zásilka: ${trackingNumber}</h4>
+                    <p><strong>Status:</strong> 🚚 V doručování</p>
+                    <p><strong>Očekávané doručení:</strong> Zítra do 18:00</p>
+                    <p><strong>Poslední aktualizace:</strong> Dnes 14:30 - Zásilka opustila distribuční centrum</p>
+                </div>
+            `;
+        }
+
+        // Smooth scroll pro navigaci
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
 </html>
