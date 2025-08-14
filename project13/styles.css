@@ -1003,3 +1003,7 @@ table tr:hover {
   background-color: #78350f;
   border-color: #d97706;
 }
+
+/* Dirviewer specifics */
+#tree .dir > ul { display: none; }
+#tree .dir.open > ul { display: block; }
