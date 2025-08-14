@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Structure Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📁 Folder Structure Viewer</h1>
+        <p>Upload a folder to see its structure displayed as a tree</p>
+        
+        <div class="upload-section">
+            <label for="folderInput" class="upload-btn">
+                <span>📂 Choose Folder</span>
+                <input type="file" id="folderInput" webkitdirectory directory multiple>
+            </label>
+            <p class="upload-hint">Click to select a folder with all its contents</p>
+        </div>
+
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h2>📋 Folder Structure:</h2>
+            <div class="structure-display">
+                <pre id="structureOutput"></pre>
+            </div>
+            <button id="copyBtn" class="copy-btn">📋 Copy to Clipboard</button>
+            <button id="downloadBtn" class="download-btn">💾 Download as Text</button>
+        </div>
+
+        <div class="info-section">
+            <h3>ℹ️ How it works:</h3>
+            <ul>
+                <li>Click "Choose Folder" to select a folder from your computer</li>
+                <li>The program will scan all files and subfolders</li>
+                <li>You'll see the complete folder structure displayed as a tree</li>
+                <li>Copy the structure or download it as a text file</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

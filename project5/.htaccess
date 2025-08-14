@@ -1,0 +1,33 @@
+# OCHRANA PROJEKTU - PŘÍSTUP POUZE S HESLEM
+# Tento soubor chrání project5 před neoprávněným přístupem
+
+# Povol přístup pouze k souborům s .htaccess
+<Files ".htaccess">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Přesměruj všechny požadavky na index.html
+DirectoryIndex index.html
+
+# Zakázat přímý přístup k HTML souborům
+<FilesMatch "\.(html|htm)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Povol přístup k CSS, JS a obrázkům
+<FilesMatch "\.(css|js|jpg|jpeg|png|gif|svg|ico)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Přesměruj všechny požadavky na login stránku
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} \.html$
+RewriteRule ^(.*)$ /login-check.php?project=project5&file=$1 [L,QSA]
+
+# Pokud není uživatel přihlášen, přesměruj na hlavní stránku
+RewriteCond %{HTTP_COOKIE} !project5_auth=1
+RewriteRule ^(.*)$ / [R=302,L]

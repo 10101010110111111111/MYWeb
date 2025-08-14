@@ -1,0 +1,48 @@
+# HLAVNÍ BEZPEČNOSTNÍ PRAVIDLA PRO CELÝ WEB
+# Tento soubor poskytuje základní ochranu pro všechny projekty
+
+# Povolit mod_rewrite
+RewriteEngine On
+
+# Bezpečnostní hlavičky
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Ochrana proti přístupu k citlivým souborům
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Ochrana proti přístupu k PHP souborům mimo API
+<FilesMatch "^(?!project-auth\.php|login-check\.php).*\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Povolit přístup k API souborům
+<Files "project-auth.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+<Files "login-check.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Přesměrování na HTTPS (odkomentovat pro produkci)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Ochrana proti directory listing
+Options -Indexes
+
+# Nastavení session
+php_value session.cookie_httponly 1
+php_value session.cookie_secure 0
+php_value session.use_strict_mode 1

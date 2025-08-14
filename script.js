@@ -100,6 +100,15 @@ const projectList = [
     status: "done",
     password: null,
     progress: 100
+  },
+  {
+    path: "./project13/index.html",
+    name: "Projekt 13 - React Aplikace",
+    description: "Moderní React aplikace s interaktivními komponentami - počítadlo, todo list, statistiky a přepínání tématu. Demonstruje React hooks, state management a moderní UI design.",
+    category: "Web Development",
+    status: "done",
+    password: null,
+    progress: 100
   }
 ];
 
