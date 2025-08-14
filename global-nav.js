@@ -12,25 +12,12 @@
   var BASE = computeBase();
 
   var links = [
-    { text: 'Home', href: BASE + 'index.html' },
-    { text: 'Project 1', href: BASE + 'project1/index.html' },
-    { text: 'Project 2', href: BASE + 'project2/index.html' },
-    { text: 'Project 3', href: BASE + 'project3/index.html' },
-    { text: 'Project 4', href: BASE + 'project4/index.html' },
-    { text: 'Project 5', href: BASE + 'project5/index.html' },
-    { text: 'Project 6', href: BASE + 'project6/index.html' },
-    { text: 'Project 7', href: BASE + 'project7/index.html' },
-    { text: 'Project 8', href: BASE + 'project8/index.html' },
-    { text: 'Project 9', href: BASE + 'project9/index.html' },
-    { text: 'Project 10', href: BASE + 'project10/index.html' },
-    { text: 'Project 11', href: BASE + 'project11/index.html' },
-    { text: 'Project 12', href: BASE + 'project12/index.html' },
-    { text: 'Project 13', href: BASE + 'project13/index.html' },
-    { text: 'Sender: Dashboard', href: BASE + 'project13/dashboard.html' },
-    { text: 'Sender: Upload', href: BASE + 'project13/upload.html' },
-    { text: 'Sender: Packages', href: BASE + 'project13/packages.html' },
-    { text: 'Sender: Retrieve', href: BASE + 'project13/retrieve.html' },
-    { text: 'Sender: Admin', href: BASE + 'project13/admin.html' }
+    { text: 'Dirviewer', href: BASE + 'project13/index.html' },
+    { text: 'Dashboard', href: BASE + 'project13/dashboard.html' },
+    { text: 'Upload', href: BASE + 'project13/upload.html' },
+    { text: 'Packages', href: BASE + 'project13/packages.html' },
+    { text: 'Retrieve', href: BASE + 'project13/retrieve.html' },
+    { text: 'Admin', href: BASE + 'project13/admin.html', requiresAdmin: true }
   ];
 
   function ensureStyles(){
@@ -56,6 +43,15 @@
     }catch(e){return false}
   }
 
+  function isUserAdmin(){
+    try {
+      var raw = localStorage.getItem('currentUser');
+      if(!raw) return false;
+      var u = JSON.parse(raw);
+      return !!u.isAdmin;
+    } catch(e){ return false; }
+  }
+
   function buildNavbar(){
     var nav = document.createElement('nav');
     nav.className = 'navbar';
@@ -63,7 +59,9 @@
     wrap.className = 'nav-wrap';
     var ul = document.createElement('ul');
     ul.className = 'nav-links';
+    var admin = isUserAdmin();
     links.forEach(function(l){
+      if(l.requiresAdmin && !admin) return;
       var li = document.createElement('li');
       var a = document.createElement('a');
       a.className = 'nav-link';
