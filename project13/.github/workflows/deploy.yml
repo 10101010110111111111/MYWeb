@@ -20,27 +20,16 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
+    - name: Install pnpm 📦
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        
     - name: Install dependencies 📦
-      run: |
-        if [ -f "pnpm-lock.yaml" ]; then
-          npm install -g pnpm
-          pnpm install
-        elif [ -f "yarn.lock" ]; then
-          npm install -g yarn
-          yarn install
-        else
-          npm install
-        fi
+      run: pnpm install --frozen-lockfile
         
     - name: Build project 🔨
-      run: |
-        if [ -f "pnpm-lock.yaml" ]; then
-          pnpm build
-        elif [ -f "yarn.lock" ]; then
-          yarn build
-        else
-          npm run build
-        fi
+      run: pnpm build
         
     - name: Deploy to GitHub Pages 🚀
       uses: peaceiris/actions-gh-pages@v3
@@ -48,4 +37,3 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./out
-        cname: marianvystavel.cz  # Změňte na vaši doménu
