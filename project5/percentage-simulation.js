@@ -68,10 +68,20 @@ class PercentageSimulationManager {
   }
 
   setupEventListeners() {
+    console.log("Setting up event listeners")
+    console.log("startPercentageSimBtn:", this.elements.startPercentageSimBtn)
+    
     // Add null checks for UI elements
     if (this.elements.startPercentageSimBtn) {
-      this.elements.startPercentageSimBtn.addEventListener("click", () => this.startSimulation())
+      console.log("Adding click listener to start button")
+      this.elements.startPercentageSimBtn.addEventListener("click", () => {
+        console.log("Start button clicked")
+        this.startSimulation()
+      })
+    } else {
+      console.error("startPercentageSimBtn element not found")
     }
+    
     if (this.elements.stopPercentageSimBtn) {
       this.elements.stopPercentageSimBtn.addEventListener("click", () => this.stopSimulation())
     }
@@ -110,9 +120,21 @@ class PercentageSimulationManager {
   }
 
   startSimulation() {
-    if (this.isRunning) return
+    console.log("startSimulation called")
+    
+    if (this.isRunning) {
+      console.log("Simulation already running")
+      return
+    }
+
+    if (!this.elements.percentageSimHands) {
+      console.error("percentageSimHands element not found")
+      return
+    }
 
     const handsToSimulate = parseInt(this.elements.percentageSimHands.value)
+    console.log("Hands to simulate:", handsToSimulate)
+    
     if (handsToSimulate < 100000) {
       alert("Minimum 100,000 hands required for percentage simulation")
       return
