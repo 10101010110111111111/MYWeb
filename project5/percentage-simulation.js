@@ -198,8 +198,9 @@ class PercentageSimulationManager {
     const playerCards = [this.dealCard(), this.dealCard()]
     const dealerCards = [this.dealCard(), this.dealCard()]
     
-    // Calculate true count BEFORE playing the hand
-    const remainingDecks = (this.currentDeck.length - this.cardsDealt) / 52
+    // Calculate true count AFTER dealing initial cards but BEFORE playing the hand
+    // remainingDecks = number of cards left in deck / 52
+    const remainingDecks = this.currentDeck.length / 52
     const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : this.runningCount
     
     // Play hand according to strategy
