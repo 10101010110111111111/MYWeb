@@ -183,14 +183,9 @@ class PercentageSimulationManager {
   }
 
   simulateSingleHand() {
-    // Deal initial cards
+    // Deal initial cards (running count is updated in dealCard)
     const playerCards = [this.dealCard(), this.dealCard()]
     const dealerCards = [this.dealCard(), this.dealCard()]
-    
-    // Update running count for dealt cards
-    for (const card of [...playerCards, ...dealerCards]) {
-      this.runningCount += this.getCardCountValue(card)
-    }
     
     // Calculate true count
     const remainingDecks = (this.currentDeck.length - this.cardsDealt) / 52
@@ -218,6 +213,11 @@ class PercentageSimulationManager {
     }
     const card = this.currentDeck.pop()
     this.cardsDealt++
+    
+    // Update running count based on card value
+    const countValue = this.getCardCountValue(card)
+    this.runningCount += countValue
+    
     return card
   }
 
@@ -324,13 +324,11 @@ class PercentageSimulationManager {
       if (action === 'double') {
         const newCard = this.dealCard()
         playerCards.push(newCard)
-        this.runningCount += this.getCardCountValue(newCard)
         break
       }
       if (action === 'hit') {
         const newCard = this.dealCard()
         playerCards.push(newCard)
-        this.runningCount += this.getCardCountValue(newCard)
         playerValue = this.calculateHandValue(playerCards)
       }
     }
@@ -345,7 +343,6 @@ class PercentageSimulationManager {
     while (dealerValue < 17) {
       const newCard = this.dealCard()
       dealerCards.push(newCard)
-      this.runningCount += this.getCardCountValue(newCard)
       dealerValue = this.calculateHandValue(dealerCards)
     }
 
