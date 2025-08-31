@@ -1,5 +1,5 @@
 class PercentageSimulationManager {
-  constructor(mainSimulation = null) {
+  constructor(mainSimulation) {
     this.mainSimulation = mainSimulation
     this.isRunning = false
     this.isPaused = false
@@ -68,34 +68,15 @@ class PercentageSimulationManager {
   }
 
   setupEventListeners() {
-    console.log("Setting up event listeners")
-    console.log("startPercentageSimBtn:", this.elements.startPercentageSimBtn)
-    
-    // Add null checks for UI elements
-    if (this.elements.startPercentageSimBtn) {
-      console.log("Adding click listener to start button")
-      this.elements.startPercentageSimBtn.addEventListener("click", () => {
-        console.log("Start button clicked")
-        this.startSimulation()
-      })
-    } else {
-      console.error("startPercentageSimBtn element not found")
-    }
-    
-    if (this.elements.stopPercentageSimBtn) {
-      this.elements.stopPercentageSimBtn.addEventListener("click", () => this.stopSimulation())
-    }
-    if (this.elements.expandAllResultsBtn) {
-      this.elements.expandAllResultsBtn.addEventListener("click", () => this.toggleExpandedResults())
-    }
+    this.elements.startPercentageSimBtn.addEventListener("click", () => this.startSimulation())
+    this.elements.stopPercentageSimBtn.addEventListener("click", () => this.stopSimulation())
+    this.elements.expandAllResultsBtn.addEventListener("click", () => this.toggleExpandedResults())
     
     // Quick option buttons
     document.querySelectorAll('.quick-option-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const value = parseInt(e.target.dataset.value)
-        if (this.elements.percentageSimHands) {
-          this.elements.percentageSimHands.value = value
-        }
+        this.elements.percentageSimHands.value = value
         this.updateQuickOptionButtons(value)
       })
     })
@@ -120,21 +101,9 @@ class PercentageSimulationManager {
   }
 
   startSimulation() {
-    console.log("startSimulation called")
-    
-    if (this.isRunning) {
-      console.log("Simulation already running")
-      return
-    }
-
-    if (!this.elements.percentageSimHands) {
-      console.error("percentageSimHands element not found")
-      return
-    }
+    if (this.isRunning) return
 
     const handsToSimulate = parseInt(this.elements.percentageSimHands.value)
-    console.log("Hands to simulate:", handsToSimulate)
-    
     if (handsToSimulate < 100000) {
       alert("Minimum 100,000 hands required for percentage simulation")
       return
@@ -229,20 +198,18 @@ class PercentageSimulationManager {
     const playerCards = [this.dealCard(), this.dealCard()]
     const dealerCards = [this.dealCard(), this.dealCard()]
     
-    // Calculate true count AFTER dealing initial cards but BEFORE playing the hand
-    // remainingDecks = number of cards left in deck / 52
-    const remainingDecks = Math.max(this.currentDeck.length / 52, 1/52) // Safety: minimum 1 card
-    const trueCount = this.runningCount / remainingDecks
+    // Calculate true count BEFORE playing the hand
+    const remainingDecks = (this.currentDeck.length - this.cardsDealt) / 52
+    const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : this.runningCount
     
     // Play hand according to strategy
-    const handResult = this.playHand(playerCards, dealerCards, trueCount, 1)
+    const handResult = this.playHand(playerCards, dealerCards, trueCount)
     
     // Check if we need to shuffle after completing the hand (at halfway point)
     if (this.cardsDealt >= this.shufflePoint) {
-      // Mid-shoe shuffle: preserve running count for continuous shoe simulation
-      this.shuffleDeck() // Shuffle current deck without recreating
-      this.cardsDealt = 0 // Reset cards dealt counter
-      // DON'T reset runningCount - keep continuous count
+      this.shuffleDeck()
+      this.cardsDealt = 0
+      this.runningCount = 0 // RESET running count when shuffling
     }
     
     return {
@@ -253,18 +220,17 @@ class PercentageSimulationManager {
   
   
 
-    dealCard() {
+  dealCard() {
     if (this.currentDeck.length === 0) {
-      // Create new deck but DON'T reset running count for continuous shoe simulation
-      this.createNewDeck()
+      this.initializeDeck()
     }
     const card = this.currentDeck.pop()
     this.cardsDealt++
-    
+  
     // Update running count based on card value
     const countValue = this.getCardCountValue(card)
     this.runningCount += countValue
-    
+  
     return card
   }
   
@@ -286,31 +252,28 @@ class PercentageSimulationManager {
     return deck
   }
 
-  createNewDeck() {
-    // Create new deck without resetting running count (for continuous shoe)
-    const deckCount = parseInt(this.elements.percentageSimDecks.value)
-    this.currentDeck = this.createDeck(deckCount)
-    this.shuffleDeck(this.currentDeck)
-    // Don't reset runningCount or cardsDealt - keep continuous count
-  }
-
   shuffleDeck(deck = null) {
     if (deck) {
-      // Shuffle given deck
+      // Shuffle provided deck
       for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
-        [deck[i], deck[j]] = [deck[j], deck[i]]
+        ;[deck[i], deck[j]] = [deck[j], deck[i]]
       }
     } else {
-      // Shuffle currentDeck without recreating it
+      const deckCount = parseInt(this.elements.percentageSimDecks.value)
+      const shufflePoint = parseFloat(this.elements.percentageSimShuffle.value)
+  
+      this.currentDeck = this.createDeck(deckCount)
       for (let i = this.currentDeck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
-        [this.currentDeck[i], this.currentDeck[j]] = [this.currentDeck[j], this.currentDeck[i]]
+        ;[this.currentDeck[i], this.currentDeck[j]] = [this.currentDeck[j], this.currentDeck[i]]
       }
-      // shufflePoint stays the same
+  
+      this.shufflePoint = Math.floor(this.currentDeck.length * shufflePoint)
+      // Nepřepisovat runningCount – zachovej hodnotu při polovině shoe
     }
   }
-  
+
   
 
   getCardCountValue(card) {
@@ -345,18 +308,11 @@ class PercentageSimulationManager {
         if (['7', '8', '9'].includes(value)) return 0
         if (['2', '10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
         break
-      default:
-        console.warn(`Unknown counting system: ${countingSystem}, using Hi-Lo`)
-        // Fallback to Hi-Lo
-        if (['2', '3', '4', '5', '6'].includes(value)) return 1
-        if (['7', '8', '9'].includes(value)) return 0
-        if (['10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
-        break
     }
     return 0
   }
 
-  playHand(playerCards, dealerCards, trueCount, initialBet = 1) {
+  playHand(playerCards, dealerCards, trueCount) {
     const strategy = this.elements.percentageSimStrategy.value
     const tc = Math.floor(trueCount)
     
@@ -365,13 +321,13 @@ class PercentageSimulationManager {
     const dealerBJ = this.isBlackjack(dealerCards)
     
     if (playerBJ && dealerBJ) {
-      return { result: 'push', bet: initialBet, isBlackjack: false }
+      return { result: 'push', bet: 1, isBlackjack: false }
     }
     if (playerBJ && !dealerBJ) {
-      return { result: 'blackjack', bet: initialBet, isBlackjack: true }
+      return { result: 'blackjack', bet: 1, isBlackjack: true }
     }
     if (!playerBJ && dealerBJ) {
-      return { result: 'loss', bet: initialBet, isBlackjack: false }
+      return { result: 'loss', bet: 1, isBlackjack: false }
     }
     
     // Handle insurance if dealer shows Ace
@@ -382,11 +338,11 @@ class PercentageSimulationManager {
 
     // Check for split opportunity
     if (this.canSplit(playerCards) && this.getPlayerAction(playerCards, dealerCards[0], tc, strategy) === 'split') {
-      return this.playSplitHand(playerCards, dealerCards, trueCount, initialBet)
+      return this.playSplitHand(playerCards, dealerCards, trueCount)
     }
 
     // Play single hand
-    let currentBet = initialBet
+    let currentBet = 1
     let playerValue = this.calculateHandValue(playerCards)
     
     while (playerValue < 21) {
@@ -441,7 +397,7 @@ class PercentageSimulationManager {
     return card1Value === card2Value
   }
 
-  playSplitHand(playerCards, dealerCards, trueCount, initialBet) {
+  playSplitHand(playerCards, dealerCards, trueCount) {
     // Split the hand into two separate hands
     const firstCard = playerCards[0]
     const secondCard = playerCards[1]
@@ -451,14 +407,14 @@ class PercentageSimulationManager {
     const hand2 = [secondCard, this.dealCard()]
     
     // Play each hand separately
-    const result1 = this.playHand(hand1, dealerCards, trueCount, initialBet)
-    const result2 = this.playHand(hand2, dealerCards, trueCount, initialBet)
+    const result1 = this.playHand(hand1, dealerCards, trueCount)
+    const result2 = this.playHand(hand2, dealerCards, trueCount)
     
     // Return combined results
     return {
       result: 'split',
       hands: [result1, result2],
-      totalBet: initialBet * 2 // Split doubles the total bet
+      totalBet: 2 // Split doubles the total bet
     }
   }
 
@@ -737,7 +693,7 @@ class PercentageSimulationManager {
   }
 
   // Utility methods
-  calculateHandValue(cards, forceAceAs11 = false) {
+  calculateHandValue(cards) {
     let value = 0
     let aces = 0
     
@@ -752,12 +708,10 @@ class PercentageSimulationManager {
       }
     }
     
-    // Adjust for aces (unless forcing Ace as 11)
-    if (!forceAceAs11) {
-      while (value > 21 && aces > 0) {
-        value -= 10
-        aces--
-      }
+    // Adjust for aces
+    while (value > 21 && aces > 0) {
+      value -= 10
+      aces--
     }
     
     return value
@@ -770,15 +724,22 @@ class PercentageSimulationManager {
   }
 
   isSoftHand(cards) {
-    let hasAce = cards.some(c => c.value === 'A')
-    if (!hasAce) return false
+    let hasAce = false
+    let value = 0
     
-    let valueWithAce = this.calculateHandValue(cards, true) // Force Ace as 11
-    let valueWithoutAce = this.calculateHandValue(cards, false) // Normal calculation
+    for (const card of cards) {
+      if (card.value === 'A') {
+        hasAce = true
+        value += 11
+      } else if (['K', 'Q', 'J'].includes(card.value)) {
+        value += 10
+      } else {
+        value += parseInt(card.value)
+      }
+    }
     
-    return valueWithAce <= 21 && valueWithAce !== valueWithoutAce
+    return hasAce && value <= 21
   }
-  
 
   isBlackjack(cards) {
     return cards.length === 2 && this.calculateHandValue(cards) === 21
