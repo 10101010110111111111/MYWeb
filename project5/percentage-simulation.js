@@ -552,16 +552,21 @@ class PercentageSimulationManager {
     const tbody = this.elements.percentageResultsBody
     tbody.innerHTML = ''
     
+    // Calculate total hands for frequency calculation
+    const totalHands = this.completedHands
+    
     // Show results for true counts -5 to +5
     for (let tc = -5; tc <= 5; tc++) {
       const result = this.results[tc]
       if (result.hands > 0) {
         const winRate = (result.wins / result.hands) * 100
+        const frequency = (result.hands / totalHands) * 100
         const evClass = result.ev >= 0 ? 'positive-ev' : 'negative-ev'
         const row = document.createElement('tr')
         row.innerHTML = `
           <td>${tc}</td>
           <td>${result.hands.toLocaleString()}</td>
+          <td class="frequency">${frequency.toFixed(2)}%</td>
           <td class="ev-value ${evClass}">${result.ev.toFixed(4)}%</td>
           <td class="win-percentage">${winRate.toFixed(4)}%</td>
           <td>${result.wins.toLocaleString()}</td>
@@ -592,15 +597,20 @@ class PercentageSimulationManager {
     const tbody = this.elements.expandedResultsBody
     tbody.innerHTML = ''
     
+    // Calculate total hands for frequency calculation
+    const totalHands = this.completedHands
+    
     // Show results for all true counts -10 to +10
     for (let tc = -10; tc <= 10; tc++) {
       const result = this.results[tc]
       const winRate = result.hands > 0 ? (result.wins / result.hands) * 100 : 0
+      const frequency = result.hands > 0 ? (result.hands / totalHands) * 100 : 0
       const evClass = result.ev >= 0 ? 'positive-ev' : 'negative-ev'
       const row = document.createElement('tr')
       row.innerHTML = `
         <td>${tc}</td>
         <td>${result.hands.toLocaleString()}</td>
+        <td class="frequency">${frequency.toFixed(2)}%</td>
         <td class="ev-value ${evClass}">${result.ev.toFixed(4)}%</td>
         <td class="win-percentage">${winRate.toFixed(4)}%</td>
         <td>${result.wins.toLocaleString()}</td>

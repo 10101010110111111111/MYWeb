@@ -1165,6 +1165,11 @@ header h1 {
   color: #f44336;
 }
 
+.frequency {
+  font-weight: bold;
+  color: #3b82f6;
+}
+
 .expand-results-section {
   text-align: center;
   margin-top: 20px;
