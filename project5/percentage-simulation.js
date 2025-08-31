@@ -41,9 +41,12 @@ class PercentageSimulationManager {
       percentageSimHands: document.getElementById("percentageSimHands"),
       percentageSimStrategy: document.getElementById("percentageSimStrategy"),
       percentageSimCounting: document.getElementById("percentageSimCounting"),
+      percentageSimDecks: document.getElementById("percentageSimDecks"),
+      percentageSimShuffle: document.getElementById("percentageSimShuffle"),
       startPercentageSimBtn: document.getElementById("startPercentageSimBtn"),
       stopPercentageSimBtn: document.getElementById("stopPercentageSimBtn"),
       percentageProgressSection: document.getElementById("percentageProgressSection"),
+      simConfig: document.getElementById("simConfig"),
       percentageHandsCompleted: document.getElementById("percentageHandsCompleted"),
       percentageHandsRemaining: document.getElementById("percentageHandsRemaining"),
       percentageSimSpeed: document.getElementById("percentageSimSpeed"),
@@ -84,6 +87,15 @@ class PercentageSimulationManager {
     })
   }
 
+  updateConfigurationDisplay() {
+    const deckCount = this.elements.percentageSimDecks.value
+    const shufflePoint = (parseFloat(this.elements.percentageSimShuffle.value) * 100).toFixed(0)
+    const countingSystem = this.elements.percentageSimCounting.options[this.elements.percentageSimCounting.selectedIndex].text
+    
+    const configText = `${deckCount} Deck${deckCount > 1 ? 's' : ''}, ${shufflePoint}% Shuffle, ${countingSystem}`
+    this.elements.simConfig.textContent = configText
+  }
+
   startSimulation() {
     if (this.isRunning) return
 
@@ -113,6 +125,9 @@ class PercentageSimulationManager {
     this.elements.stopPercentageSimBtn.disabled = false
     this.elements.percentageProgressSection.style.display = "block"
     this.elements.percentageResultsSection.style.display = "none"
+    
+    // Update configuration display
+    this.updateConfigurationDisplay()
 
     // Start simulation in background
     this.runSimulation()
@@ -155,9 +170,12 @@ class PercentageSimulationManager {
   }
 
   initializeDeck() {
-    this.currentDeck = this.createDeck()
+    const deckCount = parseInt(this.elements.percentageSimDecks.value)
+    const shufflePoint = parseFloat(this.elements.percentageSimShuffle.value)
+    
+    this.currentDeck = this.createDeck(deckCount)
     this.shuffleDeck(this.currentDeck)
-    this.shufflePoint = Math.floor(this.currentDeck.length * 0.5) // Shuffle at halfway point
+    this.shufflePoint = Math.floor(this.currentDeck.length * shufflePoint)
   }
 
   simulateSingleHand() {
@@ -199,13 +217,13 @@ class PercentageSimulationManager {
     return card
   }
 
-  createDeck() {
+  createDeck(deckCount = 8) {
     const suits = ['♠', '♥', '♦', '♣']
     const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
     const deck = []
     
-    // Create 8 decks
-    for (let deckNum = 0; deckNum < 8; deckNum++) {
+    // Create specified number of decks
+    for (let deckNum = 0; deckNum < deckCount; deckNum++) {
       for (const suit of suits) {
         for (const value of values) {
           deck.push({ suit, value })
@@ -224,9 +242,13 @@ class PercentageSimulationManager {
         ;[deck[i], deck[j]] = [deck[j], deck[i]]
       }
     } else {
-      // Shuffle current deck and reset
-      this.currentDeck = this.createDeck()
+      // Shuffle current deck and reset with current settings
+      const deckCount = parseInt(this.elements.percentageSimDecks.value)
+      const shufflePoint = parseFloat(this.elements.percentageSimShuffle.value)
+      
+      this.currentDeck = this.createDeck(deckCount)
       this.shuffleDeck(this.currentDeck)
+      this.shufflePoint = Math.floor(this.currentDeck.length * shufflePoint)
     }
   }
 

@@ -999,6 +999,28 @@ header h1 {
   margin-bottom: 15px;
 }
 
+.simulation-config {
+  background: rgba(74, 222, 128, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #4ade80;
+}
+
+.config-info {
+  text-align: center;
+}
+
+.config-info span {
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+.config-info strong {
+  color: #4ade80;
+  font-weight: bold;
+}
+
 .progress-info {
   display: flex;
   flex-direction: column;

@@ -233,12 +233,36 @@
                         <option value="hiopt1">Hi-Opt I</option>
                     </select>
                 </div>
+                <div class="control-group">
+                    <label>Number of Decks:</label>
+                    <select id="percentageSimDecks">
+                        <option value="1">1 Deck</option>
+                        <option value="2">2 Decks</option>
+                        <option value="4">4 Decks</option>
+                        <option value="6">6 Decks</option>
+                        <option value="8" selected>8 Decks</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Shuffle Point:</label>
+                    <select id="percentageSimShuffle">
+                        <option value="0.25">25% (Early Shuffle)</option>
+                        <option value="0.5" selected>50% (Standard)</option>
+                        <option value="0.75">75% (Late Shuffle)</option>
+                        <option value="0.9">90% (Deep Penetration)</option>
+                    </select>
+                </div>
                 <button id="startPercentageSimBtn">Start Percentage Simulation</button>
                 <button id="stopPercentageSimBtn" disabled>Stop Simulation</button>
             </div>
             
             <div class="percentage-progress-section" id="percentageProgressSection" style="display: none;">
                 <h3>Simulation Progress</h3>
+                <div class="simulation-config">
+                    <div class="config-info">
+                        <span>Configuration: <strong id="simConfig">8 Decks, 50% Shuffle, Hi-Lo</strong></span>
+                    </div>
+                </div>
                 <div class="progress-info">
                     <div class="progress-stats">
                         <span>Hands Completed: <strong id="percentageHandsCompleted">0</strong></span>
