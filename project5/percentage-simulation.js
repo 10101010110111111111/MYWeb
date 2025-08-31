@@ -292,15 +292,24 @@ class PercentageSimulationManager {
     const strategy = this.elements.percentageSimStrategy.value
     const tc = Math.floor(trueCount)
     
-    // Check for blackjack
-    if (this.isBlackjack(playerCards) && !this.isBlackjack(dealerCards)) {
-      return 'blackjack'
+    // Check for blackjack first
+    const playerBJ = this.isBlackjack(playerCards)
+    const dealerBJ = this.isBlackjack(dealerCards)
+    
+    if (playerBJ && dealerBJ) {
+      return 'push' // Both blackjack = push
     }
-    if (this.isBlackjack(dealerCards) && !this.isBlackjack(playerCards)) {
-      return 'loss'
+    if (playerBJ && !dealerBJ) {
+      return 'blackjack' // Player blackjack wins 1.5:1
     }
-    if (this.isBlackjack(playerCards) && this.isBlackjack(dealerCards)) {
-      return 'push'
+    if (!playerBJ && dealerBJ) {
+      return 'loss' // Dealer blackjack = immediate loss
+    }
+    
+    // Handle insurance if dealer shows Ace
+    let insuranceBet = 0
+    if (dealerCards[0].value === 'A') {
+      insuranceBet = this.handleInsurance(trueCount, strategy)
     }
 
     // Play player hand
@@ -347,6 +356,20 @@ class PercentageSimulationManager {
       return 'loss'
     }
     return 'push'
+  }
+
+  handleInsurance(trueCount, strategy) {
+    const tc = Math.floor(trueCount)
+    
+    // Insurance strategy based on true count
+    // Take insurance when true count >= 3 (basic strategy)
+    if (tc >= 3) {
+      return 0.5 // Insurance bet = 0.5x original bet
+    }
+    
+    // For advanced strategy, we could add more sophisticated rules
+    // but for percentage simulation, we'll use basic strategy
+    return 0 // No insurance
   }
 
   getPlayerAction(playerCards, dealerUpCard, trueCount, strategy) {
@@ -445,15 +468,16 @@ class PercentageSimulationManager {
     const tc = result.trueCount
     if (tc >= -10 && tc <= 10) {
       this.results[tc].hands++
-      if (result.result === 'win') {
+      
+      if (result.result === 'blackjack') {
+        this.results[tc].blackjacks++
+        this.results[tc].wins++ // Blackjack counts as win (1.5:1 payout)
+      } else if (result.result === 'win') {
         this.results[tc].wins++
       } else if (result.result === 'loss') {
         this.results[tc].losses++
       } else if (result.result === 'push') {
         this.results[tc].pushes++
-      } else if (result.result === 'blackjack') {
-        this.results[tc].blackjacks++
-        this.results[tc].wins++ // Blackjack counts as win
       }
     }
   }
@@ -520,6 +544,7 @@ class PercentageSimulationManager {
           <td>${result.wins.toLocaleString()}</td>
           <td>${result.losses.toLocaleString()}</td>
           <td>${result.pushes.toLocaleString()}</td>
+          <td>${result.blackjacks.toLocaleString()}</td>
         `
         tbody.appendChild(row)
       }
@@ -556,6 +581,7 @@ class PercentageSimulationManager {
         <td>${result.wins.toLocaleString()}</td>
         <td>${result.losses.toLocaleString()}</td>
         <td>${result.pushes.toLocaleString()}</td>
+        <td>${result.blackjacks.toLocaleString()}</td>
       `
       tbody.appendChild(row)
     }
