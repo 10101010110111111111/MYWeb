@@ -254,8 +254,8 @@
                         <option value="0.9">90% (Deep Penetration)</option>
                     </select>
                 </div>
-                <button id="startPercentageSimBtn" onclick="if(window.mainSimulation && window.mainSimulation.percentageSimManager) window.mainSimulation.percentageSimManager.startSimulation()">Start Percentage Simulation</button>
-                <button id="stopPercentageSimBtn" disabled onclick="if(window.mainSimulation && window.mainSimulation.percentageSimManager) window.mainSimulation.percentageSimManager.stopSimulation()">Stop Simulation</button>
+                <button id="startPercentageSimBtn" onclick="startPercentageSimulation()">Start Percentage Simulation</button>
+                <button id="stopPercentageSimBtn" disabled onclick="stopPercentageSimulation()">Stop Simulation</button>
             </div>
             
             <div class="percentage-progress-section" id="percentageProgressSection" style="display: none;">
@@ -415,6 +415,31 @@
     <script src="script.js"></script>
     
     <script>
+        // Global percentage simulation instance
+        let percentageSim = null;
+        
+        // Global functions for buttons
+        function startPercentageSimulation() {
+            console.log('Starting percentage simulation...');
+            
+            if (percentageSim && percentageSim.isRunning) {
+                console.log('Simulation already running');
+                return;
+            }
+            
+            // Create new simulation instance
+            percentageSim = new PercentageSimulationManager();
+            percentageSim.startSimulation();
+        }
+        
+        function stopPercentageSimulation() {
+            console.log('Stopping percentage simulation...');
+            
+            if (percentageSim) {
+                percentageSim.stopSimulation();
+            }
+        }
+        
         // Fallback initialization if main simulation doesn't create percentage manager
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, checking for percentage simulation manager')

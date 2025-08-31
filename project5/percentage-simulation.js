@@ -1,5 +1,5 @@
 class PercentageSimulationManager {
-  constructor(mainSimulation) {
+  constructor(mainSimulation = null) {
     this.mainSimulation = mainSimulation
     this.isRunning = false
     this.isPaused = false
