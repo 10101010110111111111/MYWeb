@@ -31,7 +31,11 @@ class PercentageSimulationManager {
         wins: 0,
         losses: 0,
         pushes: 0,
-        blackjacks: 0
+        blackjacks: 0,
+        // EV tracking
+        totalNetUnits: 0, // Sum of net units won/lost
+        totalInitialBets: 0, // Sum of initial bets (for weighted average)
+        ev: 0 // Expected Value in %
       }
     }
   }
@@ -469,15 +473,32 @@ class PercentageSimulationManager {
     if (tc >= -10 && tc <= 10) {
       this.results[tc].hands++
       
+      // Calculate net units for EV
+      let netUnits = 0
+      const initialBet = 1 // Standard 1 unit bet for percentage simulation
+      
       if (result.result === 'blackjack') {
         this.results[tc].blackjacks++
-        this.results[tc].wins++ // Blackjack counts as win (1.5:1 payout)
+        this.results[tc].wins++
+        netUnits = 1.5 // Blackjack pays 3:2 = 1.5 units
       } else if (result.result === 'win') {
         this.results[tc].wins++
+        netUnits = 1 // Regular win pays 1:1 = 1 unit
       } else if (result.result === 'loss') {
         this.results[tc].losses++
+        netUnits = -1 // Loss = -1 unit
       } else if (result.result === 'push') {
         this.results[tc].pushes++
+        netUnits = 0 // Push = 0 units
+      }
+      
+      // Update EV tracking
+      this.results[tc].totalNetUnits += netUnits
+      this.results[tc].totalInitialBets += initialBet
+      
+      // Calculate current EV
+      if (this.results[tc].totalInitialBets > 0) {
+        this.results[tc].ev = (this.results[tc].totalNetUnits / this.results[tc].totalInitialBets) * 100
       }
     }
   }
@@ -536,10 +557,12 @@ class PercentageSimulationManager {
       const result = this.results[tc]
       if (result.hands > 0) {
         const winRate = (result.wins / result.hands) * 100
+        const evClass = result.ev >= 0 ? 'positive-ev' : 'negative-ev'
         const row = document.createElement('tr')
         row.innerHTML = `
           <td>${tc}</td>
           <td>${result.hands.toLocaleString()}</td>
+          <td class="ev-value ${evClass}">${result.ev.toFixed(4)}%</td>
           <td class="win-percentage">${winRate.toFixed(4)}%</td>
           <td>${result.wins.toLocaleString()}</td>
           <td>${result.losses.toLocaleString()}</td>
@@ -573,10 +596,12 @@ class PercentageSimulationManager {
     for (let tc = -10; tc <= 10; tc++) {
       const result = this.results[tc]
       const winRate = result.hands > 0 ? (result.wins / result.hands) * 100 : 0
+      const evClass = result.ev >= 0 ? 'positive-ev' : 'negative-ev'
       const row = document.createElement('tr')
       row.innerHTML = `
         <td>${tc}</td>
         <td>${result.hands.toLocaleString()}</td>
+        <td class="ev-value ${evClass}">${result.ev.toFixed(4)}%</td>
         <td class="win-percentage">${winRate.toFixed(4)}%</td>
         <td>${result.wins.toLocaleString()}</td>
         <td>${result.losses.toLocaleString()}</td>

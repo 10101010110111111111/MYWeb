@@ -1152,6 +1152,19 @@ header h1 {
   color: #4ade80;
 }
 
+.ev-value {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.positive-ev {
+  color: #4ade80;
+}
+
+.negative-ev {
+  color: #f44336;
+}
+
 .expand-results-section {
   text-align: center;
   margin-top: 20px;
