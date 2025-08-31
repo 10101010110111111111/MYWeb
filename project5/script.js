@@ -73,6 +73,9 @@ class AdvancedBlackjackSimulation {
 
     // Initialize multi-simulation manager
     this.multiSimManager = new MultiSimulationManager(this)
+    
+    // Initialize percentage simulation manager
+    this.percentageSimManager = new PercentageSimulationManager(this)
   }
 
   // OPRAVENÁ FUNKCE PRO VÝPOČET SÁZKY

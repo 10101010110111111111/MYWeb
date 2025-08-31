@@ -1,0 +1,561 @@
+class PercentageSimulationManager {
+  constructor(mainSimulation) {
+    this.mainSimulation = mainSimulation
+    this.isRunning = false
+    this.isPaused = false
+    this.totalHands = 0
+    this.completedHands = 0
+    this.startTime = null
+    this.lastUpdateTime = null
+    this.handsPerSecond = 0
+    
+    // Results tracking by true count
+    this.results = {}
+    this.initializeResults()
+    
+    this.initializeElements()
+    this.setupEventListeners()
+  }
+
+  initializeResults() {
+    // Initialize results for all possible true counts (-10 to +10)
+    for (let tc = -10; tc <= 10; tc++) {
+      this.results[tc] = {
+        hands: 0,
+        wins: 0,
+        losses: 0,
+        pushes: 0,
+        blackjacks: 0
+      }
+    }
+  }
+
+  initializeElements() {
+    this.elements = {
+      percentageSimHands: document.getElementById("percentageSimHands"),
+      percentageSimStrategy: document.getElementById("percentageSimStrategy"),
+      percentageSimCounting: document.getElementById("percentageSimCounting"),
+      startPercentageSimBtn: document.getElementById("startPercentageSimBtn"),
+      stopPercentageSimBtn: document.getElementById("stopPercentageSimBtn"),
+      percentageProgressSection: document.getElementById("percentageProgressSection"),
+      percentageHandsCompleted: document.getElementById("percentageHandsCompleted"),
+      percentageHandsRemaining: document.getElementById("percentageHandsRemaining"),
+      percentageSimSpeed: document.getElementById("percentageSimSpeed"),
+      percentageProgressFill: document.getElementById("percentageProgressFill"),
+      percentageProgressText: document.getElementById("percentageProgressText"),
+      percentageResultsSection: document.getElementById("percentageResultsSection"),
+      totalPercentageHands: document.getElementById("totalPercentageHands"),
+      overallPercentageWinRate: document.getElementById("overallPercentageWinRate"),
+      percentageSimTime: document.getElementById("percentageSimTime"),
+      percentageResultsBody: document.getElementById("percentageResultsBody"),
+      expandAllResultsBtn: document.getElementById("expandAllResultsBtn"),
+      expandedResults: document.getElementById("expandedResults"),
+      expandedResultsBody: document.getElementById("expandedResultsBody")
+    }
+  }
+
+  setupEventListeners() {
+    this.elements.startPercentageSimBtn.addEventListener("click", () => this.startSimulation())
+    this.elements.stopPercentageSimBtn.addEventListener("click", () => this.stopSimulation())
+    this.elements.expandAllResultsBtn.addEventListener("click", () => this.toggleExpandedResults())
+    
+    // Quick option buttons
+    document.querySelectorAll('.quick-option-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const value = parseInt(e.target.dataset.value)
+        this.elements.percentageSimHands.value = value
+        this.updateQuickOptionButtons(value)
+      })
+    })
+  }
+
+  updateQuickOptionButtons(activeValue) {
+    document.querySelectorAll('.quick-option-btn').forEach(btn => {
+      btn.classList.remove('active')
+      if (parseInt(btn.dataset.value) === activeValue) {
+        btn.classList.add('active')
+      }
+    })
+  }
+
+  startSimulation() {
+    if (this.isRunning) return
+
+    const handsToSimulate = parseInt(this.elements.percentageSimHands.value)
+    if (handsToSimulate < 100000) {
+      alert("Minimum 100,000 hands required for percentage simulation")
+      return
+    }
+
+    this.totalHands = handsToSimulate
+    this.completedHands = 0
+    this.startTime = Date.now()
+    this.lastUpdateTime = this.startTime
+    this.isRunning = true
+    this.isPaused = false
+
+    // Reset results
+    this.initializeResults()
+
+    // Update UI
+    this.elements.startPercentageSimBtn.disabled = true
+    this.elements.stopPercentageSimBtn.disabled = false
+    this.elements.percentageProgressSection.style.display = "block"
+    this.elements.percentageResultsSection.style.display = "none"
+
+    // Start simulation in background
+    this.runSimulation()
+  }
+
+  stopSimulation() {
+    this.isRunning = false
+    this.isPaused = true
+    this.elements.startPercentageSimBtn.disabled = false
+    this.elements.stopPercentageSimBtn.disabled = true
+  }
+
+  async runSimulation() {
+    const batchSize = 1000 // Process 1000 hands at a time
+    const updateInterval = 100 // Update UI every 100ms
+
+    while (this.isRunning && this.completedHands < this.totalHands) {
+      const handsToProcess = Math.min(batchSize, this.totalHands - this.completedHands)
+      
+      // Process batch of hands
+      for (let i = 0; i < handsToProcess; i++) {
+        if (!this.isRunning) break
+        
+        const result = this.simulateSingleHand()
+        this.recordResult(result)
+        this.completedHands++
+      }
+
+      // Update UI periodically
+      if (this.completedHands % updateInterval === 0) {
+        this.updateProgress()
+        // Allow browser to process other tasks
+        await new Promise(resolve => setTimeout(resolve, 0))
+      }
+    }
+
+    if (this.completedHands >= this.totalHands) {
+      this.completeSimulation()
+    }
+  }
+
+  simulateSingleHand() {
+    // Create a fresh deck for this hand
+    const deck = this.createDeck()
+    this.shuffleDeck(deck)
+    
+    // Deal initial cards
+    const playerCards = [deck.pop(), deck.pop()]
+    const dealerCards = [deck.pop(), deck.pop()]
+    
+    // Calculate running count and true count
+    let runningCount = 0
+    const cardsDealt = 4
+    const remainingDecks = deck.length / 52
+    
+    // Count the dealt cards
+    for (const card of [...playerCards, ...dealerCards]) {
+      runningCount += this.getCardCountValue(card)
+    }
+    
+    const trueCount = remainingDecks > 0 ? runningCount / remainingDecks : runningCount
+    
+    // Play hand according to strategy
+    const result = this.playHand(deck, playerCards, dealerCards, trueCount)
+    
+    return {
+      trueCount: Math.floor(trueCount),
+      result: result
+    }
+  }
+
+  createDeck() {
+    const suits = ['♠', '♥', '♦', '♣']
+    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+    const deck = []
+    
+    // Create 8 decks
+    for (let deckNum = 0; deckNum < 8; deckNum++) {
+      for (const suit of suits) {
+        for (const value of values) {
+          deck.push({ suit, value })
+        }
+      }
+    }
+    
+    return deck
+  }
+
+  shuffleDeck(deck) {
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[deck[i], deck[j]] = [deck[j], deck[i]]
+    }
+  }
+
+  getCardCountValue(card) {
+    const countingSystem = this.elements.percentageSimCounting.value
+    const value = card.value
+    
+    switch (countingSystem) {
+      case 'hilo':
+        if (['2', '3', '4', '5', '6'].includes(value)) return 1
+        if (['7', '8', '9'].includes(value)) return 0
+        if (['10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
+        break
+      case 'wong':
+        if (value === '2') return 0.5
+        if (value === '3') return 1
+        if (value === '4') return 1
+        if (value === '5') return 1.5
+        if (value === '6') return 1
+        if (value === '7') return 0.5
+        if (value === '8') return 0
+        if (value === '9') return -0.5
+        if (['10', 'J', 'Q', 'K'].includes(value)) return -1
+        if (value === 'A') return -1
+        break
+      case 'ko':
+        if (['2', '3', '4', '5', '6', '7'].includes(value)) return 1
+        if (['8', '9'].includes(value)) return 0
+        if (['10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
+        break
+      case 'hiopt1':
+        if (['3', '4', '5', '6'].includes(value)) return 1
+        if (['7', '8', '9'].includes(value)) return 0
+        if (['2', '10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
+        break
+    }
+    return 0
+  }
+
+  playHand(deck, playerCards, dealerCards, trueCount) {
+    const strategy = this.elements.percentageSimStrategy.value
+    const tc = Math.floor(trueCount)
+    
+    // Check for blackjack
+    if (this.isBlackjack(playerCards) && !this.isBlackjack(dealerCards)) {
+      return 'blackjack'
+    }
+    if (this.isBlackjack(dealerCards) && !this.isBlackjack(playerCards)) {
+      return 'loss'
+    }
+    if (this.isBlackjack(playerCards) && this.isBlackjack(dealerCards)) {
+      return 'push'
+    }
+
+    // Play player hand
+    let playerValue = this.calculateHandValue(playerCards)
+    while (playerValue < 21) {
+      const action = this.getPlayerAction(playerCards, dealerCards[0], tc, strategy)
+      if (action === 'stand') break
+      if (action === 'double') {
+        playerCards.push(deck.pop())
+        break
+      }
+      if (action === 'hit') {
+        playerCards.push(deck.pop())
+        playerValue = this.calculateHandValue(playerCards)
+      }
+    }
+
+    // Check for bust
+    if (playerValue > 21) {
+      return 'loss'
+    }
+
+    // Play dealer hand
+    let dealerValue = this.calculateHandValue(dealerCards)
+    while (dealerValue < 17) {
+      dealerCards.push(deck.pop())
+      dealerValue = this.calculateHandValue(dealerCards)
+    }
+
+    // Determine result
+    if (dealerValue > 21) {
+      return 'win'
+    }
+    if (playerValue > dealerValue) {
+      return 'win'
+    }
+    if (playerValue < dealerValue) {
+      return 'loss'
+    }
+    return 'push'
+  }
+
+  getPlayerAction(playerCards, dealerUpCard, trueCount, strategy) {
+    const playerValue = this.calculateHandValue(playerCards)
+    const dealerValue = this.getCardValue(dealerUpCard)
+    
+    // Basic strategy decisions
+    if (strategy === 'basic') {
+      return this.getBasicStrategyAction(playerCards, dealerValue)
+    } else {
+      // Basic strategy + deviations
+      return this.getAdvancedStrategyAction(playerCards, dealerValue, trueCount)
+    }
+  }
+
+  getBasicStrategyAction(playerCards, dealerValue) {
+    const playerValue = this.calculateHandValue(playerCards)
+    const isSoft = this.isSoftHand(playerCards)
+    
+    // Hard totals
+    if (!isSoft) {
+      if (playerValue >= 17) return 'stand'
+      if (playerValue <= 11) return 'hit'
+      if (playerValue === 12) return dealerValue >= 4 && dealerValue <= 6 ? 'stand' : 'hit'
+      if (playerValue === 13 || playerValue === 14 || playerValue === 15 || playerValue === 16) {
+        return dealerValue >= 2 && dealerValue <= 6 ? 'stand' : 'hit'
+      }
+    }
+    
+    // Soft totals
+    if (isSoft) {
+      if (playerValue >= 19) return 'stand'
+      if (playerValue === 18) return dealerValue >= 9 ? 'hit' : 'stand'
+      if (playerValue === 17) return dealerValue >= 3 && dealerValue <= 6 ? 'double' : 'hit'
+      if (playerValue === 16) return dealerValue >= 4 && dealerValue <= 6 ? 'double' : 'hit'
+      if (playerValue === 15) return dealerValue >= 4 && dealerValue <= 6 ? 'double' : 'hit'
+      if (playerValue === 14) return dealerValue >= 5 && dealerValue <= 6 ? 'double' : 'hit'
+      if (playerValue === 13) return dealerValue >= 5 && dealerValue <= 6 ? 'double' : 'hit'
+    }
+    
+    return 'hit'
+  }
+
+  getAdvancedStrategyAction(playerCards, dealerValue, trueCount) {
+    // Start with basic strategy
+    let action = this.getBasicStrategyAction(playerCards, dealerValue)
+    
+    // Apply deviations based on true count
+    const deviations = this.getDeviations(playerCards, dealerValue, trueCount)
+    if (deviations) {
+      action = deviations
+    }
+    
+    return action
+  }
+
+  getDeviations(playerCards, dealerValue, trueCount) {
+    const playerValue = this.calculateHandValue(playerCards)
+    const isSoft = this.isSoftHand(playerCards)
+    const tc = Math.floor(trueCount)
+    
+    // Illustrious 18 deviations (simplified)
+    if (!isSoft) {
+      // 16 vs 10: Stand at TC >= 0
+      if (playerValue === 16 && dealerValue === 10 && tc >= 0) return 'stand'
+      
+      // 15 vs 10: Stand at TC >= 4
+      if (playerValue === 15 && dealerValue === 10 && tc >= 4) return 'stand'
+      
+      // 12 vs 2: Stand at TC >= 3
+      if (playerValue === 12 && dealerValue === 2 && tc >= 3) return 'stand'
+      
+      // 12 vs 3: Stand at TC >= 2
+      if (playerValue === 12 && dealerValue === 3 && tc >= 2) return 'stand'
+      
+      // 11 vs A: Double at TC >= 1
+      if (playerValue === 11 && dealerValue === 11 && tc >= 1) return 'double'
+      
+      // 10 vs 10: Double at TC >= 4
+      if (playerValue === 10 && dealerValue === 10 && tc >= 4) return 'double'
+      
+      // 10 vs A: Double at TC >= 4
+      if (playerValue === 10 && dealerValue === 11 && tc >= 4) return 'double'
+      
+      // 9 vs 2: Double at TC >= 1
+      if (playerValue === 9 && dealerValue === 2 && tc >= 1) return 'double'
+      
+      // 9 vs 7: Double at TC >= 3
+      if (playerValue === 9 && dealerValue === 7 && tc >= 3) return 'double'
+    }
+    
+    return null // No deviation applies
+  }
+
+  recordResult(result) {
+    const tc = result.trueCount
+    if (tc >= -10 && tc <= 10) {
+      this.results[tc].hands++
+      if (result.result === 'win') {
+        this.results[tc].wins++
+      } else if (result.result === 'loss') {
+        this.results[tc].losses++
+      } else if (result.result === 'push') {
+        this.results[tc].pushes++
+      } else if (result.result === 'blackjack') {
+        this.results[tc].blackjacks++
+        this.results[tc].wins++ // Blackjack counts as win
+      }
+    }
+  }
+
+  updateProgress() {
+    const now = Date.now()
+    const elapsed = (now - this.startTime) / 1000
+    const progress = (this.completedHands / this.totalHands) * 100
+    
+    // Calculate hands per second
+    if (elapsed > 0) {
+      this.handsPerSecond = Math.round(this.completedHands / elapsed)
+    }
+    
+    // Update UI
+    this.elements.percentageHandsCompleted.textContent = this.completedHands.toLocaleString()
+    this.elements.percentageHandsRemaining.textContent = (this.totalHands - this.completedHands).toLocaleString()
+    this.elements.percentageSimSpeed.textContent = this.handsPerSecond.toLocaleString()
+    this.elements.percentageProgressFill.style.width = `${progress}%`
+    this.elements.percentageProgressText.textContent = `${progress.toFixed(2)}% Complete`
+  }
+
+  completeSimulation() {
+    this.isRunning = false
+    this.elements.startPercentageSimBtn.disabled = false
+    this.elements.stopPercentageSimBtn.disabled = true
+    this.elements.percentageResultsSection.style.display = "block"
+    
+    // Calculate final statistics
+    const totalTime = (Date.now() - this.startTime) / 1000
+    let totalWins = 0
+    let totalHands = 0
+    
+    for (let tc = -10; tc <= 10; tc++) {
+      totalWins += this.results[tc].wins
+      totalHands += this.results[tc].hands
+    }
+    
+    const overallWinRate = totalHands > 0 ? (totalWins / totalHands) * 100 : 0
+    
+    // Update summary
+    this.elements.totalPercentageHands.textContent = totalHands.toLocaleString()
+    this.elements.overallPercentageWinRate.textContent = `${overallWinRate.toFixed(4)}%`
+    this.elements.percentageSimTime.textContent = `${totalTime.toFixed(1)}s`
+    
+    // Display results
+    this.displayResults()
+  }
+
+  displayResults() {
+    const tbody = this.elements.percentageResultsBody
+    tbody.innerHTML = ''
+    
+    // Show results for true counts -5 to +5
+    for (let tc = -5; tc <= 5; tc++) {
+      const result = this.results[tc]
+      if (result.hands > 0) {
+        const winRate = (result.wins / result.hands) * 100
+        const row = document.createElement('tr')
+        row.innerHTML = `
+          <td>${tc}</td>
+          <td>${result.hands.toLocaleString()}</td>
+          <td class="win-percentage">${winRate.toFixed(4)}%</td>
+          <td>${result.wins.toLocaleString()}</td>
+          <td>${result.losses.toLocaleString()}</td>
+          <td>${result.pushes.toLocaleString()}</td>
+        `
+        tbody.appendChild(row)
+      }
+    }
+  }
+
+  toggleExpandedResults() {
+    const expanded = this.elements.expandedResults
+    const btn = this.elements.expandAllResultsBtn
+    
+    if (expanded.style.display === 'none') {
+      expanded.style.display = 'block'
+      btn.textContent = 'Hide Extended Results'
+      this.displayExpandedResults()
+    } else {
+      expanded.style.display = 'none'
+      btn.textContent = 'Show All Counts (-10 to +10)'
+    }
+  }
+
+  displayExpandedResults() {
+    const tbody = this.elements.expandedResultsBody
+    tbody.innerHTML = ''
+    
+    // Show results for all true counts -10 to +10
+    for (let tc = -10; tc <= 10; tc++) {
+      const result = this.results[tc]
+      const winRate = result.hands > 0 ? (result.wins / result.hands) * 100 : 0
+      const row = document.createElement('tr')
+      row.innerHTML = `
+        <td>${tc}</td>
+        <td>${result.hands.toLocaleString()}</td>
+        <td class="win-percentage">${winRate.toFixed(4)}%</td>
+        <td>${result.wins.toLocaleString()}</td>
+        <td>${result.losses.toLocaleString()}</td>
+        <td>${result.pushes.toLocaleString()}</td>
+      `
+      tbody.appendChild(row)
+    }
+  }
+
+  // Utility methods
+  calculateHandValue(cards) {
+    let value = 0
+    let aces = 0
+    
+    for (const card of cards) {
+      if (card.value === 'A') {
+        aces++
+        value += 11
+      } else if (['K', 'Q', 'J'].includes(card.value)) {
+        value += 10
+      } else {
+        value += parseInt(card.value)
+      }
+    }
+    
+    // Adjust for aces
+    while (value > 21 && aces > 0) {
+      value -= 10
+      aces--
+    }
+    
+    return value
+  }
+
+  getCardValue(card) {
+    if (card.value === 'A') return 11
+    if (['K', 'Q', 'J'].includes(card.value)) return 10
+    return parseInt(card.value)
+  }
+
+  isSoftHand(cards) {
+    let hasAce = false
+    let value = 0
+    
+    for (const card of cards) {
+      if (card.value === 'A') {
+        hasAce = true
+        value += 11
+      } else if (['K', 'Q', 'J'].includes(card.value)) {
+        value += 10
+      } else {
+        value += parseInt(card.value)
+      }
+    }
+    
+    return hasAce && value <= 21
+  }
+
+  isBlackjack(cards) {
+    return cards.length === 2 && this.calculateHandValue(cards) === 21
+  }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // This will be initialized by the main simulation
+  window.PercentageSimulationManager = PercentageSimulationManager
+})

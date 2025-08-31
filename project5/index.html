@@ -199,6 +199,118 @@
             </div>
         </div>
 
+        <div class="percentage-simulation-section">
+            <h2>Percentage Simulation - The Ultimate Test</h2>
+            <div class="percentage-sim-info">
+                <p>This is the largest simulation possible. It will run in the background and show win percentages for each true count from -5 to +5. No money calculations - pure strategy testing with basic strategy + deviations.</p>
+            </div>
+            <div class="percentage-sim-controls">
+                <div class="control-group">
+                    <label>Number of Hands to Simulate:</label>
+                    <div class="simulation-input-group">
+                        <input type="number" id="percentageSimHands" value="1000000" min="100000" max="100000000" step="100000">
+                        <div class="quick-options">
+                            <button class="quick-option-btn" data-value="100000">100K</button>
+                            <button class="quick-option-btn" data-value="1000000">1M</button>
+                            <button class="quick-option-btn" data-value="10000000">10M</button>
+                            <button class="quick-option-btn" data-value="100000000">100M</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Strategy:</label>
+                    <select id="percentageSimStrategy">
+                        <option value="basic">Basic Strategy Only</option>
+                        <option value="basic+deviations" selected>Basic Strategy + Deviations</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Counting System:</label>
+                    <select id="percentageSimCounting">
+                        <option value="hilo" selected>Hi-Lo</option>
+                        <option value="wong">Wong Halves</option>
+                        <option value="ko">KO (Knock Out)</option>
+                        <option value="hiopt1">Hi-Opt I</option>
+                    </select>
+                </div>
+                <button id="startPercentageSimBtn">Start Percentage Simulation</button>
+                <button id="stopPercentageSimBtn" disabled>Stop Simulation</button>
+            </div>
+            
+            <div class="percentage-progress-section" id="percentageProgressSection" style="display: none;">
+                <h3>Simulation Progress</h3>
+                <div class="progress-info">
+                    <div class="progress-stats">
+                        <span>Hands Completed: <strong id="percentageHandsCompleted">0</strong></span>
+                        <span>Remaining: <strong id="percentageHandsRemaining">0</strong></span>
+                        <span>Speed: <strong id="percentageSimSpeed">0</strong> hands/sec</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="percentageProgressFill"></div>
+                        </div>
+                        <span id="percentageProgressText">0% Complete</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="percentage-results-section" id="percentageResultsSection" style="display: none;">
+                <h3>Win Percentage Results by True Count</h3>
+                <div class="results-summary-percentage">
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <label>Total Hands:</label>
+                            <span id="totalPercentageHands">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>Overall Win Rate:</label>
+                            <span id="overallPercentageWinRate">0.0000%</span>
+                        </div>
+                        <div class="stat-item">
+                            <label>Simulation Time:</label>
+                            <span id="percentageSimTime">0s</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="percentage-results-table">
+                    <table id="percentageResultsTable">
+                        <thead>
+                            <tr>
+                                <th>True Count</th>
+                                <th>Hands Played</th>
+                                <th>Win Percentage</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                                <th>Pushes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="percentageResultsBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="expand-results-section">
+                    <button id="expandAllResultsBtn" class="expand-btn">Show All Counts (-10 to +10)</button>
+                    <div id="expandedResults" style="display: none;">
+                        <h4>Extended Results (All Counts)</h4>
+                        <table id="expandedResultsTable">
+                            <thead>
+                                <tr>
+                                    <th>True Count</th>
+                                    <th>Hands Played</th>
+                                    <th>Win Percentage</th>
+                                    <th>Wins</th>
+                                    <th>Losses</th>
+                                    <th>Pushes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expandedResultsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="multi-simulation-section">
             <h2>Multi-Simulation Analysis</h2>
             <div class="current-betting-info">
@@ -268,5 +380,6 @@
 
     <script src="script.js"></script>
     <script src="multi-simulation.js"></script>
+    <script src="percentage-simulation.js"></script>
 </body>
 </html>
