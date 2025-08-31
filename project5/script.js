@@ -75,7 +75,11 @@ class AdvancedBlackjackSimulation {
     this.multiSimManager = new MultiSimulationManager(this)
     
     // Initialize percentage simulation manager
-    this.percentageSimManager = new PercentageSimulationManager(this)
+    if (typeof PercentageSimulationManager !== 'undefined') {
+      this.percentageSimManager = new PercentageSimulationManager(this)
+    } else {
+      console.error('PercentageSimulationManager not defined')
+    }
   }
 
   // OPRAVENÁ FUNKCE PRO VÝPOČET SÁZKY
@@ -2048,6 +2052,7 @@ class AdvancedBlackjackSimulation {
 // Initialize the simulation when the page loads
 document.addEventListener("DOMContentLoaded", () => {
   const simulation = new AdvancedBlackjackSimulation()
+  window.mainSimulation = simulation // Make it globally accessible
   
   // Ensure betting strategy is properly initialized
   setTimeout(() => {
