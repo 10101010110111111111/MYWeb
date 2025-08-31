@@ -186,26 +186,29 @@ class PercentageSimulationManager {
     // Deal initial cards (running count is updated in dealCard)
     const playerCards = [this.dealCard(), this.dealCard()]
     const dealerCards = [this.dealCard(), this.dealCard()]
-    
-    // Calculate true count
-    const remainingDecks = (this.currentDeck.length - this.cardsDealt) / 52
+  
+    // Calculate remaining decks correctly
+    const remainingDecks = this.currentDeck.length / 52
     const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : this.runningCount
-    
+  
     // Play hand according to strategy
     const result = this.playHand(playerCards, dealerCards, trueCount)
-    
-    // Check if we need to shuffle after completing the hand (at halfway point)
+  
+    // Shuffle only when reaching shuffle point
     if (this.cardsDealt >= this.shufflePoint) {
       this.shuffleDeck()
       this.cardsDealt = 0
-      this.runningCount = 0
+      // Don't reset runningCount – zachovej ho
+      // this.runningCount = 0
     }
-    
+  
     return {
-      trueCount: Math.floor(trueCount),
+      trueCount: Math.round(trueCount), // zaokrouhlení na nejbližší celé číslo
       result: result
     }
   }
+  
+  
 
   dealCard() {
     if (this.currentDeck.length === 0) {
@@ -213,13 +216,14 @@ class PercentageSimulationManager {
     }
     const card = this.currentDeck.pop()
     this.cardsDealt++
-    
+  
     // Update running count based on card value
     const countValue = this.getCardCountValue(card)
     this.runningCount += countValue
-    
+  
     return card
   }
+  
 
   createDeck(deckCount = 8) {
     const suits = ['♠', '♥', '♦', '♣']
@@ -246,15 +250,20 @@ class PercentageSimulationManager {
         ;[deck[i], deck[j]] = [deck[j], deck[i]]
       }
     } else {
-      // Shuffle current deck and reset with current settings
       const deckCount = parseInt(this.elements.percentageSimDecks.value)
       const shufflePoint = parseFloat(this.elements.percentageSimShuffle.value)
-      
+  
       this.currentDeck = this.createDeck(deckCount)
-      this.shuffleDeck(this.currentDeck)
+      for (let i = this.currentDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[this.currentDeck[i], this.currentDeck[j]] = [this.currentDeck[j], this.currentDeck[i]]
+      }
+  
       this.shufflePoint = Math.floor(this.currentDeck.length * shufflePoint)
+      // Nepřepisovat runningCount – zachovej hodnotu při polovině shoe
     }
   }
+  
 
   getCardCountValue(card) {
     const countingSystem = this.elements.percentageSimCounting.value
