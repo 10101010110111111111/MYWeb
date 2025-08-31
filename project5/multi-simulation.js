@@ -528,15 +528,34 @@ class MultiSimulationManager {
     return Number.parseInt(rank)
   }
 
-  getCountValue(rank, countingSystem) {
-    const systems = {
-      hilo: { 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 0, 8: 0, 9: 0, 10: -1, J: -1, Q: -1, K: -1, A: -1 },
-      wong: { 2: 0.5, 3: 1, 4: 1, 5: 1.5, 6: 1, 7: 0.5, 8: 0, 9: -0.5, 10: -1, J: -1, Q: -1, K: -1, A: -1 },
-      ko: { 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 0, 9: 0, 10: -1, J: -1, Q: -1, K: -1, A: -1 },
-      hiopt1: { 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 0, 8: 0, 9: 0, 10: -1, J: -1, Q: -1, K: -1, A: 0 },
+  getCountValue(rank, system) {
+    switch (system) {
+      case 'hilo':
+        if (['2','3','4','5','6'].includes(rank)) return 1
+        if (['7','8','9'].includes(rank)) return 0
+        return -1
+      case 'wong':
+        if (rank==='2') return 0.5
+        if (rank==='3'||rank==='4') return 1
+        if (rank==='5') return 1.5
+        if (rank==='6') return 1
+        if (rank==='7') return 0.5
+        if (rank==='8') return 0
+        if (rank==='9') return -0.5
+        if (['10','J','Q','K','A'].includes(rank)) return -1
+        break
+      case 'ko':
+        if (['2','3','4','5','6','7'].includes(rank)) return 1
+        if (['8','9'].includes(rank)) return 0
+        return -1
+      case 'hiopt1':
+        if (['3','4','5','6'].includes(rank)) return 1
+        if (['7','8','9'].includes(rank)) return 0
+        return -1
     }
-    return systems[countingSystem][rank] || 0
+    return 0
   }
+  
 
   calculateHandValue(hand) {
     let value = 0

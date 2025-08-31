@@ -68,15 +68,24 @@ class PercentageSimulationManager {
   }
 
   setupEventListeners() {
-    this.elements.startPercentageSimBtn.addEventListener("click", () => this.startSimulation())
-    this.elements.stopPercentageSimBtn.addEventListener("click", () => this.stopSimulation())
-    this.elements.expandAllResultsBtn.addEventListener("click", () => this.toggleExpandedResults())
+    // Add null checks for UI elements
+    if (this.elements.startPercentageSimBtn) {
+      this.elements.startPercentageSimBtn.addEventListener("click", () => this.startSimulation())
+    }
+    if (this.elements.stopPercentageSimBtn) {
+      this.elements.stopPercentageSimBtn.addEventListener("click", () => this.stopSimulation())
+    }
+    if (this.elements.expandAllResultsBtn) {
+      this.elements.expandAllResultsBtn.addEventListener("click", () => this.toggleExpandedResults())
+    }
     
     // Quick option buttons
     document.querySelectorAll('.quick-option-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const value = parseInt(e.target.dataset.value)
-        this.elements.percentageSimHands.value = value
+        if (this.elements.percentageSimHands) {
+          this.elements.percentageSimHands.value = value
+        }
         this.updateQuickOptionButtons(value)
       })
     })
@@ -200,38 +209,40 @@ class PercentageSimulationManager {
     
     // Calculate true count AFTER dealing initial cards but BEFORE playing the hand
     // remainingDecks = number of cards left in deck / 52
-    const remainingDecks = this.currentDeck.length / 52
-    const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : this.runningCount
+    const remainingDecks = Math.max(this.currentDeck.length / 52, 1/52) // Safety: minimum 1 card
+    const trueCount = this.runningCount / remainingDecks
     
     // Play hand according to strategy
     const result = this.playHand(playerCards, dealerCards, trueCount)
     
     // Check if we need to shuffle after completing the hand (at halfway point)
     if (this.cardsDealt >= this.shufflePoint) {
-      this.shuffleDeck()
-      this.cardsDealt = 0
-      this.runningCount = 0 // RESET running count when shuffling
+      // Mid-shoe shuffle: preserve running count for continuous shoe simulation
+      this.shuffleDeck() // Shuffle current deck without recreating
+      this.cardsDealt = 0 // Reset cards dealt counter
+      // DON'T reset runningCount - keep continuous count
     }
     
     return {
-      trueCount: Math.floor(trueCount), // Use floor for consistent binning
+      trueCount: Math.max(-10, Math.min(10, Math.floor(trueCount))), // Clamp to [-10, 10] range
       result: result
     }
   }
   
   
 
-  dealCard() {
+    dealCard() {
     if (this.currentDeck.length === 0) {
-      this.initializeDeck()
+      // Create new deck but DON'T reset running count for continuous shoe simulation
+      this.createNewDeck()
     }
     const card = this.currentDeck.pop()
     this.cardsDealt++
-  
+    
     // Update running count based on card value
     const countValue = this.getCardCountValue(card)
     this.runningCount += countValue
-  
+    
     return card
   }
   
@@ -253,28 +264,31 @@ class PercentageSimulationManager {
     return deck
   }
 
-  shuffleDeck(deck = null) {
-    if (deck) {
-      // Shuffle provided deck
-      for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[deck[i], deck[j]] = [deck[j], deck[i]]
-      }
-    } else {
-      const deckCount = parseInt(this.elements.percentageSimDecks.value)
-      const shufflePoint = parseFloat(this.elements.percentageSimShuffle.value)
-  
-      this.currentDeck = this.createDeck(deckCount)
-      for (let i = this.currentDeck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[this.currentDeck[i], this.currentDeck[j]] = [this.currentDeck[j], this.currentDeck[i]]
-      }
-  
-      this.shufflePoint = Math.floor(this.currentDeck.length * shufflePoint)
-      // Nepřepisovat runningCount – zachovej hodnotu při polovině shoe
-    }
+  createNewDeck() {
+    // Create new deck without resetting running count (for continuous shoe)
+    const deckCount = parseInt(this.elements.percentageSimDecks.value)
+    this.currentDeck = this.createDeck(deckCount)
+    this.shuffleDeck(this.currentDeck)
+    // Don't reset runningCount or cardsDealt - keep continuous count
   }
 
+  shuffleDeck(deck = null) {
+    if (deck) {
+      // Shuffle given deck
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        [deck[i], deck[j]] = [deck[j], deck[i]]
+      }
+    } else {
+      // Shuffle currentDeck without recreating it
+      for (let i = this.currentDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        [this.currentDeck[i], this.currentDeck[j]] = [this.currentDeck[j], this.currentDeck[i]]
+      }
+      // shufflePoint stays the same
+    }
+  }
+  
   
 
   getCardCountValue(card) {
@@ -308,6 +322,13 @@ class PercentageSimulationManager {
         if (['3', '4', '5', '6'].includes(value)) return 1
         if (['7', '8', '9'].includes(value)) return 0
         if (['2', '10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
+        break
+      default:
+        console.warn(`Unknown counting system: ${countingSystem}, using Hi-Lo`)
+        // Fallback to Hi-Lo
+        if (['2', '3', '4', '5', '6'].includes(value)) return 1
+        if (['7', '8', '9'].includes(value)) return 0
+        if (['10', 'J', 'Q', 'K', 'A'].includes(value)) return -1
         break
     }
     return 0
@@ -641,7 +662,7 @@ class PercentageSimulationManager {
   }
 
   // Utility methods
-  calculateHandValue(cards) {
+  calculateHandValue(cards, forceAceAs11 = false) {
     let value = 0
     let aces = 0
     
@@ -656,10 +677,12 @@ class PercentageSimulationManager {
       }
     }
     
-    // Adjust for aces
-    while (value > 21 && aces > 0) {
-      value -= 10
-      aces--
+    // Adjust for aces (unless forcing Ace as 11)
+    if (!forceAceAs11) {
+      while (value > 21 && aces > 0) {
+        value -= 10
+        aces--
+      }
     }
     
     return value
@@ -672,22 +695,15 @@ class PercentageSimulationManager {
   }
 
   isSoftHand(cards) {
-    let hasAce = false
-    let value = 0
+    let hasAce = cards.some(c => c.value === 'A')
+    if (!hasAce) return false
     
-    for (const card of cards) {
-      if (card.value === 'A') {
-        hasAce = true
-        value += 11
-      } else if (['K', 'Q', 'J'].includes(card.value)) {
-        value += 10
-      } else {
-        value += parseInt(card.value)
-      }
-    }
+    let valueWithAce = this.calculateHandValue(cards, true) // Force Ace as 11
+    let valueWithoutAce = this.calculateHandValue(cards, false) // Normal calculation
     
-    return hasAce && value <= 21
+    return valueWithAce <= 21 && valueWithAce !== valueWithoutAce
   }
+  
 
   isBlackjack(cards) {
     return cards.length === 2 && this.calculateHandValue(cards) === 21
