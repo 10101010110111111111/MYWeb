@@ -166,7 +166,7 @@ class PercentageSimulationManager {
         
         try {
           const result = this.simulateSingleHand()
-          this.recordResult(result)
+          this.processHandResult(result)
           this.completedHands++
         } catch (error) {
           console.error('Error in simulateSingleHand:', error)
@@ -213,7 +213,7 @@ class PercentageSimulationManager {
     const trueCount = this.runningCount / remainingDecks
     
     // Play hand according to strategy
-    const result = this.playHand(playerCards, dealerCards, trueCount)
+    const handResult = this.playHand(playerCards, dealerCards, trueCount, 1)
     
     // Check if we need to shuffle after completing the hand (at halfway point)
     if (this.cardsDealt >= this.shufflePoint) {
@@ -225,7 +225,7 @@ class PercentageSimulationManager {
     
     return {
       trueCount: Math.max(-10, Math.min(10, Math.floor(trueCount))), // Clamp to [-10, 10] range
-      result: result
+      handResult: handResult
     }
   }
   
@@ -334,7 +334,7 @@ class PercentageSimulationManager {
     return 0
   }
 
-  playHand(playerCards, dealerCards, trueCount) {
+  playHand(playerCards, dealerCards, trueCount, initialBet = 1) {
     const strategy = this.elements.percentageSimStrategy.value
     const tc = Math.floor(trueCount)
     
@@ -343,13 +343,13 @@ class PercentageSimulationManager {
     const dealerBJ = this.isBlackjack(dealerCards)
     
     if (playerBJ && dealerBJ) {
-      return 'push' // Both blackjack = push
+      return { result: 'push', bet: initialBet, isBlackjack: false }
     }
     if (playerBJ && !dealerBJ) {
-      return 'blackjack' // Player blackjack wins 1.5:1
+      return { result: 'blackjack', bet: initialBet, isBlackjack: true }
     }
     if (!playerBJ && dealerBJ) {
-      return 'loss' // Dealer blackjack = immediate loss
+      return { result: 'loss', bet: initialBet, isBlackjack: false }
     }
     
     // Handle insurance if dealer shows Ace
@@ -358,12 +358,20 @@ class PercentageSimulationManager {
       insuranceBet = this.handleInsurance(trueCount, strategy)
     }
 
-    // Play player hand
+    // Check for split opportunity
+    if (this.canSplit(playerCards) && this.getPlayerAction(playerCards, dealerCards[0], tc, strategy) === 'split') {
+      return this.playSplitHand(playerCards, dealerCards, trueCount, initialBet)
+    }
+
+    // Play single hand
+    let currentBet = initialBet
     let playerValue = this.calculateHandValue(playerCards)
+    
     while (playerValue < 21) {
       const action = this.getPlayerAction(playerCards, dealerCards[0], tc, strategy)
       if (action === 'stand') break
       if (action === 'double') {
+        currentBet *= 2 // Double the bet
         const newCard = this.dealCard()
         playerCards.push(newCard)
         break
@@ -377,7 +385,7 @@ class PercentageSimulationManager {
 
     // Check for bust
     if (playerValue > 21) {
-      return 'loss'
+      return { result: 'loss', bet: currentBet, isBlackjack: false }
     }
 
     // Play dealer hand
@@ -390,15 +398,46 @@ class PercentageSimulationManager {
 
     // Determine result
     if (dealerValue > 21) {
-      return 'win'
+      return { result: 'win', bet: currentBet, isBlackjack: false }
     }
     if (playerValue > dealerValue) {
-      return 'win'
+      return { result: 'win', bet: currentBet, isBlackjack: false }
     }
     if (playerValue < dealerValue) {
-      return 'loss'
+      return { result: 'loss', bet: currentBet, isBlackjack: false }
     }
-    return 'push'
+    return { result: 'push', bet: currentBet, isBlackjack: false }
+  }
+
+  canSplit(playerCards) {
+    // Can split if first two cards have same value
+    if (playerCards.length !== 2) return false
+    
+    const card1Value = this.getCardValue(playerCards[0])
+    const card2Value = this.getCardValue(playerCards[1])
+    
+    return card1Value === card2Value
+  }
+
+  playSplitHand(playerCards, dealerCards, trueCount, initialBet) {
+    // Split the hand into two separate hands
+    const firstCard = playerCards[0]
+    const secondCard = playerCards[1]
+    
+    // Create two new hands
+    const hand1 = [firstCard, this.dealCard()]
+    const hand2 = [secondCard, this.dealCard()]
+    
+    // Play each hand separately
+    const result1 = this.playHand(hand1, dealerCards, trueCount, initialBet)
+    const result2 = this.playHand(hand2, dealerCards, trueCount, initialBet)
+    
+    // Return combined results
+    return {
+      result: 'split',
+      hands: [result1, result2],
+      totalBet: initialBet * 2 // Split doubles the total bet
+    }
   }
 
   handleInsurance(trueCount, strategy) {
@@ -507,26 +546,40 @@ class PercentageSimulationManager {
     return null // No deviation applies
   }
 
-  recordResult(result) {
-    const tc = result.trueCount
+  processHandResult(result) {
+    const trueCount = result.trueCount
+    const handResult = result.handResult
+    
+    if (handResult.result === 'split') {
+      // Process each split hand separately
+      for (const hand of handResult.hands) {
+        this.recordResult(trueCount, hand.result, hand.bet, hand.isBlackjack)
+      }
+    } else {
+      // Process single hand
+      this.recordResult(trueCount, handResult.result, handResult.bet, handResult.isBlackjack)
+    }
+  }
+
+  recordResult(trueCount, result, initialBet = 1, isBlackjack = false) {
+    const tc = trueCount
     if (tc >= -10 && tc <= 10) {
       this.results[tc].hands++
       
       // Calculate net units for EV
       let netUnits = 0
-      const initialBet = 1 // Standard 1 unit bet for percentage simulation
       
-      if (result.result === 'blackjack') {
+      if (result === 'blackjack') {
         this.results[tc].blackjacks++
         this.results[tc].wins++
-        netUnits = 1.5 // Blackjack pays 3:2 = 1.5 units
-      } else if (result.result === 'win') {
+        netUnits = isBlackjack ? initialBet * 1.5 : initialBet // Blackjack pays 3:2, regular win 1:1
+      } else if (result === 'win') {
         this.results[tc].wins++
-        netUnits = 1 // Regular win pays 1:1 = 1 unit
-      } else if (result.result === 'loss') {
+        netUnits = initialBet // Regular win pays 1:1
+      } else if (result === 'loss') {
         this.results[tc].losses++
-        netUnits = -1 // Loss = -1 unit
-      } else if (result.result === 'push') {
+        netUnits = -initialBet // Loss = negative bet amount
+      } else if (result === 'push') {
         this.results[tc].pushes++
         netUnits = 0 // Push = 0 units
       }
