@@ -9,6 +9,12 @@ class PercentageSimulationManager {
     this.lastUpdateTime = null
     this.handsPerSecond = 0
     
+    // Deck management
+    this.currentDeck = []
+    this.runningCount = 0
+    this.cardsDealt = 0
+    this.shufflePoint = 0 // When to shuffle (halfway through)
+    
     // Results tracking by true count
     this.results = {}
     this.initializeResults()
@@ -94,6 +100,11 @@ class PercentageSimulationManager {
     this.isRunning = true
     this.isPaused = false
 
+    // Initialize deck and counting
+    this.initializeDeck()
+    this.runningCount = 0
+    this.cardsDealt = 0
+
     // Reset results
     this.initializeResults()
 
@@ -143,34 +154,49 @@ class PercentageSimulationManager {
     }
   }
 
+  initializeDeck() {
+    this.currentDeck = this.createDeck()
+    this.shuffleDeck(this.currentDeck)
+    this.shufflePoint = Math.floor(this.currentDeck.length * 0.5) // Shuffle at halfway point
+  }
+
   simulateSingleHand() {
-    // Create a fresh deck for this hand
-    const deck = this.createDeck()
-    this.shuffleDeck(deck)
-    
     // Deal initial cards
-    const playerCards = [deck.pop(), deck.pop()]
-    const dealerCards = [deck.pop(), deck.pop()]
+    const playerCards = [this.dealCard(), this.dealCard()]
+    const dealerCards = [this.dealCard(), this.dealCard()]
     
-    // Calculate running count and true count
-    let runningCount = 0
-    const cardsDealt = 4
-    const remainingDecks = deck.length / 52
-    
-    // Count the dealt cards
+    // Update running count for dealt cards
     for (const card of [...playerCards, ...dealerCards]) {
-      runningCount += this.getCardCountValue(card)
+      this.runningCount += this.getCardCountValue(card)
     }
     
-    const trueCount = remainingDecks > 0 ? runningCount / remainingDecks : runningCount
+    // Calculate true count
+    const remainingDecks = (this.currentDeck.length - this.cardsDealt) / 52
+    const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : this.runningCount
     
     // Play hand according to strategy
-    const result = this.playHand(deck, playerCards, dealerCards, trueCount)
+    const result = this.playHand(playerCards, dealerCards, trueCount)
+    
+    // Check if we need to shuffle after completing the hand (at halfway point)
+    if (this.cardsDealt >= this.shufflePoint) {
+      this.shuffleDeck()
+      this.cardsDealt = 0
+      this.runningCount = 0
+    }
     
     return {
       trueCount: Math.floor(trueCount),
       result: result
     }
+  }
+
+  dealCard() {
+    if (this.currentDeck.length === 0) {
+      this.initializeDeck()
+    }
+    const card = this.currentDeck.pop()
+    this.cardsDealt++
+    return card
   }
 
   createDeck() {
@@ -190,10 +216,17 @@ class PercentageSimulationManager {
     return deck
   }
 
-  shuffleDeck(deck) {
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[deck[i], deck[j]] = [deck[j], deck[i]]
+  shuffleDeck(deck = null) {
+    if (deck) {
+      // Shuffle provided deck
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[deck[i], deck[j]] = [deck[j], deck[i]]
+      }
+    } else {
+      // Shuffle current deck and reset
+      this.currentDeck = this.createDeck()
+      this.shuffleDeck(this.currentDeck)
     }
   }
 
@@ -233,7 +266,7 @@ class PercentageSimulationManager {
     return 0
   }
 
-  playHand(deck, playerCards, dealerCards, trueCount) {
+  playHand(playerCards, dealerCards, trueCount) {
     const strategy = this.elements.percentageSimStrategy.value
     const tc = Math.floor(trueCount)
     
@@ -254,11 +287,15 @@ class PercentageSimulationManager {
       const action = this.getPlayerAction(playerCards, dealerCards[0], tc, strategy)
       if (action === 'stand') break
       if (action === 'double') {
-        playerCards.push(deck.pop())
+        const newCard = this.dealCard()
+        playerCards.push(newCard)
+        this.runningCount += this.getCardCountValue(newCard)
         break
       }
       if (action === 'hit') {
-        playerCards.push(deck.pop())
+        const newCard = this.dealCard()
+        playerCards.push(newCard)
+        this.runningCount += this.getCardCountValue(newCard)
         playerValue = this.calculateHandValue(playerCards)
       }
     }
@@ -271,7 +308,9 @@ class PercentageSimulationManager {
     // Play dealer hand
     let dealerValue = this.calculateHandValue(dealerCards)
     while (dealerValue < 17) {
-      dealerCards.push(deck.pop())
+      const newCard = this.dealCard()
+      dealerCards.push(newCard)
+      this.runningCount += this.getCardCountValue(newCard)
       dealerValue = this.calculateHandValue(dealerCards)
     }
 
