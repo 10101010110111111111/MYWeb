@@ -155,9 +155,20 @@ class PercentageSimulationManager {
       for (let i = 0; i < handsToProcess; i++) {
         if (!this.isRunning) break
         
-        const result = this.simulateSingleHand()
-        this.recordResult(result)
-        this.completedHands++
+        try {
+          const result = this.simulateSingleHand()
+          this.recordResult(result)
+          this.completedHands++
+        } catch (error) {
+          console.error('Error in simulateSingleHand:', error)
+          console.log('Current state:', {
+            cardsDealt: this.cardsDealt,
+            runningCount: this.runningCount,
+            deckLength: this.currentDeck.length,
+            shufflePoint: this.shufflePoint
+          })
+          break // Stop simulation on error
+        }
       }
 
       // Update UI periodically
@@ -186,24 +197,23 @@ class PercentageSimulationManager {
     // Deal initial cards (running count is updated in dealCard)
     const playerCards = [this.dealCard(), this.dealCard()]
     const dealerCards = [this.dealCard(), this.dealCard()]
-  
-    // Calculate remaining decks correctly
-    const remainingDecks = this.currentDeck.length / 52
+    
+    // Calculate true count BEFORE playing the hand
+    const remainingDecks = (this.currentDeck.length - this.cardsDealt) / 52
     const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : this.runningCount
-  
+    
     // Play hand according to strategy
     const result = this.playHand(playerCards, dealerCards, trueCount)
-  
-    // Shuffle only when reaching shuffle point
+    
+    // Check if we need to shuffle after completing the hand (at halfway point)
     if (this.cardsDealt >= this.shufflePoint) {
       this.shuffleDeck()
       this.cardsDealt = 0
-      // Don't reset runningCount – zachovej ho
-      // this.runningCount = 0
+      this.runningCount = 0 // RESET running count when shuffling
     }
-  
+    
     return {
-      trueCount: Math.round(trueCount), // zaokrouhlení na nejbližší celé číslo
+      trueCount: Math.floor(trueCount), // Use floor for consistent binning
       result: result
     }
   }
@@ -263,6 +273,7 @@ class PercentageSimulationManager {
       // Nepřepisovat runningCount – zachovej hodnotu při polovině shoe
     }
   }
+
   
 
   getCardCountValue(card) {
