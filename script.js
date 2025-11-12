@@ -109,6 +109,15 @@ const projectList = [
     status: "done",
     password: null,
     progress: 100
+  },
+  {
+    path: "./projekt14/index.html",
+    name: "Projekt 14 - Data Visualizer",
+    description: "Interaktivní vizualizace dat s grafy a tabulkami",
+    category: "Tools",
+    status: "done",
+    password: null,
+    progress: 100
   }
 ];
 
