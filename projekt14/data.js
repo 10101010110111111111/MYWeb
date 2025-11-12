@@ -25,28 +25,33 @@ const quizData = [
   {
     question: "Software cannot operate without hardware",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "A specialized type of software, which controls and manages the hardware in a computer system",
     answers: [
-      "Operating system"
+      "Operating system",
+      "Application software",
+      "Utility software"
     ],
     correct: [0],
   },
   {
     question: "The overall mission of the oracle corporation is to use the internet and fast processing servers to build its own network",
     answers: [
+      "True",
       "False"
     ],
-    correct: [0],
+    correct: [1],
   },
   {
     question: "The market for IT professionals is still increasing and will continue to do so in the future as the world gets ever more dependent on computer systems",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
@@ -60,35 +65,40 @@ const quizData = [
   {
     question: "Once you have learned how to write programs and build systems, you no longer need any input or involvement from any users as you are perfectly capable of delivering the systems and business need and want",
     answers: [
+      "True",
       "False"
     ],
-    correct: [0],
+    correct: [1],
   },
   {
     question: "Entities are transformed into tables during the Database design process",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "Data modeling is the last step in the database development process",
     answers: [
+      "True",
       "False"
     ],
-    correct: [0],
+    correct: [1],
   },
   {
     question: "Sql became the most commonly used query language in the 1980s",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "The demand for information Technology professionals in todays market is increasing",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
@@ -109,86 +119,81 @@ const quizData = [
   {
     question: "The work of E.F.Codd in the early 1970s led to the development of relational databases",
     answers: [
-      "True"
-    ],
-    correct: [0],
-  },
-  {
-    question: "What is the difference between information and data",
-    answers: [
-      "Data turns into useful information. It is stored in a database and accessed by systems and users"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "Oracle was one of the first relational database systems available commercially",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "In the grid computing model, resources are pooled together for efficiency.",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "Personal computers (PCs) have been in existence since 1950",
     answers: [
+      "True",
       "False"
     ],
-    correct: [0],
+    correct: [1],
   },
   {
     question: "Databases are used in most countries and by most governments. Life, as we know it, would change drastically if we no longer had access to databases",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "Businesses involved in any of the following typically use databases to handle their data: Finance, Logistics, Commerce, Procurement, and Distribution",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
-    question: "Which of the following are examples of e-business that use database software",
-    answers: [
-      "Online personal shopping service",
-      "Online book store",
-      "Online clothing store"
-    ],
-    correct: [],
-  },
-  {
     question: "Every time you shop online, it is likely you will be accessing a database",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "Most of the well known Internet search engines use databases to store data",
     answers: [
-      "True"
+      "True",
+      "False"
     ],
     correct: [0],
   },
   {
     question: "Changes in computing have affected many of our day-to-day activities. Are all of the following examples of this charge? Yes or No?",
     answers: [
-      "Yes"
+      "Yes",
+      "No"
     ],
     correct: [0],
   },
   {
     question: "Which of the following represents the correct sequence of steps in the, Database Development Process",
     answers: [
-      "Analyze,Design,Build"
+      "Analyze,Design,Build",
+      "Design,Analyze,Build",
+      "Build,Design,Analyze"
     ],
     correct: [0],
   },
@@ -196,25 +201,27 @@ const quizData = [
     question: "Information which was gained from data is the same as",
     answers: [
       "Knowledge",
-      "Intelligence"
+      "Intelligence",
+      "Wisdom",
+      "Experience"
     ],
-    correct: [],
+    correct: [0, 1],
   },
   {
     question: "Which of the following entities most likely contains valid attributes?",
     answers: [
       "Entity: Mother. Attributes: Name, Birthdate, Occupation, Start Date",
-      "☑️ Entity: Home. Attributes: Number of Bedrooms, Owner, Address, Date Built",
-      "☑️Entity: Pet. Attributes: Name, Birthdate, Owner",
+      "Entity: Home. Attributes: Number of Bedrooms, Owner, Address, Date Built",
+      "Entity: Pet. Attributes: Name, Birthdate, Owner",
       "Entity: Car. Attributes: Owner Occupation, Owner Salary, Speed"
     ],
-    correct: [],
+    correct: [1, 2],
   },
   {
     question: "A well structured ERD will show only some parts of the finished data model. You should never try to model the entire system in one diagram, no matter how small the diagram might be. True or False?",
     answers: [
       "True",
-      "☑️ False"
+      "False"
     ],
     correct: [1],
   },
@@ -223,15 +230,15 @@ const quizData = [
     answers: [
       "We do not need data models; we can just start coding right away.",
       "We draw an ERD solely to please the users; once completed, the ERD is never referred to again as it serves no purpose in the real world.",
-      "☑️ It helps discussions and reviews.",
-      "☑️ The ERD becomes a blueprint for designing the actual system."
+      "It helps discussions and reviews.",
+      "The ERD becomes a blueprint for designing the actual system."
     ],
     correct: [2, 3],
   },
   {
     question: "An ERD is an example of a Physical Model. True or False?",
     answers: [
-      "☑️ False",
+      "False",
       "True"
     ],
     correct: [0],
@@ -239,9 +246,9 @@ const quizData = [
   {
     question: "Which of the following are examples of ENTITY: Instance? (Choose Two)",
     answers: [
-      "☑️ ANIMAL: Dog",
+      "ANIMAL: Dog",
       "MEAT PRODUCT: Lettuce",
-      "☑️ TRANSPORTATION METHOD: Car",
+      "TRANSPORTATION METHOD: Car",
       "BODY PART: Larry Ellison"
     ],
     correct: [0, 2],
@@ -249,7 +256,7 @@ const quizData = [
   {
     question: "Data models are drawn to show users the actual Data that their new system will contain; only Data listed on the Diagram can be entered into the Database. True or False?",
     answers: [
-      "☑️ False",
+      "False",
       "True"
     ],
     correct: [0],
@@ -260,14 +267,14 @@ const quizData = [
       "Table",
       "ERD",
       "Process",
-      "☑️ Attribute"
+      "Attribute"
     ],
     correct: [3],
   },
   {
     question: "An Entity Relationship model is independent of the hardware or software used for implementation. True or False?",
     answers: [
-      "☑️ True",
+      "True",
       "False"
     ],
     correct: [0],
@@ -276,14 +283,14 @@ const quizData = [
     question: "Entities are usually verbs. True or False?",
     answers: [
       "True",
-      "☑️ False"
+      "False"
     ],
     correct: [1],
   },
   {
     question: "A Conceptual Model is not concerned with how the Physical Model will be implemented. True or False?",
     answers: [
-      "☑️ True",
+      "True",
       "False"
     ],
     correct: [0],
@@ -293,7 +300,7 @@ const quizData = [
     answers: [
       "Instance",
       "Relationship",
-      "☑️ Entity",
+      "Entity",
       "None of the above"
     ],
     correct: [2],
@@ -2293,8 +2300,8 @@ const quizData = [
   {
     question: "Systems are always just rolled out as soon as the programming phase is finished. No further work is required once the development is finished. True or False?",
     answers: [
-      "☐ True",
-      "☑️False"
+      "True",
+      "False"
     ],
     correct: [1],
   }
