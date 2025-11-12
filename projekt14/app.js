@@ -4,23 +4,6 @@ let userAnswers = {}
 let wrongQuestions = new Set()
 let showingWrongOnly = false
 let currentQuestions = []
-const quizData = [
-  {
-    question: "What is the capital of France?",
-    answers: ["Paris", "London", "Berlin", "Madrid"],
-    correct: [0],
-  },
-  {
-    question: "Which language is spoken in Brazil?",
-    answers: ["Spanish", "Portuguese", "French", "German"],
-    correct: [1],
-  },
-  {
-    question: "What is 2 + 2?",
-    answers: ["3", "4", "5", "6"],
-    correct: [1],
-  },
-] // Declare quizData variable
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
@@ -99,7 +82,7 @@ function showQuestion() {
   if (isMultipleChoice && !hasAnswered) {
     const submitBtn = document.createElement("button")
     submitBtn.className = "nav-btn"
-    submitBtn.textContent = "Potvrdit odpověď"
+    submitBtn.textContent = "Submit Answer"
     submitBtn.style.marginTop = "15px"
     submitBtn.addEventListener("click", () => submitMultipleAnswer(actualIndex))
     answersContainer.appendChild(submitBtn)
@@ -110,7 +93,7 @@ function showQuestion() {
   if (hasAnswered) {
     const isCorrect = checkAnswer(userAnswer, question.correct)
     feedbackEl.className = `feedback ${isCorrect ? "correct" : "incorrect"}`
-    feedbackEl.textContent = isCorrect ? "✓ Správně!" : "✗ Špatně! Správná odpověď je označena zeleně."
+    feedbackEl.textContent = isCorrect ? "✓ Correct!" : "✗ Incorrect! The correct answer is highlighted in green."
   } else {
     feedbackEl.className = "feedback hidden"
   }
@@ -141,7 +124,7 @@ function toggleMultipleAnswer(answerIndex, questionIndex) {
 function submitMultipleAnswer(questionIndex) {
   const userAnswer = userAnswers[questionIndex]
   if (!userAnswer || userAnswer.length === 0) {
-    alert("Prosím vyberte alespoň jednu odpověď.")
+    alert("Please select at least one answer.")
     return
   }
 
@@ -217,7 +200,7 @@ function showAllQuestions() {
 // Show wrong questions only
 function showWrongQuestions() {
   if (wrongQuestions.size === 0) {
-    alert("Nemáte žádné špatně zodpovězené otázky!")
+    alert("You have no incorrectly answered questions!")
     return
   }
 
@@ -235,7 +218,7 @@ function showWrongQuestions() {
 
 // Reset quiz
 function resetQuiz() {
-  if (confirm("Opravdu chcete resetovat celý kvíz? Všechny odpovědi budou smazány.")) {
+  if (confirm("Are you sure you want to reset the entire quiz? All answers will be deleted.")) {
     userAnswers = {}
     wrongQuestions = new Set()
     currentQuestionIndex = 0
@@ -289,7 +272,7 @@ function showCompletionScreen() {
   document.getElementById("quizContainer").classList.add("hidden")
   document.getElementById("completionScreen").classList.remove("hidden")
   document.getElementById("finalScore").textContent =
-    `Získali jste ${correctCount} z ${totalQuestions} bodů (${percentage}%)`
+    `You scored ${correctCount} out of ${totalQuestions} points (${percentage}%)`
 }
 
 // Save state to localStorage

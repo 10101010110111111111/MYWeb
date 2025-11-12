@@ -112,8 +112,8 @@ const projectList = [
   },
   {
     path: "./projekt14/index.html",
-    name: "Projekt 14 - Data Visualizer",
-    description: "Interaktivní vizualizace dat s grafy a tabulkami",
+    name: "Projekt 14 - IT Quiz Application",
+    description: "Interaktivní kvízová aplikace s otázkami z oblasti IT",
     category: "Tools",
     status: "done",
     password: null,
