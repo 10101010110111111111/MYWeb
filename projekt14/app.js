@@ -66,12 +66,18 @@ function showQuestion() {
       }
     } else {
       if (isMultipleChoice) {
-        button.addEventListener("click", () => toggleMultipleAnswer(index, actualIndex))
-        if (userAnswer && Array.isArray(userAnswer) && userAnswer.includes(index)) {
-          button.classList.add("selected")
+        // Only allow selection if not yet submitted
+        if (!hasAnswered) {
+          button.addEventListener("click", () => toggleMultipleAnswer(index, actualIndex))
+          if (userAnswer && Array.isArray(userAnswer) && userAnswer.includes(index)) {
+            button.classList.add("selected")
+          }
         }
       } else {
-        button.addEventListener("click", () => selectAnswer(index, actualIndex))
+        // Single choice questions
+        if (!hasAnswered) {
+          button.addEventListener("click", () => selectAnswer(index, actualIndex))
+        }
       }
     }
 
@@ -81,6 +87,7 @@ function showQuestion() {
   // Add submit button for multiple choice if not answered
   if (isMultipleChoice && !hasAnswered) {
     const submitBtn = document.createElement("button")
+    submitBtn.id = "submitBtn"
     submitBtn.className = "nav-btn"
     submitBtn.textContent = "Submit Answer"
     submitBtn.style.marginTop = "15px"

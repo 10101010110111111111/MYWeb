@@ -190,6 +190,17 @@ h1 {
   transition: all 0.2s ease;
 }
 
+.nav-btn#submitBtn {
+  background: #0066cc;
+  border-color: #0066cc;
+  color: white;
+}
+
+.nav-btn#submitBtn:hover:not(:disabled) {
+  background: #0055aa;
+  border-color: #0055aa;
+}
+
 .nav-btn:hover:not(:disabled) {
   background: #333333;
   transform: translateY(-1px);
