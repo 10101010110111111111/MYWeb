@@ -140,7 +140,7 @@ function showQuestion() {
       if (isMultipleChoice) {
         // Only allow selection if not yet submitted
         if (!hasAnswered) {
-          button.addEventListener("click", () => toggleMultipleAnswer(index, actualIndex))
+          button.addEventListener("click", (event) => toggleMultipleAnswer(index, actualIndex, event))
           if (userAnswer && Array.isArray(userAnswer) && userAnswer.includes(index)) {
             button.classList.add("selected")
           }
@@ -148,7 +148,7 @@ function showQuestion() {
       } else {
         // Single choice questions
         if (!hasAnswered) {
-          button.addEventListener("click", () => selectAnswer(index, actualIndex))
+          button.addEventListener("click", (event) => selectAnswer(index, actualIndex, event))
         }
       }
     }
@@ -182,7 +182,7 @@ function showQuestion() {
 }
 
 // Toggle multiple answer selection
-function toggleMultipleAnswer(answerIndex, questionIndex) {
+function toggleMultipleAnswer(answerIndex, questionIndex, event) {
   if (!userAnswers[questionIndex]) {
     userAnswers[questionIndex] = []
   }
@@ -196,7 +196,9 @@ function toggleMultipleAnswer(answerIndex, questionIndex) {
     answers.push(answerIndex)
   }
 
-  showQuestion()
+  // Update the UI to reflect the selection
+  const button = event.target;
+  button.classList.toggle('selected');
 }
 
 // Submit multiple answer
@@ -219,7 +221,7 @@ function submitMultipleAnswer(questionIndex) {
 }
 
 // Select single answer
-function selectAnswer(answerIndex, questionIndex) {
+function selectAnswer(answerIndex, questionIndex, event) {
   userAnswers[questionIndex] = answerIndex
 
   const question = quizData[questionIndex]
@@ -368,6 +370,21 @@ function restartQuiz() {
   document.getElementById("quizContainer").classList.remove("hidden")
   document.getElementById("completionScreen").classList.add("hidden")
   showQuestion()
+}
+
+// Update answer selection UI without re-rendering the whole question
+function updateAnswerSelection(questionIndex) {
+  const answersContainer = document.getElementById("answersContainer")
+  const answerButtons = answersContainer.querySelectorAll('.answer-option')
+  const userAnswer = userAnswers[questionIndex]
+  
+  // Update the visual state of answer buttons
+  answerButtons.forEach((button, index) => {
+    button.classList.remove('selected')
+    if (userAnswer && Array.isArray(userAnswer) && userAnswer.includes(index)) {
+      button.classList.add('selected')
+    }
+  })
 }
 
 // Update stats
