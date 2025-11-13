@@ -43,6 +43,49 @@ h1 {
   gap: 10px;
 }
 
+.module-selection {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #333333;
+}
+
+.module-selection h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.module-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.module-btn {
+  padding: 10px 15px;
+  border: 1px solid #333333;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #000000;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.module-btn:hover {
+  background: #333333;
+  transform: translateY(-1px);
+}
+
+.module-btn.active {
+  background: #333333;
+  border-color: #ffffff;
+}
+
 .controls {
   display: flex;
   gap: 10px;

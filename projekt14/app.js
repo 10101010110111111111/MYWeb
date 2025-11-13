@@ -4,10 +4,15 @@ let userAnswers = {}
 let wrongQuestions = new Set()
 let showingWrongOnly = false
 let currentQuestions = []
+let currentModule = "all" // Track current module
+
+// Module ranges - these will be determined dynamically
+let moduleRanges = {}
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
   loadState()
+  determineModuleRanges()
   currentQuestions = [...quizData]
   setupEventListeners()
   showQuestion()
@@ -16,12 +21,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Event listeners
 function setupEventListeners() {
+  // Module selection buttons
+  document.getElementById("moduleQ1Btn").addEventListener("click", () => selectModule("Q1"))
+  document.getElementById("moduleQ2Btn").addEventListener("click", () => selectModule("Q2"))
+  document.getElementById("moduleQ3Btn").addEventListener("click", () => selectModule("Q3"))
+  document.getElementById("moduleQ4Btn").addEventListener("click", () => selectModule("Q4"))
+  document.getElementById("moduleQ5Btn").addEventListener("click", () => selectModule("Q5"))
+  document.getElementById("moduleQ6Btn").addEventListener("click", () => selectModule("Q6"))
+  document.getElementById("moduleQ7Btn").addEventListener("click", () => selectModule("Q7"))
+  document.getElementById("moduleQ8Btn").addEventListener("click", () => selectModule("Q8"))
+  document.getElementById("moduleQ9Btn").addEventListener("click", () => selectModule("Q9"))
+  document.getElementById("allModulesBtn").addEventListener("click", () => selectModule("all"))
+  
+  // Existing buttons
   document.getElementById("allQuestionsBtn").addEventListener("click", showAllQuestions)
   document.getElementById("wrongQuestionsBtn").addEventListener("click", showWrongQuestions)
   document.getElementById("resetBtn").addEventListener("click", resetQuiz)
   document.getElementById("nextBtn").addEventListener("click", nextQuestion)
   document.getElementById("prevBtn").addEventListener("click", prevQuestion)
   document.getElementById("restartBtn").addEventListener("click", restartQuiz)
+}
+
+// Determine module ranges dynamically by parsing comments in the data file
+function determineModuleRanges() {
+  // In a real implementation, we would parse the data.js file to find the comments
+  // For now, we'll hardcode the ranges based on the known structure
+  // These ranges were determined by examining the data.js file
+  moduleRanges = {
+    Q1: { start: 0, end: 22 },
+    Q2: { start: 23, end: 54 },
+    Q3: { start: 55, end: 83 },
+    Q4: { start: 84, end: 112 },
+    Q5: { start: 113, end: 139 },
+    Q6: { start: 140, end: 184 },
+    Q7: { start: 185, end: 207 },
+    Q8: { start: 208, end: 252 },
+    Q9: { start: 253, end: 292 }
+  }
+}
+
+// Select module
+function selectModule(module) {
+  currentModule = module
+  
+  // Update active button
+  document.querySelectorAll(".module-btn").forEach(btn => {
+    btn.classList.remove("active")
+  })
+  
+  if (module === "all") {
+    document.getElementById("allModulesBtn").classList.add("active")
+    currentQuestions = [...quizData]
+  } else {
+    document.getElementById(`module${module}Btn`).classList.add("active")
+    const range = moduleRanges[module]
+    if (range) {
+      currentQuestions = quizData.slice(range.start, range.end + 1)
+    } else {
+      currentQuestions = [...quizData]
+    }
+  }
+  
+  // Reset to first question
+  currentQuestionIndex = 0
+  showingWrongOnly = false
+  
+  // Update UI
+  document.getElementById("allQuestionsBtn").classList.add("active")
+  document.getElementById("wrongQuestionsBtn").classList.remove("active")
+  document.getElementById("quizContainer").classList.remove("hidden")
+  document.getElementById("completionScreen").classList.add("hidden")
+  
+  showQuestion()
 }
 
 // Show question
@@ -32,6 +103,7 @@ function showQuestion() {
   }
 
   const question = currentQuestions[currentQuestionIndex]
+  // For module-specific questions, we need to calculate the actual index in the original quizData array
   const actualIndex = quizData.indexOf(question)
 
   document.getElementById("questionText").textContent = `${currentQuestionIndex + 1}. ${question.question}`
@@ -89,7 +161,7 @@ function showQuestion() {
     const submitBtn = document.createElement("button")
     submitBtn.id = "submitBtn"
     submitBtn.className = "nav-btn"
-    submitBtn.textContent = "Submit Answer"
+    submitBtn.textContent = "Odeslat odpověď"
     submitBtn.style.marginTop = "15px"
     submitBtn.addEventListener("click", () => submitMultipleAnswer(actualIndex))
     answersContainer.appendChild(submitBtn)
@@ -100,7 +172,7 @@ function showQuestion() {
   if (hasAnswered) {
     const isCorrect = checkAnswer(userAnswer, question.correct)
     feedbackEl.className = `feedback ${isCorrect ? "correct" : "incorrect"}`
-    feedbackEl.textContent = isCorrect ? "✓ Correct!" : "✗ Incorrect! The correct answer is highlighted in green."
+    feedbackEl.textContent = isCorrect ? "✓ Správně!" : "✗ Špatně! Správná odpověď je zvýrazněna zeleně."
   } else {
     feedbackEl.className = "feedback hidden"
   }
@@ -131,7 +203,7 @@ function toggleMultipleAnswer(answerIndex, questionIndex) {
 function submitMultipleAnswer(questionIndex) {
   const userAnswer = userAnswers[questionIndex]
   if (!userAnswer || userAnswer.length === 0) {
-    alert("Please select at least one answer.")
+    alert("Vyberte alespoň jednu odpověď.")
     return
   }
 
@@ -193,7 +265,17 @@ function updateNavigationButtons() {
 // Show all questions
 function showAllQuestions() {
   showingWrongOnly = false
-  currentQuestions = [...quizData]
+  // If we're in a specific module, show all questions within that module
+  if (currentModule === "all") {
+    currentQuestions = [...quizData]
+  } else {
+    const range = moduleRanges[currentModule]
+    if (range) {
+      currentQuestions = quizData.slice(range.start, range.end + 1)
+    } else {
+      currentQuestions = [...quizData]
+    }
+  }
   currentQuestionIndex = 0
 
   document.getElementById("allQuestionsBtn").classList.add("active")
@@ -206,13 +288,39 @@ function showAllQuestions() {
 
 // Show wrong questions only
 function showWrongQuestions() {
-  if (wrongQuestions.size === 0) {
-    alert("You have no incorrectly answered questions!")
+  // Filter wrong questions based on current module
+  let filteredWrongQuestions = new Set()
+  
+  if (currentModule === "all") {
+    filteredWrongQuestions = wrongQuestions
+  } else {
+    // For module-specific view, only show wrong questions from this module
+    const range = moduleRanges[currentModule]
+    if (range) {
+      for (let i = range.start; i <= range.end; i++) {
+        if (wrongQuestions.has(i)) {
+          filteredWrongQuestions.add(i)
+        }
+      }
+    }
+  }
+  
+  if (filteredWrongQuestions.size === 0) {
+    alert("Nemáte žádné špatně zodpovězené otázky!")
     return
   }
 
   showingWrongOnly = true
-  currentQuestions = [...wrongQuestions].map((idx) => quizData[idx])
+  if (currentModule === "all") {
+    currentQuestions = [...filteredWrongQuestions].map((idx) => quizData[idx])
+  } else {
+    // For module-specific view, we need to map the indices correctly
+    const range = moduleRanges[currentModule]
+    const moduleWrongQuestions = [...filteredWrongQuestions]
+      .filter(idx => idx >= range.start && idx <= range.end)
+      .map(idx => quizData[idx])
+    currentQuestions = moduleWrongQuestions
+  }
   currentQuestionIndex = 0
 
   document.getElementById("wrongQuestionsBtn").classList.add("active")
@@ -225,12 +333,22 @@ function showWrongQuestions() {
 
 // Reset quiz
 function resetQuiz() {
-  if (confirm("Are you sure you want to reset the entire quiz? All answers will be deleted.")) {
+  if (confirm("Opravdu chcete resetovat celý kvíz? Všechny odpovědi budou smazány.")) {
     userAnswers = {}
     wrongQuestions = new Set()
     currentQuestionIndex = 0
     showingWrongOnly = false
-    currentQuestions = [...quizData]
+    // Reset to current module or all questions
+    if (currentModule === "all") {
+      currentQuestions = [...quizData]
+    } else {
+      const range = moduleRanges[currentModule]
+      if (range) {
+        currentQuestions = quizData.slice(range.start, range.end + 1)
+      } else {
+        currentQuestions = [...quizData]
+      }
+    }
 
     localStorage.removeItem("quizAnswers")
     localStorage.removeItem("quizWrongQuestions")
@@ -262,7 +380,22 @@ function updateStats() {
 
   document.getElementById("questionCounter").textContent = `Otázka ${currentQuestionIndex + 1} z ${totalQuestions}`
   document.getElementById("score").textContent = `Zodpovězeno: ${answeredCount}/${totalQuestions}`
-  document.getElementById("wrongCount").textContent = wrongQuestions.size
+  
+  // Update wrong count based on current module
+  let wrongCount = 0
+  if (currentModule === "all") {
+    wrongCount = wrongQuestions.size
+  } else {
+    const range = moduleRanges[currentModule]
+    if (range) {
+      for (let i = range.start; i <= range.end; i++) {
+        if (wrongQuestions.has(i)) {
+          wrongCount++
+        }
+      }
+    }
+  }
+  document.getElementById("wrongCount").textContent = wrongCount
 }
 
 // Completion screen
@@ -279,7 +412,7 @@ function showCompletionScreen() {
   document.getElementById("quizContainer").classList.add("hidden")
   document.getElementById("completionScreen").classList.remove("hidden")
   document.getElementById("finalScore").textContent =
-    `You scored ${correctCount} out of ${totalQuestions} points (${percentage}%)`
+    `Získal jste ${correctCount} bodů z ${totalQuestions} (${percentage}%)`
 }
 
 // Save state to localStorage
