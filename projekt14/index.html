@@ -28,15 +28,15 @@
                 <button id="moduleQ7Btn" class="module-btn">Modul Q7</button>
                 <button id="moduleQ8Btn" class="module-btn">Modul Q8</button>
                 <button id="moduleQ9Btn" class="module-btn">Modul Q9</button>
+                <button id="moduleStarredBtn" class="module-btn">★ Oblíbené otázky</button>
+                <button id="moduleTestBtn" class="module-btn">Test (50 náhodných otázek)</button>
                 <button id="allModulesBtn" class="module-btn active">Všechny otázky</button>
             </div>
         </div>
 
         <div class="controls">
             <button id="allQuestionsBtn" class="control-btn active">Všechny otázky</button>
-            <button id="wrongQuestionsBtn" class="control-btn">
-                Špatné odpovědi (<span id="wrongCount">0</span>)
-            </button>
+            <button id="wrongQuestionsBtn" class="control-btn">Špatné odpovědi</button>
             <button id="resetBtn" class="control-btn reset-btn">Resetovat</button>
         </div>
 
@@ -50,6 +50,7 @@
 
             <div class="navigation">
                 <button id="prevBtn" class="nav-btn" disabled>← Předchozí</button>
+                <button id="starBtn" class="nav-btn star-btn">★</button>
                 <button id="nextBtn" class="nav-btn">Další →</button>
             </div>
         </div>
@@ -62,6 +63,8 @@
     </div>
 
     <script src="data.js"></script>
+    <script src="utils.js"></script>
     <script src="app.js"></script>
+    <script src="verify-implementation.js"></script>
 </body>
 </html>

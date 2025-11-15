@@ -257,6 +257,22 @@ h1 {
   border-color: #333333;
 }
 
+.star-btn {
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #333333;
+  flex: 0 0 auto;
+  padding: 12px 20px;
+}
+
+.star-btn.starred {
+  color: #ffcc00;
+}
+
+.star-btn:hover:not(:disabled) {
+  background: #333333;
+}
+
 .completion-screen {
   background: #1a1a1a;
   border-radius: 8px;
