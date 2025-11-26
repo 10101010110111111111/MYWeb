@@ -547,10 +547,11 @@ function showWrongQuestions() {
 
 // Reset quiz - also reshuffle questions
 function resetQuiz() {
-  if (confirm("Opravdu chcete resetovat celý kvíz? Všechny odpovědi budou smazány.")) {
+  if (confirm("Opravdu chcete resetovat celý kvíz? Všechny odpovědi budou smazány, ale otázky s hvězdičkou zůstanou zachovány.")) {
     userAnswers = {}
     wrongAnswers = new Map()
-    starredQuestions = new Set()
+    // Keep starred questions - don't reset them
+    // starredQuestions = new Set()  // Commented out this line
     currentQuestionIndex = 0
     
     // Reshuffle data if enabled
@@ -580,7 +581,8 @@ function resetQuiz() {
 
     localStorage.removeItem("quizAnswers")
     localStorage.removeItem("quizWrongQuestions")
-    localStorage.removeItem("quizStarredQuestions")
+    // Don't remove starred questions from localStorage
+    // localStorage.removeItem("quizStarredQuestions")  // Commented out this line
 
     document.getElementById("allQuestionsBtn").classList.add("active")
     document.getElementById("wrongQuestionsBtn").classList.remove("active")
