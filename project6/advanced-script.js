@@ -517,7 +517,16 @@ class AdvancedCryptoDataManager {
         
         const allCandles = [];
         const maxCandlesPerRequest = 1000;
-        let remainingCandles = Math.min(limit, 10000000); // Zvýšeno na 10M pro mega-testy (10M = cca 600MB v RAM)
+        let remainingCandles = Math.min(limit, 10000000);
+        
+        // OPRAVA: Pokud nemáme startTime a chceme víc než 1000 svíček, 
+        // musíme buď vypočítat start v minulosti, nebo použít historické stahování.
+        // Nejjednodušší je nastavit startTime na (nyní - limit * interval).
+        if (!startTime && remainingCandles > maxCandlesPerRequest) {
+            const totalMs = remainingCandles * this.getTimeframeMilliseconds(timeframe);
+            startTime = Date.now() - totalMs;
+            console.log(`🆕 Výpočet počátečního času pro ${cryptoPair}: ${new Date(startTime).toISOString()}`);
+        }
         
         while (remainingCandles > 0) {
             const requestLimit = Math.min(maxCandlesPerRequest, remainingCandles);
@@ -529,6 +538,11 @@ class AdvancedCryptoDataManager {
             
             try {
                 const response = await fetch(url);
+                if (response.status === 429) {
+                    this.updateActivity('⚠️ Rate limit Hit! Čekám 60s...');
+                    await new Promise(resolve => setTimeout(resolve, 60000));
+                    continue;
+                }
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -550,6 +564,10 @@ class AdvancedCryptoDataManager {
                 
                 allCandles.push(...candles);
                 remainingCandles -= candles.length;
+                
+                // Zobrazit informaci v UI
+                const progressMsg = `📥 Staženo ${allCandles.length.toLocaleString()} / ${limit.toLocaleString()} svíček...`;
+                this.updateActivity(progressMsg);
                 
                 if (candles.length < requestLimit) {
                     break;
@@ -597,6 +615,11 @@ class AdvancedCryptoDataManager {
             
             try {
                 const response = await fetch(url);
+                if (response.status === 429) {
+                    this.updateActivity('⚠️ Rate limit Hit! Čekám 60s...');
+                    await new Promise(resolve => setTimeout(resolve, 60000));
+                    continue;
+                }
                 if (!response.ok) {
                     console.error(`❌ HTTP Error: ${response.status}`);
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -623,6 +646,10 @@ class AdvancedCryptoDataManager {
                 allCandles.unshift(...candles);
                 remainingCandles -= candles.length;
                 requestCount++;
+                
+                // Zobrazit informaci v UI
+                const progressMsg = `📥 Staženo ${allCandles.length.toLocaleString()} / ${limit.toLocaleString()} historických svíček...`;
+                this.updateActivity(progressMsg);
                 
                 console.log(`✅ Request ${requestCount}: staženo ${candles.length} svíček, celkem: ${allCandles.length}, zbývá: ${remainingCandles}`);
                 
@@ -910,11 +937,11 @@ class AdvancedCryptoDataManager {
     updateProgress(current, total, description = '', activity = '') {
         if (!this.progressFill || !this.progressText) return;
         
-        // Pokud je current 0, zobraz indeterminate progress
+        // Pokud je current 0, zobraz indeterminate progress nebo popis
         if (current === 0 && total > 0) {
             this.progressFill.classList.add('indeterminate');
             this.progressFill.style.width = '100%';
-            this.progressText.textContent = 'Inicializace...';
+            this.progressText.textContent = description || 'Inicializace...';
         } else {
             this.progressFill.classList.remove('indeterminate');
             const percentage = Math.round((current / total) * 100);
