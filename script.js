@@ -48,15 +48,6 @@ const projectList = [
     progress: 100
   },
   {
-    path: "./project6/index.html",
-    name: "Projekt 6 - DropShop E-commerce",
-    description: "Dropshipping e-shop s moderním designem",
-    category: "Web Development",
-    status: "done",
-    password: "dropshop2024",
-    progress: 100
-  },
-  {
     path: "./project7/index.html",
     name: "Projekt 7 - Time Coin Tracker",
     description: "Aplikace pro sledování a správu času pomocí coin systému",
@@ -64,15 +55,6 @@ const projectList = [
     status: "in-progress",
     password: null,
     progress: 85
-  },
-  {
-    path: "./project8/index.html",
-    name: "Projekt 8 - Image Cropper",
-    description: "Nástroj pro ořezávání obrázků s interaktivním rozhraním (zrušeno)",
-    category: "Tools",
-    status: "cancelled",
-    password: null,
-    progress: 0
   },
   {
     path: "./project9/index.html",
@@ -84,19 +66,10 @@ const projectList = [
     progress: 100
   },
   {
-    path: "./project10/index.html",
-    name: "Projekt 10 - Atomové návyky",
-    description: "Webová aplikace o knize Atomové návyky s trackerem návyků a audioknihou",
-    category: "Productivity",
-    status: "done",
-    password: null,
-    progress: 100
-  },
-  {
-    path: "./project11/index.html",
-    name: "Projekt 11 - Krypto Data Manager",
-    description: "Pokročilý nástroj pro správu a aktualizaci dat kryptoměn s možností nahrávání souborů, vytváření nových časových rámců a stahování až 5000 svíček na soubor. Obsahuje návodovou sekci s barevnými legendami a review panelem.",
-    category: "Tools",
+    path: "./project12/index.html",
+    name: "Projekt 12 - Anime.js Demo",
+    description: "Interaktivní ukázka animací pomocí knihovny Anime.js",
+    category: "Web Development",
     status: "done",
     password: null,
     progress: 100
@@ -105,15 +78,6 @@ const projectList = [
     path: "./project13/index.html",
     name: "Projekt 13 - Sender",
     description: "Webová appka pro sdílení souborů (lokální demo)",
-    category: "Tools",
-    status: "done",
-    password: null,
-    progress: 100
-  },
-  {
-    path: "./projekt14/index.html",
-    name: "Projekt 14 - IT Quiz Application",
-    description: "Interaktivní kvízová aplikace s otázkami z oblasti IT",
     category: "Tools",
     status: "done",
     password: null,

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Crypto Data Manager</title>
+    <link rel="stylesheet" href="shared-navigation.css">
+    <link rel="stylesheet" href="advanced-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Krypto Tools</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-database"></i>
+                    Data Manager
+                </a>
+                <a href="advanced.html" class="nav-link active">
+                    <i class="fas fa-cogs"></i>
+                    Advanced Manager
+                </a>
+                <a href="chart.html" class="nav-link">
+                    <i class="fas fa-chart-candlestick"></i>
+                    Chart Viewer
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-cogs"></i> Advanced Crypto Data Manager</h1>
+            <p class="subtitle">Profesionální nástroj pro práci s velkými objemy krypto dat</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-card">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Nahrát složku s daty</h2>
+                <p>Nahrajte složku nebo soubor s krypto daty pro pokročilou analýzu a doplnění</p>
+                
+                <div class="upload-area">
+                    <input type="file" id="folderInput" multiple accept=".txt,.csv,.dat">
+                    <label for="folderInput" class="upload-label">
+                        <i class="fas fa-folder-plus"></i>
+                        <span>Vyberte složku nebo soubory</span>
+                        <small>Podporované formáty: .txt, .csv, .dat</small>
+                    </label>
+                </div>
+
+                <div id="selectedFiles" class="selected-files"></div>
+            </div>
+
+            <!-- Advanced Settings Section -->
+            <div class="settings-card advanced-settings">
+                <h2><i class="fas fa-sliders-h"></i> Pokročilé nastavení</h2>
+                
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <span><i class="fas fa-plus-circle"></i> Vytvářet nové soubory</span>
+                            <div class="switch">
+                                <input type="checkbox" id="createNewFiles">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                        <small>Pokud je zapnuto, vytvoří chybějící timeframe soubory</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="candleLimit" class="input-label">
+                            <i class="fas fa-chart-bar"></i> Limit svíček na soubor
+                        </label>
+                        <input type="number" id="candleLimit" min="1" max="500000" value="100000" class="number-input">
+                        <small>Maximální počet svíček v jednom souboru (doporučeno: 100,000)</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <span><i class="fas fa-file-csv"></i> Použít .csv rozšíření</span>
+                            <div class="switch">
+                                <input type="checkbox" id="useCsvExtension">
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                        <small>CSV formát je kompatibilní s většinou analytických nástrojů</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <span><i class="fas fa-download"></i> Stáhnout bez ZIP</span>
+                            <div class="switch">
+                                <input type="checkbox" id="downloadWithoutZip" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                        <small><strong>Varování:</strong> Stáhne mnoho jednotlivých souborů</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <span><i class="fas fa-history"></i> Historické doplnění</span>
+                            <div class="switch">
+                                <input type="checkbox" id="historicalFill" checked>
+                                <span class="slider"></span>
+                            </div>
+                        </label>
+                        <small>Po doplnění nových dat pokračuje v doplňování historických</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="batchSize" class="input-label">
+                            <i class="fas fa-layer-group"></i> Velikost batch
+                        </label>
+                        <input type="number" id="batchSize" min="1" max="50" value="10" class="number-input">
+                        <small>Počet souborů stahovaných najednou (vyšší = rychlejší, ale náročnější)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Cryptocurrencies -->
+            <div class="crypto-card">
+                <h2><i class="fas fa-coins"></i> Dostupné kryptoměny</h2>
+                <div class="crypto-summary" id="cryptoSummary">Načítání...</div>
+                <div class="crypto-list" id="cryptoList"></div>
+                <button class="show-more-btn" id="showMoreBtn">
+                    <i class="fas fa-chevron-down"></i>
+                    Zobrazit více
+                </button>
+            </div>
+
+            <!-- Download Section -->
+            <div class="download-card">
+                <h2><i class="fas fa-download"></i> Stáhnout rozšířená data</h2>
+                <p>Stáhněte kompletní složku s rozšířenými daty včetně historických záznamů</p>
+                
+                <div class="download-info">
+                    <div class="info-message">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Poznámka:</strong> Soubory se automaticky stáhnou do výchozí složky stahování prohlížeče.
+                    </div>
+                </div>
+                
+                <button id="downloadBtn" class="download-btn">
+                    <i class="fas fa-download"></i>
+                    Stáhnout rozšířená data
+                </button>
+            </div>
+
+            <!-- Status Section -->
+            <div class="status-card">
+                <h3><i class="fas fa-info-circle"></i> Status</h3>
+                <div id="status" class="status-content">
+                    Připraveno k použití. Nahrajte složku nebo stáhněte rozšířená data.
+                </div>
+                <div id="progressContainer" class="progress-container" style="display: none;">
+                    <div id="progressActivity" class="progress-activity" style="display: none;">
+                        <div class="spinner"></div>
+                        <span id="activityText">Inicializace...</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text">0%</div>
+                    <div id="progressStats" class="progress-stats" style="display: none;">
+                        <div class="progress-stat">
+                            <span class="progress-stat-label">Dokončeno</span>
+                            <span id="completedStat" class="progress-stat-value">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-stat-label">Celkem</span>
+                            <span id="totalStat" class="progress-stat-value">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-stat-label">Úspěšných</span>
+                            <span id="successStat" class="progress-stat-value">0</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-stat-label">Chyb</span>
+                            <span id="errorStat" class="progress-stat-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Panel -->
+            <div class="review-panel" id="reviewPanel" style="display: none;">
+                <h3><i class="fas fa-clipboard-check"></i> Přehled změn</h3>
+                <div id="reviewContent" class="review-content">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Guide Section -->
+        <div class="guide-section">
+            <h2><i class="fas fa-book"></i> Pokročilý návod</h2>
+            
+            <div class="guide-grid">
+                <div class="guide-card">
+                    <h3><i class="fas fa-cogs"></i> Pokročilé nastavení</h3>
+                    <p><strong>Historické doplnění:</strong> Po doplnění nejnovějších dat pokračuje v získávání historických záznamů až do limitu svíček.</p>
+                    <p><strong>Velikost batch:</strong> Určuje kolik operací běží současně. Vyšší hodnota = rychlejší, ale více zatěžuje systém.</p>
+                    <p><strong>Limit 100,000 svíček:</strong> Umožňuje získat rozsáhlé historické dataSets pro pokročilé analýzy.</p>
+                </div>
+
+                <div class="guide-card">
+                    <h3><i class="fas fa-upload"></i> Možnosti nahrání</h3>
+                    <p><strong>Složka:</strong> Nahrajte celou složku s krypto daty</p>
+                    <p><strong>Jednotlivé soubory:</strong> Vyberte konkrétní soubory k rozšíření</p>
+                    <p><strong>Bez nahrání:</strong> Stáhněte kompletní dataset pro všechny aktivní kryptoměny</p>
+                </div>
+
+                <div class="guide-card">
+                    <h3><i class="fas fa-chart-line"></i> Formát dat</h3>
+                    <div class="data-example">
+                        <code>
+                            <span class="timestamp">1640995200000</span>,
+                            <span class="open">46680.23</span>,
+                            <span class="high">46969.34</span>,
+                            <span class="low">46389.44</span>,
+                            <span class="close">46725.78</span>,
+                            <span class="volume">1479437.45</span>
+                        </code>
+                    </div>
+                    <div class="data-legend">
+                        <span class="legend-item"><span class="timestamp">■</span> Timestamp (Unix ms)</span>
+                        <span class="legend-item"><span class="open">■</span> Open price</span>
+                        <span class="legend-item"><span class="high">■</span> High price</span>
+                        <span class="legend-item"><span class="low">■</span> Low price</span>
+                        <span class="legend-item"><span class="close">■</span> Close price</span>
+                        <span class="legend-item"><span class="volume">■</span> Volume</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="advanced-script.js"></script>
+</body>
+</html>

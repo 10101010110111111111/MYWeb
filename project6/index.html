@@ -3,248 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VapeZone - Cool Vaping & Smoking Gear</title>
+    <title>Krypto Data Manager</title>
+    <link rel="stylesheet" href="shared-navigation.css">
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-top">
-            <div class="container">
-                <div class="announcement">
-                    <i class="fas fa-fire"></i>
-                    <span>🔥 DOPRAVA ZDARMA nad 999 Kč | 18+ ONLY | DISKRÉTNÍ BALENÍ 🔥</span>
-                </div>
+    <!-- Navigation Header -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Krypto Tools</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">
+                    <i class="fas fa-database"></i>
+                    Data Manager
+                </a>
+                <a href="advanced.html" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    Advanced Manager
+                </a>
+                <a href="chart.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Chart Viewer
+                </a>
             </div>
         </div>
-        
-        <div class="header-main">
-            <div class="container">
-                <div class="header-content">
-                    <div class="logo">
-                        <h1>VapeZone</h1>
-                    </div>
-                    
-                    <div class="search-bar">
-                        <input type="text" id="searchInput" placeholder="Hledej cool gear...">
-                        <button id="searchBtn"><i class="fas fa-search"></i></button>
-                    </div>
-                    
-                    <div class="header-actions">
-                        <button class="user-btn" id="userBtn">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        <button class="wishlist-btn" id="wishlistBtn">
-                            <i class="fas fa-heart"></i>
-                            <span class="badge" id="wishlistCount">0</span>
-                        </button>
-                        <button class="cart-btn" id="cartBtn">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="badge" id="cartCount">0</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <nav class="navbar">
-            <div class="container">
-                <ul class="nav-menu">
-                    <li><a href="#home" class="nav-link active">Domů</a></li>
-                    <li><a href="#products" class="nav-link">Produkty</a></li>
-                    <li><a href="#categories" class="nav-link">Kategorie</a></li>
-                    <li><a href="#about" class="nav-link">O nás</a></li>
-                    <li><a href="#contact" class="nav-link">Kontakt</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    </nav>
 
-    <!-- Main Content -->
-    <main class="main">
-        <!-- Hero Banner -->
-        <section class="hero" id="home">
-            <div class="hero-slider">
-                <div class="slide active">
-                    <div class="container">
-                        <div class="hero-content">
-                            <h2>🔥 COOL VAPING GEAR 2024 🔥</h2>
-                            <p>Nejlepší zařízení pro ultimate vaping experience</p>
-                            <button class="cta-btn">SHOP NOW</button>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Krypto Data Manager</h1>
+            <p>Správa a aktualizace dat kryptoměn</p>
+        </header>
+
+        <main class="main-content">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <h2><i class="fas fa-upload"></i> Nahrát složku s daty</h2>
+                    <p>Nahrajte složku obsahující data kryptoměn (volitelné)</p>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" id="folderInput" multiple>
+                        <label for="folderInput" class="file-input-label">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Vybrat složku nebo soubory</span>
+                        </label>
+                    </div>
+                    
+                    <div id="selectedFiles" class="selected-files"></div>
+                </div>
+
+                <div class="settings-card">
+                    <h2><i class="fas fa-cog"></i> Nastavení</h2>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="createNewFiles">
+                                <span class="switch"></span>
+                                <span class="switch-text">Vytvářet nové soubory</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="setting-label">Počet svíček na soubor:</label>
+                            <input type="number" id="candleLimit" value="10000" min="1" max="10000" class="number-input">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="useCsvExtension">
+                                <span class="switch"></span>
+                                <span class="switch-text">Použít .csv příponu</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="downloadWithoutZip" checked>
+                                <span class="switch"></span>
+                                <span class="switch-text">Stáhnout bez ZIP (individuální soubory)</span>
+                            </label>
+                            <div class="warning-text">
+                                ⚠️ <strong>VAROVÁNÍ:</strong> Windows jsou idioti a mohou blokovat stahování! 
+                                Pokud se objeví výzva v levém horním rohu, povolte stahování více souborů!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="download-card">
+                    <h2><i class="fas fa-download"></i> Stáhnout aktualizovaná data</h2>
+                    <p>Stáhněte kompletní složku s aktualizovanými daty</p>
+                    
+                                    <div class="download-info">
+                    <div class="info-message">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Poznámka:</strong> Soubory se automaticky stáhnou do výchozí složky stahování prohlížeče (obvykle "Downloads" nebo "Stažené soubory").
+                    </div>
+                </div>
+                    
+                    <button id="downloadBtn" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Stáhnout data
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Informace o struktuře</h3>
+                    <div class="structure-info">
+                        <p><strong>Dostupné kryptoměny:</strong></p>
+                        <div id="cryptoSummary" class="crypto-summary">Aktivní: 25/25 kryptoměn</div>
+                        <div id="cryptoList" class="crypto-list">
+                            <!-- Kryptoměny budou načteny JavaScriptem -->
+                        </div>
+                        
+                        <p><strong>Soubory v každé složce:</strong></p>
+                        <ul>
+                            <li><code>1m.csv</code> - 1 minuta</li>
+                            <li><code>5m.csv</code> - 5 minut</li>
+                            <li><code>30m.csv</code> - 30 minut</li>
+                            <li><code>1H.csv</code> - 1 hodina</li>
+                            <li><code>4H.csv</code> - 4 hodiny</li>
+                            <li><code>12H.csv</code> - 12 hodin</li>
+                            <li><code>24H.csv</code> - 24 hodiny</li>
+                            <li><code>1W.csv</code> - 1 týden</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Status Section -->
+                <div class="status-card">
+                    <h3><i class="fas fa-info-circle"></i> Status</h3>
+                    <div id="status" class="status-content">
+                        Připraveno k použití. Vyberte složku nebo stáhněte výchozí data.
+                    </div>
+                                    <div id="progressContainer" class="progress-container" style="display: none;">
+                    <div id="progressActivity" class="progress-activity" style="display: none;">
+                        <div class="spinner"></div>
+                        <span id="activityText">Inicializace...</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text">0%</div>
+                </div>
+                </div>
+
+                <!-- Review Panel -->
+                <div class="review-panel">
+                    <h3><i class="fas fa-list-alt"></i> Review Panel</h3>
+                    <div id="reviewContent" class="review-content">
+                        Zde se zobrazí přehled stažených souborů a počtu svíček.
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Návodová sekce -->
+        <section class="guide-section">
+            <div class="guide-container">
+                <h2><i class="fas fa-book"></i> Návod a informace</h2>
+                
+                <div class="guide-grid">
+                    <div class="guide-card">
+                        <h3><i class="fas fa-cog"></i> Jak funguje nastavení</h3>
+                        <div class="guide-content">
+                            <h4>Vytváření nových souborů:</h4>
+                            <p><strong>ZAPNUTO:</strong> Pokud nahrajete složku s pouze <code>ETH_USDT_1W.txt</code>, program vytvoří chybějící soubory (1m, 5m, 30m, 1H, 4H, 12H, 24H).</p>
+                            <p><strong>VYPNUTO:</strong> Aktualizuje se pouze existující soubor <code>ETH_USDT_1W.txt</code>.</p>
+                            
+                            <h4>Počet svíček:</h4>
+                            <p>Nastavte kolik svíček chcete na soubor (100-10000). Výchozí: 5000 svíček.</p>
+                            
+                            <h4>Přípona souborů:</h4>
+                            <p><strong>.csv:</strong> Doporučeno - vyhýbá se blokování Windows</p>
+                            <p><strong>.txt:</strong> Základní formát</p>
+                            
+                            <h4>Stahování bez ZIP:</h4>
+                            <p><span style="color: #ff4444; font-weight: bold;">⚠️ DŮLEŽITÉ:</span> Pokud je zapnuto, stáhnou se jednotlivé soubory místo ZIP 
+                            (<span style="color: #ff4444; font-weight: bold;">obchází blokování Windows, protože Windows jsou idioti</span>).</p>
+                            <p><strong>Varování:</strong> Stáhne se více souborů najednou! Možná se objeví dialog v levém horním rohu prohlížeče - 
+                            <span style="color: #ffaa00; font-weight: bold;">musíte zaškrtnout "Povolit" nebo "Ano"</span>.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-upload"></i> Možnosti nahrávání</h3>
+                        <div class="guide-content">
+                            <h4>Možnost 1: Jeden soubor</h4>
+                            <p>Nahrajte pouze jeden soubor např. <code>ETH_USDT_1W.txt</code>. Program najde a doplní chybějící data. Po stisknutí "Stáhnout" se stáhne stejný soubor rozšířený o nové informace.</p>
+                            
+                            <h4>Možnost 2: Složka s více soubory</h4>
+                            <p>Nahrajte složku obsahující více souborů. Po stisknutí "Stáhnout" se stáhnou všechny soubory rozšířené o chybějící data.</p>
+                            
+                            <h4>Možnost 3: Bez nahrávání</h4>
+                            <p>Pokud nenahrajete nic a kliknete "Stáhnout", stáhne se kompletní sada dat pro všechny výchozí kryptoměny.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-chart-line"></i> Formát dat v souborech</h3>
+                        <div class="guide-content">
+                            <p>Každý řádek obsahuje data jedné svíčky ve formátu:</p>
+                            <div class="data-example">
+                                <span class="data-timestamp">-1269328241632</span>,<span class="data-open">44680.23042855</span>,<span class="data-high">44969.34695406</span>,<span class="data-low">44389.44536033</span>,<span class="data-close">44725.78554588</span>,<span class="data-volume">1479437.45</span>
+                            </div>
+                            <div class="data-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color timestamp-color"></span>
+                                    <span class="legend-label">Timestamp (časová značka)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color open-color"></span>
+                                    <span class="legend-label">Open (otevírací cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color high-color"></span>
+                                    <span class="legend-label">High (nejvyšší cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color low-color"></span>
+                                    <span class="legend-label">Low (nejnižší cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color close-color"></span>
+                                    <span class="legend-label">Close (zavírací cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color volume-color"></span>
+                                    <span class="legend-label">Volume (objem obchodů)</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- Categories -->
-        <section class="categories" id="categories">
-            <div class="container">
-                <h2 class="section-title">Kategorie</h2>
-                <div class="categories-grid">
-                    <div class="category-card" data-category="vapes">
-                        <i class="fas fa-smoking"></i>
-                        <h3>Vapes</h3>
-                        <p>Cool vaping zařízení</p>
-                    </div>
-                    <div class="category-card" data-category="accessories">
-                        <i class="fas fa-tools"></i>
-                        <h3>Accessories</h3>
-                        <p>Doplňky a náhradní díly</p>
-                    </div>
-                    <div class="category-card" data-category="liquids">
-                        <i class="fas fa-tint"></i>
-                        <h3>Liquids</h3>
-                        <p>Cool e-liquids</p>
-                    </div>
-                    <div class="category-card" data-category="grinders">
-                        <i class="fas fa-cog"></i>
-                        <h3>Grinders</h3>
-                        <p>Profesionální grindery</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Products Section -->
-        <section class="products" id="products">
-            <div class="container">
-                <div class="products-header">
-                    <h2 class="section-title">🔥 HOT PRODUCTS 🔥</h2>
-                    <div class="filters">
-                        <select id="sortSelect">
-                            <option value="newest">Nejnovější</option>
-                            <option value="popular">Nejprodávanější</option>
-                            <option value="price-low">Cena: od nejnižší</option>
-                            <option value="price-high">Cena: od nejvyšší</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="products-grid" id="productsGrid">
-                    <!-- Products will be loaded here -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Newsletter -->
-        <section class="newsletter">
-            <div class="container">
-                <div class="newsletter-content">
-                    <h3>🔥 JOIN THE VAPE GANG 🔥</h3>
-                    <p>Získej 15% slevu na první nákup a buď první, kdo se dozví o nových produktech!</p>
-                    <div class="newsletter-form">
-                        <input type="email" id="newsletterEmail" placeholder="Váš e-mail">
-                        <button id="newsletterBtn">Přihlásit</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>VapeZone</h4>
-                    <p>🔥 Cool vaping gear pro true vapers 🔥</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                    </div>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Informace</h4>
-                    <ul>
-                        <li><a href="#">O nás</a></li>
-                        <li><a href="#">Doprava</a></li>
-                        <li><a href="#">Reklamace</a></li>
-                        <li><a href="#">GDPR</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Zákaznický servis</h4>
-                    <ul>
-                        <li><a href="#">Kontakt</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Sledování objednávky</a></li>
-                        <li><a href="#">Návrat zboží</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Kontakt</h4>
-                    <p><i class="fas fa-phone"></i> +420 123 456 789</p>
-                    <p><i class="fas fa-envelope"></i> info@dropshop.cz</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Praha, Česká republika</p>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2024 DropShop. Všechna práva vyhrazena.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modals -->
-    <!-- Product Modal -->
-    <div class="modal" id="productModal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="product-detail" id="productDetail">
-                <!-- Product detail content -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Cart Modal -->
-    <div class="modal" id="cartModal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="cart-content">
-                <h3>Košík</h3>
-                <div class="cart-items" id="cartItems">
-                    <!-- Cart items -->
-                </div>
-                <div class="cart-total">
-                    <p>Celkem: <span id="cartTotal">0 Kč</span></p>
-                    <button class="checkout-btn">Pokračovat k objednávce</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Modal -->
-    <div class="modal" id="userModal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="user-content">
-                <div class="login-form" id="loginForm">
-                    <h3>Přihlášení</h3>
-                    <input type="email" placeholder="E-mail" id="loginEmail">
-                    <input type="password" placeholder="Heslo" id="loginPassword">
-                    <button id="loginBtn">Přihlásit</button>
-                    <p>Nemáte účet? <a href="#" id="showRegister">Registrovat</a></p>
-                </div>
-                
-                <div class="register-form" id="registerForm" style="display: none;">
-                    <h3>Registrace</h3>
-                    <input type="text" placeholder="Jméno" id="registerName">
-                    <input type="email" placeholder="E-mail" id="registerEmail">
-                    <input type="password" placeholder="Heslo" id="registerPassword">
-                    <button id="registerBtn">Registrovat</button>
-                    <p>Máte účet? <a href="#" id="showLogin">Přihlásit</a></p>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-</html> 
+</html>

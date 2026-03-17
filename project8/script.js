@@ -1,846 +1,815 @@
-// Image Cropper Application - Simplified and Working Version
-class ImageCropper {
-  constructor() {
-    this.image = null;
-    this.originalImage = null;
-    this.canvas = document.getElementById('imageCanvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.previewCanvas = document.getElementById('previewCanvas');
-    this.previewCtx = this.previewCanvas.getContext('2d');
-    
-    // Simple crop area state
-    this.cropArea = {
-      x: 100,
-      y: 100,
-      width: 200,
-      height: 200
-    };
-    
-    // Image state
-    this.imageState = {
-      width: 0,
-      height: 0,
-      scale: 1,
-      rotation: 0,
-      offsetX: 0,
-      offsetY: 0
-    };
-    
-    // Movement state
-    this.isDragging = false;
-    this.isDraggingImage = false;
-    this.dragStart = { x: 0, y: 0 };
-    
-    // Settings
-    this.settings = {
-      lockAspectRatio: true,
-      aspectRatio: 1,
-      minCropSize: 10
-    };
-    
-    this.init();
-  }
-  
-  init() {
-    this.setupEventListeners();
-    this.setupDragAndDrop();
-    this.updateUI();
-  }
-  
-  setupEventListeners() {
-    // File input
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-      this.handleFileSelect(e.target.files[0]);
-    });
-    
-    // Control buttons
-    document.getElementById('resetBtn').addEventListener('click', () => this.resetImage());
-    document.getElementById('rotateBtn').addEventListener('click', () => this.rotateImage());
-    document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
-    document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
-    
-    // Dimension inputs
-    document.getElementById('cropWidth').addEventListener('input', (e) => {
-      this.updateCropDimensions('width', parseInt(e.target.value) || 0);
-    });
-    
-    document.getElementById('cropHeight').addEventListener('input', (e) => {
-      this.updateCropDimensions('height', parseInt(e.target.value) || 0);
-    });
-    
-    // Aspect ratio controls
-    document.getElementById('lockAspectRatio').addEventListener('change', (e) => {
-      this.settings.lockAspectRatio = e.target.checked;
-      if (this.settings.lockAspectRatio) {
-        this.updateCropDimensions('width', this.cropArea.width);
-      }
-    });
-    
-    // Ratio presets
-    document.querySelectorAll('.ratio-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        this.setAspectRatio(e.target.dataset.ratio);
-      });
-    });
-    
-    // Export controls
-    document.getElementById('exportFormat').addEventListener('change', (e) => {
-      this.updateQualityControl(e.target.value);
-    });
-    
-    document.getElementById('exportQuality').addEventListener('input', (e) => {
-      document.getElementById('qualityValue').textContent = e.target.value + '%';
-    });
-    
-    document.getElementById('exportBtn').addEventListener('click', () => this.exportImage());
-    
-    // Preview controls
-    document.getElementById('backToEditBtn').addEventListener('click', () => this.showEditor());
-    document.getElementById('downloadBtn').addEventListener('click', () => this.downloadImage());
-    
-    // Mouse events for crop area and image movement
-    this.setupMouseControls();
-    
-    // Keyboard controls
-    this.setupKeyboardControls();
-  }
-  
-  setupDragAndDrop() {
-    const uploadArea = document.getElementById('uploadArea');
-    
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.classList.add('dragover');
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragover');
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        this.handleFileSelect(files[0]);
-      }
-    });
-  }
-  
-  setupMouseControls() {
-    const cropOverlay = document.getElementById('cropOverlay');
-    const canvas = this.canvas;
-    
-    // Prevent context menu
-    cropOverlay.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-    });
-    
-    // Mouse events for crop area movement
-    cropOverlay.addEventListener('mousedown', (e) => {
-      if (e.button === 0) { // Left click
-        const rect = cropOverlay.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+class CryptoDataManager {
+    constructor() {
+        this.uploadedFiles = new Map();
+        this.statusElement = document.getElementById('status');
+        this.selectedFilesElement = document.getElementById('selectedFiles');
+        this.folderInput = document.getElementById('folderInput');
+        this.downloadBtn = document.getElementById('downloadBtn');
+        this.createNewFilesSwitch = document.getElementById('createNewFiles');
+        this.candleLimitInput = document.getElementById('candleLimit');
+        this.useCsvExtensionSwitch = document.getElementById('useCsvExtension');
+        this.downloadWithoutZipSwitch = document.getElementById('downloadWithoutZip');
+        this.reviewContent = document.getElementById('reviewContent');
         
-        // Check if clicking inside crop area
-        if (this.isPointInCropArea(x, y)) {
-          this.startCropDrag(e);
+
+        
+        // Progress bar elements
+        this.progressContainer = document.getElementById('progressContainer');
+        this.progressFill = document.getElementById('progressFill');
+        this.progressText = document.getElementById('progressText');
+        this.progressActivity = document.getElementById('progressActivity');
+        this.activityText = document.getElementById('activityText');
+        
+        this.timeframes = ['1m', '5m', '30m', '1H', '4H', '12H', '24H', '1W'];
+        
+        // Rozšířený seznam kryptoměn
+        this.allCryptos = [
+            'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'ADA/USDT', 
+            'AVAX/USDT', 'MATIC/USDT', 'DOT/USDT', 'LINK/USDT', 'UNI/USDT',
+            'LTC/USDT', 'BCH/USDT', 'XLM/USDT', 'VET/USDT', 'FIL/USDT',
+            'ATOM/USDT', 'NEAR/USDT', 'FTM/USDT', 'ALGO/USDT', 'ICP/USDT',
+            'XRP/USDT', 'DOGE/USDT', 'SHIB/USDT', 'TRX/USDT', 'EOS/USDT'
+        ];
+        
+        this.visibleCryptos = 5; // Počet zobrazených kryptoměn
+        this.cryptoStates = this.loadCryptoStates();
+        this.selectedTargetFolder = null;
+        
+        this.initializeEventListeners();
+        this.renderCryptoList();
+    }
+
+    initializeEventListeners() {
+        this.folderInput.addEventListener('change', (e) => this.handleFolderUpload(e));
+        this.downloadBtn.addEventListener('click', () => this.handleDownload());
+        this.createNewFilesSwitch.addEventListener('change', () => this.updateStatusBasedOnSettings());
+        this.candleLimitInput.addEventListener('change', () => this.updateStatusBasedOnSettings());
+        this.useCsvExtensionSwitch.addEventListener('change', () => this.updateStatusBasedOnSettings());
+        this.downloadWithoutZipSwitch.addEventListener('change', () => this.updateStatusBasedOnSettings());
+    }
+
+    updateStatusBasedOnSettings() {
+        const createNew = this.createNewFilesSwitch.checked;
+        const candleLimit = parseInt(this.candleLimitInput.value);
+        const useCsv = this.useCsvExtensionSwitch.checked;
+        const withoutZip = this.downloadWithoutZipSwitch.checked;
+        
+        let message = `Připraveno k použití`;
+        if (createNew) {
+            message += ` - Vytváření nových souborů: ZAPNUTO`;
         } else {
-          // Click outside crop area - move crop area to click position
-          this.moveCropAreaToClick(e);
+            message += ` - Vytváření nových souborů: vypnuto`;
         }
-      }
-    });
-    
-    cropOverlay.addEventListener('mousemove', (e) => {
-      if (this.isDragging) {
-        this.dragCropArea(e);
-      }
-    });
-    
-    document.addEventListener('mouseup', () => {
-      this.stopCropDrag();
-    });
-    
-    // Mouse events for image movement (right click drag)
-    cropOverlay.addEventListener('mousedown', (e) => {
-      if (e.button === 2) { // Right click
-        e.preventDefault();
-        this.startImageDrag(e);
-      }
-    });
-    
-    cropOverlay.addEventListener('mousemove', (e) => {
-      if (this.isDraggingImage) {
-        this.dragImage(e);
-      }
-    });
-    
-    document.addEventListener('mouseup', (e) => {
-      if (e.button === 2) {
-        this.stopImageDrag();
-      }
-    });
-    
-    // Touch events
-    cropOverlay.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = cropOverlay.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      
-      if (this.isPointInCropArea(x, y)) {
-        this.startCropDrag(touch);
-      } else {
-        this.moveCropAreaToClick(touch);
-      }
-    });
-    
-    cropOverlay.addEventListener('touchmove', (e) => {
-      if (this.isDragging) {
-        e.preventDefault();
-        this.dragCropArea(e.touches[0]);
-      }
-    });
-    
-    cropOverlay.addEventListener('touchend', () => {
-      this.stopCropDrag();
-    });
-    
-    // Mouse wheel for zoom
-    cropOverlay.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const rect = cropOverlay.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      this.zoomAtPoint(delta, { x, y });
-    });
-  }
-  
-  setupKeyboardControls() {
-    document.addEventListener('keydown', (e) => {
-      if (!this.image) return;
-      
-      const speed = e.shiftKey ? 20 : 5;
-      
-      switch(e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          this.moveCropArea(0, -speed);
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          this.moveCropArea(0, speed);
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          this.moveCropArea(-speed, 0);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          this.moveCropArea(speed, 0);
-          break;
-        case ' ':
-          e.preventDefault();
-          this.centerCropArea();
-          break;
-      }
-    });
-  }
-  
-  isPointInCropArea(x, y) {
-    return x >= this.cropArea.x && x <= this.cropArea.x + this.cropArea.width &&
-           y >= this.cropArea.y && y <= this.cropArea.y + this.cropArea.height;
-  }
-  
-  startCropDrag(e) {
-    this.isDragging = true;
-    const rect = this.canvas.getBoundingClientRect();
-    this.dragStart = {
-      x: e.clientX - rect.left - this.cropArea.x,
-      y: e.clientY - rect.top - this.cropArea.y
-    };
-  }
-  
-  dragCropArea(e) {
-    if (!this.isDragging) return;
-    
-    const rect = this.canvas.getBoundingClientRect();
-    const newX = e.clientX - rect.left - this.dragStart.x;
-    const newY = e.clientY - rect.top - this.dragStart.y;
-    
-    // Allow free movement across the entire canvas
-    this.cropArea.x = newX;
-    this.cropArea.y = newY;
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-  }
-  
-  stopCropDrag() {
-    this.isDragging = false;
-  }
-  
-  startImageDrag(e) {
-    this.isDraggingImage = true;
-    const rect = this.canvas.getBoundingClientRect();
-    this.dragStart = {
-      x: e.clientX - rect.left - this.imageState.offsetX,
-      y: e.clientY - rect.top - this.imageState.offsetY
-    };
-  }
-  
-  dragImage(e) {
-    if (!this.isDraggingImage) return;
-    
-    const rect = this.canvas.getBoundingClientRect();
-    const newOffsetX = e.clientX - rect.left - this.dragStart.x;
-    const newOffsetY = e.clientY - rect.top - this.dragStart.y;
-    
-    this.imageState.offsetX = newOffsetX;
-    this.imageState.offsetY = newOffsetY;
-    
-    this.renderImage();
-  }
-  
-  stopImageDrag() {
-    this.isDraggingImage = false;
-  }
-  
-  moveCropAreaToClick(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-    
-    this.cropArea.x = clickX - this.cropArea.width / 2;
-    this.cropArea.y = clickY - this.cropArea.height / 2;
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-    
-    // Update preview if we're in preview mode
-    if (document.getElementById('previewSection').style.display === 'block') {
-      this.exportImage();
+        message += ` - Limit svíček: ${candleLimit}`;
+        
+        let extension = '.txt';
+        if (useCsv) extension = '.csv';
+        
+        message += ` - Přípona: ${extension}`;
+        message += ` - Stahování: ${withoutZip ? 'bez ZIP' : 'ZIP soubor'}`;
+        
+        this.updateStatus(message);
     }
-  }
-  
-  moveCropArea(deltaX, deltaY) {
-    this.cropArea.x += deltaX;
-    this.cropArea.y += deltaY;
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-    
-    // Update preview if we're in preview mode
-    if (document.getElementById('previewSection').style.display === 'block') {
-      this.exportImage();
+
+    updateStatus(message, type = 'info') {
+        this.statusElement.innerHTML = `
+            <p class="${type}">
+                ${type === 'processing' ? '<span class="loading"></span>' : ''}
+                ${message}
+            </p>
+        `;
+        this.statusElement.className = `status ${type}`;
     }
-  }
-  
-  centerCropArea() {
-    this.cropArea.x = (this.canvas.width - this.cropArea.width) / 2;
-    this.cropArea.y = (this.canvas.height - this.cropArea.height) / 2;
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-    
-    // Update preview if we're in preview mode
-    if (document.getElementById('previewSection').style.display === 'block') {
-      this.exportImage();
+
+    handleFolderUpload(event) {
+        const files = Array.from(event.target.files);
+        this.uploadedFiles.clear();
+        
+        if (files.length === 0) {
+            this.selectedFilesElement.innerHTML = '<p>Žádné soubory nebyly vybrány</p>';
+            return;
+        }
+
+        // Analýza struktury složek
+        const folderStructure = this.analyzeFolderStructure(files);
+        
+        this.selectedFilesElement.innerHTML = this.generateFolderSummary(folderStructure);
+        this.updateStatusBasedOnSettings();
     }
-  }
-  
-  zoomAtPoint(factor, point) {
-    if (!this.image) return;
-    
-    const oldScale = this.imageState.scale;
-    const newScale = Math.max(0.1, Math.min(3, oldScale * factor));
-    
-    if (newScale !== oldScale) {
-      // Calculate zoom center relative to image
-      const zoomCenterX = (point.x - this.imageState.offsetX) / oldScale;
-      const zoomCenterY = (point.y - this.imageState.offsetY) / oldScale;
-      
-      // Update scale
-      this.imageState.scale = newScale;
-      
-      // Update canvas size
-      this.canvas.width = this.imageState.width * this.imageState.scale;
-      this.canvas.height = this.imageState.height * this.imageState.scale;
-      
-      // Adjust offset to keep zoom center in same position
-      this.imageState.offsetX = point.x - zoomCenterX * newScale;
-      this.imageState.offsetY = point.y - zoomCenterY * newScale;
-      
-      this.renderImage();
-      this.updateCropAreaDisplay();
+
+    analyzeFolderStructure(files) {
+        const structure = new Map();
+        
+        files.forEach(file => {
+            // Pro jednotlivé soubory nemáme webkitRelativePath
+            const fileName = file.name;
+            const timeframe = this.extractTimeframe(fileName);
+            
+            if (timeframe) {
+                // Extrahování názvu kryptoměny z názvu souboru
+                const fileNameWithoutExtension = fileName.replace(/\.(txt|csv)$/i, '');
+                const parts = fileNameWithoutExtension.split('_');
+                
+                if (parts.length >= 2) {
+                    const cryptoPair = `${parts[0]}/${parts[1]}`;
+                    
+                    if (!structure.has(cryptoPair)) {
+                        structure.set(cryptoPair, new Map());
+                    }
+                    
+                    structure.get(cryptoPair).set(timeframe, {
+                        file: file,
+                        content: null,
+                        lastCandle: null
+                    });
+                }
+            }
+        });
+        
+        return structure;
     }
-  }
-  
-  handleFileSelect(file) {
-    if (!file) return;
-    
-    if (!file.type.startsWith('image/')) {
-      this.showError('Prosím vyberte obrázek.');
-      return;
+
+    extractTimeframe(fileName) {
+        const timeframes = this.timeframes;
+        // Odstranění přípony .txt nebo .csv pro analýzu
+        const fileNameWithoutExtension = fileName.replace(/\.(txt|csv)$/i, '');
+        
+        for (const tf of timeframes) {
+            if (fileNameWithoutExtension.includes(tf)) {
+                return tf;
+            }
+        }
+        return null;
     }
-    
-    if (file.size > 10 * 1024 * 1024) {
-      this.showError('Soubor je příliš velký. Maximální velikost je 10 MB.');
-      return;
+
+    generateFolderSummary(structure) {
+        let html = '<h4>Nalezené složky:</h4>';
+        
+        structure.forEach((timeframes, cryptoPair) => {
+            html += `<div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">`;
+            html += `<strong>${cryptoPair}</strong><br>`;
+            html += `<small>Existující časové rámce: ${Array.from(timeframes.keys()).join(', ')}</small>`;
+            
+            if (this.createNewFilesSwitch.checked) {
+                const missingTimeframes = this.timeframes.filter(tf => !timeframes.has(tf));
+                if (missingTimeframes.length > 0) {
+                    html += `<br><small style="color: #4CAF50;">Bude vytvořeno: ${missingTimeframes.join(', ')}</small>`;
+                }
+            }
+            
+            html += `</div>`;
+        });
+        
+        return html;
     }
-    
-    this.showLoading();
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.loadImage(e.target.result);
-    };
-    reader.onerror = () => {
-      this.hideLoading();
-      this.showError('Chyba při načítání souboru.');
-    };
-    reader.readAsDataURL(file);
-  }
-  
-  loadImage(src) {
-    this.originalImage = new Image();
-    this.originalImage.onload = () => {
-      this.image = this.originalImage;
-      this.resetImageState();
-      this.setupCanvas();
-      this.initializeCropArea();
-      this.hideLoading();
-      this.showEditor();
-      this.updateImageInfo();
-    };
-    this.originalImage.onerror = () => {
-      this.hideLoading();
-      this.showError('Chyba při načítání obrázku.');
-    };
-    this.originalImage.src = src;
-  }
-  
-  resetImageState() {
-    this.imageState = {
-      width: this.originalImage.width,
-      height: this.originalImage.height,
-      scale: 1,
-      rotation: 0,
-      offsetX: 0,
-      offsetY: 0
-    };
-  }
-  
-  setupCanvas() {
-    const container = document.getElementById('imageContainer');
-    const containerRect = container.getBoundingClientRect();
-    
-    // Calculate scale to fit image in container
-    const maxWidth = Math.min(containerRect.width - 40, this.imageState.width * 2);
-    const maxHeight = Math.min(containerRect.height - 40, this.imageState.height * 2);
-    
-    const scaleX = maxWidth / this.imageState.width;
-    const scaleY = maxHeight / this.imageState.height;
-    this.imageState.scale = Math.min(scaleX, scaleY, 2);
-    
-    // Set canvas size
-    this.canvas.width = this.imageState.width * this.imageState.scale;
-    this.canvas.height = this.imageState.height * this.imageState.scale;
-    
-    // Set container height
-    const containerHeight = Math.max(this.canvas.height + 40, 400);
-    container.style.height = containerHeight + 'px';
-    
-    // Center image in container
-    this.imageState.offsetX = (containerRect.width - this.canvas.width) / 2;
-    this.imageState.offsetY = (containerRect.height - this.canvas.height) / 2;
-    
-    this.renderImage();
-  }
-  
-  initializeCropArea() {
-    const cropSize = Math.min(this.canvas.width, this.canvas.height) * 0.3;
-    
-    this.cropArea = {
-      x: (this.canvas.width - cropSize) / 2,
-      y: (this.canvas.height - cropSize) / 2,
-      width: cropSize,
-      height: cropSize
-    };
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-  }
-  
-  renderImage() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
-    this.ctx.save();
-    this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-    this.ctx.rotate(this.imageState.rotation * Math.PI / 180);
-    this.ctx.scale(this.imageState.scale, this.imageState.scale);
-    this.ctx.drawImage(
-      this.image,
-      -this.imageState.width / 2,
-      -this.imageState.height / 2,
-      this.imageState.width,
-      this.imageState.height
-    );
-    this.ctx.restore();
-  }
-  
-  updateCropAreaDisplay() {
-    const cropArea = document.getElementById('cropArea');
-    cropArea.style.left = this.cropArea.x + 'px';
-    cropArea.style.top = this.cropArea.y + 'px';
-    cropArea.style.width = this.cropArea.width + 'px';
-    cropArea.style.height = this.cropArea.height + 'px';
-  }
-  
-  updateCropInputs() {
-    document.getElementById('cropWidth').value = Math.round(this.cropArea.width);
-    document.getElementById('cropHeight').value = Math.round(this.cropArea.height);
-    this.updateCropInfo();
-  }
-  
-  updateCropDimensions(dimension, value) {
-    if (dimension === 'width') {
-      const newWidth = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.width));
-      this.cropArea.width = newWidth;
-      if (this.settings.lockAspectRatio) {
-        this.cropArea.height = this.cropArea.width / this.settings.aspectRatio;
-      }
-    } else if (dimension === 'height') {
-      const newHeight = Math.max(this.settings.minCropSize, Math.min(value, this.canvas.height));
-      this.cropArea.height = newHeight;
-      if (this.settings.lockAspectRatio) {
-        this.cropArea.width = this.cropArea.height * this.settings.aspectRatio;
-      }
+
+    async handleDownload() {
+        try {
+            this.downloadBtn.disabled = true;
+            this.updateStatus('Připravuji data ke stažení...', 'processing');
+            
+            const hasUploadedFiles = this.folderInput.files.length > 0;
+            let finalData;
+            
+            if (hasUploadedFiles) {
+                finalData = await this.processUploadedData();
+            } else {
+                finalData = await this.generateDefaultData();
+            }
+            
+            this.downloadData(finalData);
+            this.updateStatus('Data byla úspěšně připravena ke stažení!', 'success');
+            
+        } catch (error) {
+            console.error('Chyba při zpracování dat:', error);
+            this.updateStatus(`Chyba: ${error.message}`, 'error');
+        } finally {
+            this.downloadBtn.disabled = false;
+        }
     }
-    
-    this.updateCropAreaDisplay();
-    this.updateCropInputs();
-    
-    // Update preview if we're in preview mode
-    if (document.getElementById('previewSection').style.display === 'block') {
-      this.exportImage();
+
+    async processUploadedData() {
+        this.updateStatus('Analyzuji nahraná data...', 'processing');
+        
+        const processedData = new Map();
+        const folderStructure = this.analyzeFolderStructure(Array.from(this.folderInput.files));
+        const createNewFiles = this.createNewFilesSwitch.checked;
+        const candleLimit = parseInt(this.candleLimitInput.value);
+        const useCsv = this.useCsvExtensionSwitch.checked;
+        
+        const totalCryptos = folderStructure.size;
+        let processedCryptos = 0;
+        
+        for (const [cryptoPair, timeframes] of folderStructure) {
+            processedData.set(cryptoPair, new Map());
+            
+            this.updateStatus(`Zpracovávám ${cryptoPair}... (${processedCryptos + 1}/${totalCryptos})`, 'processing');
+            
+            // Zpracování existujících souborů
+            for (const [timeframe, fileData] of timeframes) {
+                const content = await this.readFileContent(fileData.file);
+                const candles = this.parseCandleData(content);
+                const lastCandle = candles.length > 0 ? candles[candles.length - 1] : null;
+                
+                // Získání nových dat od poslední svíčky
+                console.log(`📈 Doplňuji nová data pro ${cryptoPair} ${timeframe} (${candles.length} existujících)`);
+                const newCandles = await this.fetchNewCandles(cryptoPair, timeframe, lastCandle, candleLimit);
+                console.log(`✅ Staženo ${newCandles.length} nových svíček`);
+                
+                const updatedCandles = [...candles, ...newCandles];
+                console.log(`🎯 Celkem: ${updatedCandles.length} svíček pro ${cryptoPair} ${timeframe}`);
+                
+                processedData.get(cryptoPair).set(timeframe, updatedCandles);
+            }
+            
+            // Vytvoření chybějících souborů pokud je zapnuto
+            if (createNewFiles) {
+                for (const timeframe of this.timeframes) {
+                    if (!timeframes.has(timeframe)) {
+                        const candles = await this.fetchNewCandles(cryptoPair, timeframe, null, candleLimit);
+                        processedData.get(cryptoPair).set(timeframe, candles);
+                    }
+                }
+            }
+            
+            processedCryptos++;
+        }
+        
+        return processedData;
     }
-  }
-  
-  setAspectRatio(ratio) {
-    const [width, height] = ratio.split(':').map(Number);
-    this.settings.aspectRatio = width / height;
-    
-    // Update active button
-    document.querySelectorAll('.ratio-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    // Update crop area
-    if (this.settings.lockAspectRatio) {
-      this.updateCropDimensions('width', this.cropArea.width);
+
+    async generateDefaultData() {
+        this.updateStatus('Stahuji skutečná data z Binance...', 'processing');
+        this.showProgress('Připravuji stahování dat...');
+        
+        const defaultData = new Map();
+        const candleLimit = parseInt(this.candleLimitInput.value);
+        const activeCryptos = this.getActiveCryptos();
+        const totalOperations = activeCryptos.length * this.timeframes.length;
+        let successCount = 0;
+        let errorCount = 0;
+        let completedOperations = 0;
+        
+        // Okamžitá odezva
+        this.updateActivity(`🔢 Připravuji ${totalOperations} operací...`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        for (let i = 0; i < activeCryptos.length; i++) {
+            const cryptoPair = activeCryptos[i];
+            defaultData.set(cryptoPair, new Map());
+            
+            for (let j = 0; j < this.timeframes.length; j++) {
+                const timeframe = this.timeframes[j];
+                
+                // Update progress BEFORE operation
+                const currentProgress = `${cryptoPair} ${timeframe} (${i + 1}/${activeCryptos.length})`;
+                const currentActivity = `📊 Stahuji ${cryptoPair} ${timeframe}...`;
+                this.updateProgress(completedOperations, totalOperations, currentProgress, currentActivity);
+                
+                try {
+                    const candles = await this.fetchNewCandles(cryptoPair, timeframe, null, candleLimit);
+                    if (candles && candles.length > 0) {
+                        defaultData.get(cryptoPair).set(timeframe, candles);
+                        successCount++;
+                        console.log(`✅ ${cryptoPair} ${timeframe}: ${candles.length} svíček`);
+                    } else {
+                        console.warn(`⚠️ ${cryptoPair} ${timeframe}: Žádná data`);
+                        errorCount++;
+                    }
+                } catch (error) {
+                    console.error(`❌ ${cryptoPair} ${timeframe}: ${error.message}`);
+                    errorCount++;
+                    // Skip this crypto/timeframe combination but continue with others
+                }
+                
+                // Update progress AFTER operation
+                completedOperations++;
+                const finalProgress = `Dokončeno: ${cryptoPair} ${timeframe}`;
+                this.updateProgress(completedOperations, totalOperations, finalProgress);
+                
+                // Rate limiting between requests
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+            
+            // Remove crypto if no data was downloaded
+            if (defaultData.get(cryptoPair).size === 0) {
+                defaultData.delete(cryptoPair);
+                console.warn(`🗑️ Odstraňuji ${cryptoPair} - žádná data se nepodařila stáhnout`);
+            }
+            
+            // Show crypto completion
+            const cryptoProgress = Math.round(((i + 1) / activeCryptos.length) * 100);
+            this.updateStatus(`Dokončeno: ${cryptoPair} (${cryptoProgress}% celkem)`, 'processing');
+        }
+        
+        this.hideProgress();
+        
+        if (defaultData.size === 0) {
+            throw new Error('Nepodařilo se stáhnout žádná data z Binance API. Zkontrolujte internetové připojení.');
+        }
+        
+        this.updateStatus(`✅ Staženo ${successCount} souborů, ${errorCount} chyb z Binance API`, 'success');
+        return defaultData;
     }
-    
-    // Update preview if we're in preview mode
-    if (document.getElementById('previewSection').style.display === 'block') {
-      this.exportImage();
+
+    async readFileContent(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
     }
-  }
-  
-  resetImage() {
-    if (this.originalImage) {
-      this.resetImageState();
-      this.setupCanvas();
-      this.initializeCropArea();
+
+    parseCandleData(content) {
+        const lines = content.trim().split('\n');
+        const candles = [];
+        
+        for (const line of lines) {
+            if (line.trim()) {
+                const parts = line.split(',');
+                if (parts.length >= 6) {
+                    candles.push({
+                        timestamp: parseInt(parts[0]),
+                        open: parseFloat(parts[1]),
+                        high: parseFloat(parts[2]),
+                        low: parseFloat(parts[3]),
+                        close: parseFloat(parts[4]),
+                        volume: parseFloat(parts[5])
+                    });
+                }
+            }
+        }
+        
+        return candles;
     }
-  }
-  
-  rotateImage() {
-    this.imageState.rotation = (this.imageState.rotation + 90) % 360;
-    this.renderImage();
-  }
-  
-  zoomIn() {
-    this.imageState.scale = Math.min(this.imageState.scale * 1.2, 3);
-    this.canvas.width = this.imageState.width * this.imageState.scale;
-    this.canvas.height = this.imageState.height * this.imageState.scale;
-    this.renderImage();
-  }
-  
-  zoomOut() {
-    this.imageState.scale = Math.max(this.imageState.scale / 1.2, 0.1);
-    this.canvas.width = this.imageState.width * this.imageState.scale;
-    this.canvas.height = this.imageState.height * this.imageState.scale;
-    this.renderImage();
-  }
-  
-  exportImage() {
-    if (!this.image) return;
-    
-    this.showLoading();
-    
-    // Calculate crop coordinates relative to the original image
-    const scale = this.imageState.scale;
-    
-    // The image is drawn centered on the canvas with transformations
-    // We need to calculate the actual image position considering the transformations
-    
-    // Get the center of the canvas
-    const canvasCenterX = this.canvas.width / 2;
-    const canvasCenterY = this.canvas.height / 2;
-    
-    // Calculate the image bounds in canvas coordinates (where the image is actually drawn)
-    const imageLeft = canvasCenterX - (this.imageState.width * scale) / 2;
-    const imageTop = canvasCenterY - (this.imageState.height * scale) / 2;
-    const imageRight = imageLeft + this.imageState.width * scale;
-    const imageBottom = imageTop + this.imageState.height * scale;
-    
-    // Check if crop area intersects with the image
-    const cropRight = this.cropArea.x + this.cropArea.width;
-    const cropBottom = this.cropArea.y + this.cropArea.height;
-    
-    // Calculate the intersection between crop area and image
-    const intersectLeft = Math.max(this.cropArea.x, imageLeft);
-    const intersectTop = Math.max(this.cropArea.y, imageTop);
-    const intersectRight = Math.min(cropRight, imageRight);
-    const intersectBottom = Math.min(cropBottom, imageBottom);
-    
-    // If no intersection, show error
-    if (intersectLeft >= intersectRight || intersectTop >= intersectBottom) {
-      this.hideLoading();
-      this.showError('Crop area je mimo obrázek. Přesuňte čtverec na obrázek.');
-      return;
+
+    async fetchNewCandles(cryptoPair, timeframe, lastCandle = null, limit = 5000) {
+        this.updateStatus(`Stahování skutečných dat z Binance pro ${cryptoPair} ${timeframe}...`);
+        
+        try {
+            // Convert our format to Binance format
+            const symbol = cryptoPair.replace('/', '');
+            const interval = this.convertTimeframeForBinance(timeframe);
+            
+            const allCandles = [];
+            const maxPerRequest = 1000; // Binance limit
+            let remaining = limit;
+            let endTime = Date.now();
+            
+            // Make multiple API calls if needed (for more than 1000 candles)
+            while (remaining > 0 && allCandles.length < limit) {
+                const currentLimit = Math.min(remaining, maxPerRequest);
+                
+                // Binance API endpoint
+                const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&endTime=${endTime}&limit=${currentLimit}`;
+                
+                console.log(`🔗 Stahování ${currentLimit} svíček z Binance:`, url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('Rate limit exceeded - příliš mnoho požadavků na Binance API');
+                    }
+                    throw new Error(`Binance API error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    console.log('Binance vrátilo prázdná data - dosažen konec dostupných dat');
+                    break;
+                }
+                
+                // Convert Binance format to our format
+                const candles = data.map(kline => ({
+                    timestamp: parseInt(kline[0]), // Open time
+                    open: parseFloat(kline[1]),
+                    high: parseFloat(kline[2]),
+                    low: parseFloat(kline[3]),
+                    close: parseFloat(kline[4]),
+                    volume: parseFloat(kline[5])
+                }));
+                
+                // Add to beginning (older data first)
+                allCandles.unshift(...candles);
+                
+                // Update for next request (go further back in time)
+                if (candles.length > 0) {
+                    endTime = candles[0].timestamp - 1;
+                }
+                
+                remaining -= candles.length;
+                
+                console.log(`✅ Staženo ${candles.length} svíček, celkem: ${allCandles.length}/${limit}`);
+                this.updateStatus(`📡 Staženo ${allCandles.length}/${limit} svíček z Binance...`, 'processing');
+                
+                // Rate limiting - wait between requests
+                if (remaining > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                // Safety break if we got less data than requested
+                if (candles.length < currentLimit) {
+                    console.log('Dosažen konec dostupných dat na Binance');
+                    break;
+                }
+            }
+            
+            // Sort by timestamp to ensure proper order
+            allCandles.sort((a, b) => a.timestamp - b.timestamp);
+            
+            console.log(`✅ Celkem staženo ${allCandles.length} skutečných svíček z Binance pro ${cryptoPair}`);
+            this.updateStatus(`✅ Staženo ${allCandles.length} skutečných svíček z Binance`, 'success');
+            
+            return allCandles;
+            
+        } catch (error) {
+            console.error('❌ Chyba při stahování z Binance:', error);
+            this.updateStatus(`❌ CHYBA: ${error.message} - Žádná data nestažena!`, 'error');
+            
+            // NO FALLBACK - return empty array instead of fake data
+            throw new Error(`Nepodařilo se stáhnout data z Binance: ${error.message}`);
+        }
     }
-    
-    // Calculate crop area position relative to the image
-    const cropXInImage = intersectLeft - imageLeft;
-    const cropYInImage = intersectTop - imageTop;
-    
-    // Convert to original image coordinates
-    const actualCropX = cropXInImage / scale;
-    const actualCropY = cropYInImage / scale;
-    const actualCropWidth = (intersectRight - intersectLeft) / scale;
-    const actualCropHeight = (intersectBottom - intersectTop) / scale;
-    
-    // Create temporary canvas
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    tempCanvas.width = actualCropWidth;
-    tempCanvas.height = actualCropHeight;
-    
-    // Apply rotation if needed
-    if (this.imageState.rotation !== 0) {
-      tempCtx.save();
-      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-      tempCtx.rotate(this.imageState.rotation * Math.PI / 180);
-      tempCtx.drawImage(
-        this.originalImage,
-        -actualCropWidth / 2,
-        -actualCropHeight / 2,
-        actualCropWidth,
-        actualCropHeight
-      );
-      tempCtx.restore();
-    } else {
-      tempCtx.drawImage(
-        this.originalImage,
-        actualCropX,
-        actualCropY,
-        actualCropWidth,
-        actualCropHeight,
-        0,
-        0,
-        actualCropWidth,
-        actualCropHeight
-      );
+
+    convertTimeframeForBinance(timeframe) {
+        const mapping = {
+            '1m': '1m',
+            '5m': '5m',
+            '30m': '30m',
+            '1H': '1h',
+            '4H': '4h',
+            '12H': '12h',
+            '24H': '1d',
+            '1W': '1w'
+        };
+        return mapping[timeframe] || '1h';
     }
-    
-    // Update preview
-    this.previewCanvas.width = Math.min(400, actualCropWidth);
-    this.previewCanvas.height = Math.min(400, actualCropHeight);
-    
-    const previewScale = Math.min(
-      this.previewCanvas.width / actualCropWidth,
-      this.previewCanvas.height / actualCropHeight
-    );
-    
-    this.previewCtx.clearRect(0, 0, this.previewCanvas.width, this.previewCanvas.height);
-    this.previewCtx.drawImage(
-      tempCanvas,
-      0,
-      0,
-      actualCropWidth,
-      actualCropHeight,
-      0,
-      0,
-      actualCropWidth * previewScale,
-      actualCropHeight * previewScale
-    );
-    
-    this.hideLoading();
-    this.showPreview();
-  }
-  
-  downloadImage() {
-    if (!this.image) return;
-    
-    const format = document.getElementById('exportFormat').value;
-    const quality = document.getElementById('exportQuality').value / 100;
-    
-    // Calculate crop coordinates relative to the original image
-    const scale = this.imageState.scale;
-    
-    // The image is drawn centered on the canvas with transformations
-    // We need to calculate the actual image position considering the transformations
-    
-    // Get the center of the canvas
-    const canvasCenterX = this.canvas.width / 2;
-    const canvasCenterY = this.canvas.height / 2;
-    
-    // Calculate the image bounds in canvas coordinates (where the image is actually drawn)
-    const imageLeft = canvasCenterX - (this.imageState.width * scale) / 2;
-    const imageTop = canvasCenterY - (this.imageState.height * scale) / 2;
-    const imageRight = imageLeft + this.imageState.width * scale;
-    const imageBottom = imageTop + this.imageState.height * scale;
-    
-    // Check if crop area intersects with the image
-    const cropRight = this.cropArea.x + this.cropArea.width;
-    const cropBottom = this.cropArea.y + this.cropArea.height;
-    
-    // Calculate the intersection between crop area and image
-    const intersectLeft = Math.max(this.cropArea.x, imageLeft);
-    const intersectTop = Math.max(this.cropArea.y, imageTop);
-    const intersectRight = Math.min(cropRight, imageRight);
-    const intersectBottom = Math.min(cropBottom, imageBottom);
-    
-    // If no intersection, show error
-    if (intersectLeft >= intersectRight || intersectTop >= intersectBottom) {
-      this.showError('Crop area je mimo obrázek. Přesuňte čtverec na obrázek.');
-      return;
+
+
+
+    getTimeframeInterval(timeframe) {
+        const intervals = {
+            '1m': 60 * 1000,
+            '5m': 5 * 60 * 1000,
+            '30m': 30 * 60 * 1000,
+            '1H': 60 * 60 * 1000,
+            '4H': 4 * 60 * 60 * 1000,
+            '12H': 12 * 60 * 60 * 1000,
+            '24H': 24 * 60 * 60 * 1000,
+            '1W': 7 * 24 * 60 * 60 * 1000
+        };
+        return intervals[timeframe] || 60 * 1000;
     }
-    
-    // Calculate crop area position relative to the image
-    const cropXInImage = intersectLeft - imageLeft;
-    const cropYInImage = intersectTop - imageTop;
-    
-    // Convert to original image coordinates
-    const actualCropX = cropXInImage / scale;
-    const actualCropY = cropYInImage / scale;
-    const actualCropWidth = (intersectRight - intersectLeft) / scale;
-    const actualCropHeight = (intersectBottom - intersectTop) / scale;
-    
-    // Create temporary canvas
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    tempCanvas.width = actualCropWidth;
-    tempCanvas.height = actualCropHeight;
-    
-    // Apply rotation if needed
-    if (this.imageState.rotation !== 0) {
-      tempCtx.save();
-      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-      tempCtx.rotate(this.imageState.rotation * Math.PI / 180);
-      tempCtx.drawImage(
-        this.originalImage,
-        -actualCropWidth / 2,
-        -actualCropHeight / 2,
-        actualCropWidth,
-        actualCropHeight
-      );
-      tempCtx.restore();
-    } else {
-      tempCtx.drawImage(
-        this.originalImage,
-        actualCropX,
-        actualCropY,
-        actualCropWidth,
-        actualCropHeight,
-        0,
-        0,
-        actualCropWidth,
-        actualCropHeight
-      );
+
+    getBasePrice(cryptoPair) {
+        const basePrices = {
+            'BTC/USDT': 45000,
+            'ETH/USDT': 3000,
+            'SOL/USDT': 100,
+            'BNB/USDT': 300,
+            'ADA/USDT': 0.5,
+            'AVAX/USDT': 25,
+            'MATIC/USDT': 0.8
+        };
+        return basePrices[cryptoPair] || 100;
     }
+
+    downloadData(data) {
+        const zip = new JSZip();
+        const useCsv = this.useCsvExtensionSwitch.checked;
+        let fileExtension = '.txt';
+        if (useCsv) fileExtension = '.csv';
+        const withoutZip = this.downloadWithoutZipSwitch.checked;
+        
+        // Aktualizace review panelu
+        this.updateReviewPanel(data, fileExtension);
+        
+        if (withoutZip) {
+            this.downloadWithoutZip(data, fileExtension);
+        } else {
+            data.forEach((timeframes, cryptoPair) => {
+                // Oprava: Změna názvu složky z BTC/USDT na BTC_USDT
+                const folderName = cryptoPair.replace('/', '_');
+                const cryptoFolder = zip.folder(folderName);
+                
+                timeframes.forEach((candles, timeframe) => {
+                    const content = this.formatCandleData(candles);
+                    cryptoFolder.file(`${timeframe}${fileExtension}`, content);
+                });
+            });
+            
+            zip.generateAsync({type: 'blob'}).then(content => {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'crypto_data.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+    }
+
+    updateReviewPanel(data, fileExtension) {
+        let reviewHtml = '';
+        let totalFiles = 0;
+        let totalCandles = 0;
+        
+        data.forEach((timeframes, cryptoPair) => {
+            const folderName = cryptoPair.replace('/', '_');
+            
+            timeframes.forEach((candles, timeframe) => {
+                const fileName = `${folderName}_${timeframe}${fileExtension}`;
+                const candleCount = candles.length;
+                
+                reviewHtml += `
+                    <div class="review-item">
+                        <span class="review-file">${fileName}</span>
+                        <span class="review-candles">${candleCount} svíček</span>
+                    </div>
+                `;
+                
+                totalFiles++;
+                totalCandles += candleCount;
+            });
+        });
+        
+        reviewHtml += `
+            <div class="review-item" style="border-top: 2px solid #ffd700; margin-top: 10px; padding-top: 10px;">
+                <span class="review-file" style="font-weight: bold;">CELKEM:</span>
+                <span class="review-candles" style="font-weight: bold;">${totalFiles} souborů, ${totalCandles} svíček</span>
+            </div>
+        `;
+        
+        this.reviewContent.innerHTML = reviewHtml;
+    }
+
+    async downloadWithoutZip(data, fileExtension) {
+        const totalFiles = this.countTotalFiles(data);
+        let downloadedFiles = 0;
+        const batchSize = 8; // Stahujeme po 8 souborech (jeden časový rámec)
+        
+        // Kontrola vybrané cílové složky
+        this.updateStatus(`Začínám stahování ${totalFiles} souborů...`, 'processing');
+        this.showProgress();
+        
+
+        
+        for (const [cryptoPair, timeframes] of data) {
+            this.updateStatus(`Stahuji data pro ${cryptoPair}...`, 'processing');
+            
+            let batchCount = 0;
+            for (const [timeframe, candles] of timeframes) {
+                const fileName = `${cryptoPair.replace('/', '_')}_${timeframe}${fileExtension}`;
+                const content = this.formatCandleData(candles);
+                
+                // Vytvoření a stažení souboru
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                
+                // Pokud je vybraná cílová složka, pokusíme se ji použít
+                if (this.selectedTargetFolder) {
+                    // Vytvoříme relativní cestu k souboru
+                    const relativePath = `${this.selectedTargetFolder}/${fileName}`;
+                    a.setAttribute('data-downloadurl', `text/plain:${fileName}:${url}`);
+                }
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                downloadedFiles++;
+                batchCount++;
+                this.updateProgress(downloadedFiles, totalFiles, fileName);
+                
+                // Pokud jsme dosáhli velikosti batch, počkáme déle
+                if (batchCount >= batchSize) {
+                    this.updateStatus(`Staženo ${downloadedFiles}/${totalFiles} souborů. Čekám na dokončení stahování...`, 'processing');
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // 2 sekundy pauza
+                    batchCount = 0;
+                } else {
+                    // Krátký delay mezi soubory v rámci batch
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+        }
+        
+        this.hideProgress();
+        this.updateStatus(`Úspěšně staženo ${downloadedFiles} souborů!`, 'success');
+    }
+
+
     
-    // Convert to blob and download
-    tempCanvas.toBlob((blob) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cropped-image.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, `image/${format}`, quality);
-  }
-  
-  showEditor() {
-    document.getElementById('uploadSection').style.display = 'none';
-    document.getElementById('editorSection').style.display = 'block';
-    document.getElementById('previewSection').style.display = 'none';
-  }
-  
-  showPreview() {
-    document.getElementById('uploadSection').style.display = 'none';
-    document.getElementById('editorSection').style.display = 'none';
-    document.getElementById('previewSection').style.display = 'block';
-  }
-  
-  updateImageInfo() {
-    if (this.originalImage) {
-      document.getElementById('originalSize').textContent = 
-        `${this.originalImage.width} × ${this.originalImage.height}`;
-      document.getElementById('currentSize').textContent = 
-        `${Math.round(this.canvas.width)} × ${Math.round(this.canvas.height)}`;
+    countTotalFiles(data) {
+        let count = 0;
+        data.forEach((timeframes) => {
+            count += timeframes.size;
+        });
+        return count;
     }
-  }
-  
-  updateCropInfo() {
-    document.getElementById('cropSize').textContent = 
-      `${Math.round(this.cropArea.width)} × ${Math.round(this.cropArea.height)}`;
-  }
-  
-  updateQualityControl(format) {
-    const qualityGroup = document.getElementById('qualityGroup');
-    if (format === 'jpeg' || format === 'webp') {
-      qualityGroup.style.display = 'block';
-    } else {
-      qualityGroup.style.display = 'none';
+
+    formatCandleData(candles) {
+        return candles.map(candle => 
+            `${candle.timestamp},${candle.open},${candle.high},${candle.low},${candle.close},${candle.volume}`
+        ).join('\n');
     }
-  }
-  
-  showLoading() {
-    document.getElementById('loadingOverlay').style.display = 'flex';
-  }
-  
-  hideLoading() {
-    document.getElementById('loadingOverlay').style.display = 'none';
-  }
-  
-  showError(message) {
-    document.getElementById('errorMessage').textContent = message;
-    document.getElementById('errorModal').style.display = 'flex';
-  }
-  
-  updateUI() {
-    this.updateQualityControl(document.getElementById('exportFormat').value);
-  }
+
+    loadCryptoStates() {
+        const saved = localStorage.getItem('cryptoDataManager_states');
+        if (saved) {
+            const states = JSON.parse(saved);
+            // Zajistíme, že všechny kryptoměny mají stav
+            const completeStates = {};
+            this.allCryptos.forEach(crypto => {
+                completeStates[crypto] = states[crypto] !== undefined ? states[crypto] : true;
+            });
+            return completeStates;
+        } else {
+            // Výchozí stav - všechny zapnuté
+            const defaultStates = {};
+            this.allCryptos.forEach(crypto => {
+                defaultStates[crypto] = true;
+            });
+            return defaultStates;
+        }
+    }
+
+    saveCryptoStates() {
+        localStorage.setItem('cryptoDataManager_states', JSON.stringify(this.cryptoStates));
+    }
+
+    getActiveCryptos() {
+        return this.allCryptos.filter(crypto => this.cryptoStates[crypto]);
+    }
+
+    renderCryptoList() {
+        const cryptoListElement = document.getElementById('cryptoList');
+        if (!cryptoListElement) return;
+
+        cryptoListElement.innerHTML = ''; // Vymaže předchozí seznam
+
+        const activeCryptos = this.getActiveCryptos();
+        const totalCryptos = this.allCryptos.length;
+        const visibleCryptos = this.visibleCryptos;
+
+        let shownCount = 0;
+        for (let i = 0; i < totalCryptos; i++) {
+            const crypto = this.allCryptos[i];
+            const isActive = activeCryptos.includes(crypto);
+
+            const cryptoItem = document.createElement('div');
+            cryptoItem.className = 'crypto-item';
+            cryptoItem.innerHTML = `
+                <input type="checkbox" id="crypto-${i}" ${isActive ? 'checked' : ''}>
+                <label for="crypto-${i}">${crypto}</label>
+            `;
+            cryptoListElement.appendChild(cryptoItem);
+
+            cryptoItem.addEventListener('change', () => {
+                this.cryptoStates[crypto] = cryptoItem.querySelector('input').checked;
+                this.saveCryptoStates();
+                this.updateCryptoSummary();
+            });
+
+            shownCount++;
+            if (shownCount >= visibleCryptos) break;
+        }
+
+        // Přidáme tlačítko pro zobrazení/skrytí dalších kryptoměn
+        if (totalCryptos > 5) {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = this.visibleCryptos === totalCryptos ? 'show-less-btn' : 'show-more-btn';
+            
+            if (this.visibleCryptos === totalCryptos) {
+                toggleBtn.textContent = `Schovat další (${totalCryptos - 5})`;
+                toggleBtn.addEventListener('click', () => {
+                    this.visibleCryptos = 5;
+                    this.renderCryptoList();
+                });
+            } else {
+                toggleBtn.textContent = `Zobrazit další (${totalCryptos - visibleCryptos})`;
+                toggleBtn.addEventListener('click', () => {
+                    this.visibleCryptos = totalCryptos;
+                    this.renderCryptoList();
+                });
+            }
+            cryptoListElement.appendChild(toggleBtn);
+        }
+
+        // Přidáme tlačítka pro ovládání všech
+        const controlButtons = document.createElement('div');
+        controlButtons.className = 'crypto-controls';
+        controlButtons.innerHTML = `
+            <button class="control-btn" id="selectAllBtn">Zapnout všechny</button>
+            <button class="control-btn" id="deselectAllBtn">Vypnout všechny</button>
+        `;
+        cryptoListElement.appendChild(controlButtons);
+
+        // Event listeners pro tlačítka
+        document.getElementById('selectAllBtn').addEventListener('click', () => {
+            this.allCryptos.forEach(crypto => {
+                this.cryptoStates[crypto] = true;
+            });
+            this.saveCryptoStates();
+            this.renderCryptoList();
+            this.updateCryptoSummary();
+        });
+
+        document.getElementById('deselectAllBtn').addEventListener('click', () => {
+            this.allCryptos.forEach(crypto => {
+                this.cryptoStates[crypto] = false;
+            });
+            this.saveCryptoStates();
+            this.renderCryptoList();
+            this.updateCryptoSummary();
+        });
+
+        this.updateCryptoSummary();
+    }
+
+    updateCryptoSummary() {
+        const activeCount = this.getActiveCryptos().length;
+        const totalCount = this.allCryptos.length;
+        const summaryElement = document.getElementById('cryptoSummary');
+        if (summaryElement) {
+            summaryElement.textContent = `Aktivní: ${activeCount}/${totalCount} kryptoměn`;
+        }
+    }
+
+
+
+
+
+    showProgress(activity = 'Zahajuji zpracování...') {
+        if (this.progressContainer) {
+            this.progressContainer.style.display = 'flex';
+            this.showActivity(activity);
+        }
+    }
+
+    hideProgress() {
+        if (this.progressContainer) {
+            this.progressContainer.style.display = 'none';
+            this.hideActivity();
+        }
+    }
+
+    showActivity(text) {
+        if (this.progressActivity && this.activityText) {
+            this.progressActivity.style.display = 'flex';
+            this.activityText.textContent = text;
+        }
+    }
+
+    hideActivity() {
+        if (this.progressActivity) {
+            this.progressActivity.style.display = 'none';
+        }
+    }
+
+    updateActivity(text) {
+        this.showActivity(text);
+    }
+
+    updateProgress(current, total, description = '', activity = '') {
+        if (!this.progressFill || !this.progressText) return;
+        
+        // Pokud je current 0, zobraz indeterminate progress
+        if (current === 0 && total > 0) {
+            this.progressFill.classList.add('indeterminate');
+            this.progressFill.style.width = '100%';
+            this.progressText.textContent = 'Inicializace...';
+        } else {
+            this.progressFill.classList.remove('indeterminate');
+            const percentage = Math.round((current / total) * 100);
+            this.progressFill.style.width = `${percentage}%`;
+            
+            if (description) {
+                this.progressText.textContent = `${percentage}% - ${description}`;
+            } else {
+                this.progressText.textContent = `${percentage}% (${current}/${total})`;
+            }
+        }
+        
+        if (activity) {
+            this.updateActivity(activity);
+        }
+    }
 }
 
-// Global functions
-function closeErrorModal() {
-  document.getElementById('errorModal').style.display = 'none';
-}
-
-// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-  new ImageCropper();
-}); 
+    new CryptoDataManager();
+});
+
+// Přidání JSZip knihovny pro vytváření ZIP souborů
+const script = document.createElement('script');
+script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+document.head.appendChild(script);

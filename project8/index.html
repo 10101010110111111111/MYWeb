@@ -3,216 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Cropper - Ořezávání obrázků</title>
+    <title>Krypto Data Manager</title>
+    <link rel="stylesheet" href="shared-navigation.css">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1>
-                    <i class="fas fa-crop-alt"></i>
-                    Image Cropper
-                </h1>
-                <p>Nahrajte obrázek a ořežte ho podle potřeby</p>
+    <!-- Navigation Header -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Krypto Tools</span>
             </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">
+                    <i class="fas fa-database"></i>
+                    Data Manager
+                </a>
+                <a href="advanced.html" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    Advanced Manager
+                </a>
+                <a href="chart.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Chart Viewer
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Krypto Data Manager</h1>
+            <p>Správa a aktualizace dat kryptoměn</p>
         </header>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Upload Section -->
-            <section class="upload-section" id="uploadSection">
-                <div class="upload-container">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-icon">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                        </div>
-                        <h3>Nahrajte obrázek</h3>
-                        <p>Přetáhněte obrázek sem nebo klikněte pro výběr</p>
-                        <input type="file" id="fileInput" accept="image/*" hidden>
-                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <h2><i class="fas fa-upload"></i> Nahrát složku s daty</h2>
+                    <p>Nahrajte složku obsahující data kryptoměn (volitelné)</p>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" id="folderInput" multiple>
+                        <label for="folderInput" class="file-input-label">
                             <i class="fas fa-folder-open"></i>
-                            Vybrat soubor
-                        </button>
+                            <span>Vybrat složku nebo soubory</span>
+                        </label>
                     </div>
-                    <div class="upload-info">
-                        <h4>Podporované formáty:</h4>
-                        <ul>
-                            <li><i class="fas fa-check"></i> JPG, JPEG</li>
-                            <li><i class="fas fa-check"></i> PNG</li>
-                            <li><i class="fas fa-check"></i> WebP</li>
-                            <li><i class="fas fa-check"></i> GIF</li>
-                        </ul>
-                        <p class="max-size">Maximální velikost: 10 MB</p>
-                    </div>
+                    
+                    <div id="selectedFiles" class="selected-files"></div>
                 </div>
-            </section>
 
-            <!-- Editor Section -->
-            <section class="editor-section" id="editorSection" style="display: none;">
-                <div class="editor-container">
-                    <div class="editor-header">
-                        <h2>Ořezávání obrázku</h2>
-                        <div class="editor-controls">
-                            <button class="control-btn" id="resetBtn" title="Resetovat">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button class="control-btn" id="rotateBtn" title="Otočit">
-                                <i class="fas fa-redo"></i>
-                            </button>
-                            <button class="control-btn" id="zoomInBtn" title="Přiblížit">
-                                <i class="fas fa-search-plus"></i>
-                            </button>
-                            <button class="control-btn" id="zoomOutBtn" title="Oddálit">
-                                <i class="fas fa-search-minus"></i>
-                            </button>
+                <div class="settings-card">
+                    <h2><i class="fas fa-cog"></i> Nastavení</h2>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="createNewFiles">
+                                <span class="switch"></span>
+                                <span class="switch-text">Vytvářet nové soubory</span>
+                            </label>
                         </div>
-                                                  <div class="controls-info">
-                              <h4>Ovládání:</h4>
-                              <ul>
-                                  <li><i class="fas fa-mouse"></i> Klik mimo čtverec: Přesun čtverce</li>
-                                  <li><i class="fas fa-arrows-alt"></i> Přetažení čtverce: Pohyb čtverce</li>
-                                  <li><i class="fas fa-mouse"></i> Pravé tlačítko + pohyb: Pohyb obrázku</li>
-                                  <li><i class="fas fa-keyboard"></i> Šipky: Pohyb čtverce</li>
-                                  <li><i class="fas fa-shift"></i> Shift + šipky: Rychlý pohyb</li>
-                                  <li><i class="fas fa-space"></i> Mezerník: Vycentrovat</li>
-                                  <li><i class="fas fa-mouse-pointer"></i> Kolečko myši: Přiblížení</li>
-                              </ul>
-                          </div>
                     </div>
-
-                    <div class="editor-main">
-                        <div class="image-container" id="imageContainer">
-                            <canvas id="imageCanvas"></canvas>
-                                                         <div class="crop-overlay" id="cropOverlay">
-                                 <div class="crop-area" id="cropArea">
-                                 </div>
-                             </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="setting-label">Počet svíček na soubor:</label>
+                            <input type="number" id="candleLimit" value="10000" min="1" max="10000" class="number-input">
                         </div>
-
-                        <div class="editor-sidebar">
-                            <div class="sidebar-section">
-                                <h3>Rozměry ořezu</h3>
-                                <div class="dimension-inputs">
-                                    <div class="input-group">
-                                        <label for="cropWidth">Šířka (px)</label>
-                                        <input type="number" id="cropWidth" min="1" value="100">
-                                    </div>
-                                    <div class="input-group">
-                                        <label for="cropHeight">Výška (px)</label>
-                                        <input type="number" id="cropHeight" min="1" value="100">
-                                    </div>
-                                </div>
-                                <div class="aspect-ratio-controls">
-                                    <label>
-                                        <input type="checkbox" id="lockAspectRatio" checked>
-                                        Zachovat poměr stran
-                                    </label>
-                                    <div class="ratio-presets">
-                                        <button class="ratio-btn" data-ratio="1:1">1:1</button>
-                                        <button class="ratio-btn" data-ratio="16:9">16:9</button>
-                                        <button class="ratio-btn" data-ratio="4:3">4:3</button>
-                                        <button class="ratio-btn" data-ratio="3:2">3:2</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="sidebar-section">
-                                <h3>Informace o obrázku</h3>
-                                <div class="image-info">
-                                    <div class="info-item">
-                                        <span class="info-label">Původní velikost:</span>
-                                        <span class="info-value" id="originalSize">-</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Aktuální velikost:</span>
-                                        <span class="info-value" id="currentSize">-</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Ořezaná oblast:</span>
-                                        <span class="info-value" id="cropSize">-</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="sidebar-section">
-                                <h3>Export</h3>
-                                <div class="export-options">
-                                    <div class="input-group">
-                                        <label for="exportFormat">Formát</label>
-                                        <select id="exportFormat">
-                                            <option value="png">PNG</option>
-                                            <option value="jpeg">JPEG</option>
-                                            <option value="webp">WebP</option>
-                                        </select>
-                                    </div>
-                                    <div class="input-group" id="qualityGroup" style="display: none;">
-                                        <label for="exportQuality">Kvalita</label>
-                                        <input type="range" id="exportQuality" min="1" max="100" value="90">
-                                        <span id="qualityValue">90%</span>
-                                    </div>
-                                    <button class="export-btn" id="exportBtn">
-                                        <i class="fas fa-download"></i>
-                                        Stáhnout ořezaný obrázek
-                                    </button>
-                                </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="useCsvExtension">
+                                <span class="switch"></span>
+                                <span class="switch-text">Použít .csv příponu</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-description">
+                            <label class="switch-label">
+                                <input type="checkbox" id="downloadWithoutZip" checked>
+                                <span class="switch"></span>
+                                <span class="switch-text">Stáhnout bez ZIP (individuální soubory)</span>
+                            </label>
+                            <div class="warning-text">
+                                ⚠️ <strong>VAROVÁNÍ:</strong> Windows jsou idioti a mohou blokovat stahování! 
+                                Pokud se objeví výzva v levém horním rohu, povolte stahování více souborů!
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Preview Section -->
-            <section class="preview-section" id="previewSection" style="display: none;">
-                <div class="preview-container">
-                    <h3>Náhled ořezaného obrázku</h3>
-                    <div class="preview-image">
-                        <canvas id="previewCanvas"></canvas>
-                    </div>
-                    <div class="preview-actions">
-                        <button class="secondary-btn" id="backToEditBtn">
-                            <i class="fas fa-edit"></i>
-                            Zpět na úpravy
-                        </button>
-                        <button class="primary-btn" id="downloadBtn">
-                            <i class="fas fa-download"></i>
-                            Stáhnout
-                        </button>
+                <div class="download-card">
+                    <h2><i class="fas fa-download"></i> Stáhnout aktualizovaná data</h2>
+                    <p>Stáhněte kompletní složku s aktualizovanými daty</p>
+                    
+                                    <div class="download-info">
+                    <div class="info-message">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Poznámka:</strong> Soubory se automaticky stáhnou do výchozí složky stahování prohlížeče (obvykle "Downloads" nebo "Stažené soubory").
                     </div>
                 </div>
-            </section>
-        </main>
-
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i>
-                <p>Zpracovávám obrázek...</p>
-            </div>
-        </div>
-
-        <!-- Error Modal -->
-        <div class="modal" id="errorModal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Chyba</h3>
-                    <button class="modal-close" onclick="closeErrorModal()">
-                        <i class="fas fa-times"></i>
+                    
+                    <button id="downloadBtn" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Stáhnout data
                     </button>
                 </div>
-                <div class="modal-body">
-                    <p id="errorMessage"></p>
+            </div>
+
+            <div class="info-section">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Informace o struktuře</h3>
+                    <div class="structure-info">
+                        <p><strong>Dostupné kryptoměny:</strong></p>
+                        <div id="cryptoSummary" class="crypto-summary">Aktivní: 25/25 kryptoměn</div>
+                        <div id="cryptoList" class="crypto-list">
+                            <!-- Kryptoměny budou načteny JavaScriptem -->
+                        </div>
+                        
+                        <p><strong>Soubory v každé složce:</strong></p>
+                        <ul>
+                            <li><code>1m.csv</code> - 1 minuta</li>
+                            <li><code>5m.csv</code> - 5 minut</li>
+                            <li><code>30m.csv</code> - 30 minut</li>
+                            <li><code>1H.csv</code> - 1 hodina</li>
+                            <li><code>4H.csv</code> - 4 hodiny</li>
+                            <li><code>12H.csv</code> - 12 hodin</li>
+                            <li><code>24H.csv</code> - 24 hodiny</li>
+                            <li><code>1W.csv</code> - 1 týden</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="modal-actions">
-                    <button class="primary-btn" onclick="closeErrorModal()">OK</button>
+
+                <!-- Status Section -->
+                <div class="status-card">
+                    <h3><i class="fas fa-info-circle"></i> Status</h3>
+                    <div id="status" class="status-content">
+                        Připraveno k použití. Vyberte složku nebo stáhněte výchozí data.
+                    </div>
+                                    <div id="progressContainer" class="progress-container" style="display: none;">
+                    <div id="progressActivity" class="progress-activity" style="display: none;">
+                        <div class="spinner"></div>
+                        <span id="activityText">Inicializace...</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text">0%</div>
+                </div>
+                </div>
+
+                <!-- Review Panel -->
+                <div class="review-panel">
+                    <h3><i class="fas fa-list-alt"></i> Review Panel</h3>
+                    <div id="reviewContent" class="review-content">
+                        Zde se zobrazí přehled stažených souborů a počtu svíček.
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Návodová sekce -->
+        <section class="guide-section">
+            <div class="guide-container">
+                <h2><i class="fas fa-book"></i> Návod a informace</h2>
+                
+                <div class="guide-grid">
+                    <div class="guide-card">
+                        <h3><i class="fas fa-cog"></i> Jak funguje nastavení</h3>
+                        <div class="guide-content">
+                            <h4>Vytváření nových souborů:</h4>
+                            <p><strong>ZAPNUTO:</strong> Pokud nahrajete složku s pouze <code>ETH_USDT_1W.txt</code>, program vytvoří chybějící soubory (1m, 5m, 30m, 1H, 4H, 12H, 24H).</p>
+                            <p><strong>VYPNUTO:</strong> Aktualizuje se pouze existující soubor <code>ETH_USDT_1W.txt</code>.</p>
+                            
+                            <h4>Počet svíček:</h4>
+                            <p>Nastavte kolik svíček chcete na soubor (100-10000). Výchozí: 5000 svíček.</p>
+                            
+                            <h4>Přípona souborů:</h4>
+                            <p><strong>.csv:</strong> Doporučeno - vyhýbá se blokování Windows</p>
+                            <p><strong>.txt:</strong> Základní formát</p>
+                            
+                            <h4>Stahování bez ZIP:</h4>
+                            <p><span style="color: #ff4444; font-weight: bold;">⚠️ DŮLEŽITÉ:</span> Pokud je zapnuto, stáhnou se jednotlivé soubory místo ZIP 
+                            (<span style="color: #ff4444; font-weight: bold;">obchází blokování Windows, protože Windows jsou idioti</span>).</p>
+                            <p><strong>Varování:</strong> Stáhne se více souborů najednou! Možná se objeví dialog v levém horním rohu prohlížeče - 
+                            <span style="color: #ffaa00; font-weight: bold;">musíte zaškrtnout "Povolit" nebo "Ano"</span>.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-upload"></i> Možnosti nahrávání</h3>
+                        <div class="guide-content">
+                            <h4>Možnost 1: Jeden soubor</h4>
+                            <p>Nahrajte pouze jeden soubor např. <code>ETH_USDT_1W.txt</code>. Program najde a doplní chybějící data. Po stisknutí "Stáhnout" se stáhne stejný soubor rozšířený o nové informace.</p>
+                            
+                            <h4>Možnost 2: Složka s více soubory</h4>
+                            <p>Nahrajte složku obsahující více souborů. Po stisknutí "Stáhnout" se stáhnou všechny soubory rozšířené o chybějící data.</p>
+                            
+                            <h4>Možnost 3: Bez nahrávání</h4>
+                            <p>Pokud nenahrajete nic a kliknete "Stáhnout", stáhne se kompletní sada dat pro všechny výchozí kryptoměny.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-card">
+                        <h3><i class="fas fa-chart-line"></i> Formát dat v souborech</h3>
+                        <div class="guide-content">
+                            <p>Každý řádek obsahuje data jedné svíčky ve formátu:</p>
+                            <div class="data-example">
+                                <span class="data-timestamp">-1269328241632</span>,<span class="data-open">44680.23042855</span>,<span class="data-high">44969.34695406</span>,<span class="data-low">44389.44536033</span>,<span class="data-close">44725.78554588</span>,<span class="data-volume">1479437.45</span>
+                            </div>
+                            <div class="data-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color timestamp-color"></span>
+                                    <span class="legend-label">Timestamp (časová značka)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color open-color"></span>
+                                    <span class="legend-label">Open (otevírací cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color high-color"></span>
+                                    <span class="legend-label">High (nejvyšší cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color low-color"></span>
+                                    <span class="legend-label">Low (nejnižší cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color close-color"></span>
+                                    <span class="legend-label">Close (zavírací cena)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color volume-color"></span>
+                                    <span class="legend-label">Volume (objem obchodů)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
 </body>
-</html> 
+</html>
