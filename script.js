@@ -48,6 +48,15 @@ const projectList = [
     progress: 100
   },
   {
+    path: "./project6/index.html",
+    name: "Projekt 6 - Krypto Data Manager (Mega-Download)",
+    description: "Optimalizovaný nástroj pro stahování až 10 milionů svíček s detekcí mezer a cloud sync simulací.",
+    category: "Tools",
+    status: "done",
+    password: "crypto2024",
+    progress: 100
+  },
+  {
     path: "./project7/index.html",
     name: "Projekt 7 - Time Coin Tracker",
     description: "Aplikace pro sledování a správu času pomocí coin systému",
@@ -57,10 +66,28 @@ const projectList = [
     progress: 85
   },
   {
+    path: "./project8/index.html",
+    name: "Projekt 8 - Krypto & Data Tools",
+    description: "Soubor nástrojů pro správu dat a krypto analýzu (původně Image Cropper).",
+    category: "Tools",
+    status: "done",
+    password: null,
+    progress: 100
+  },
+  {
     path: "./project9/index.html",
     name: "Projekt 9 - Poker Calculator",
     description: "Kalkulačka pravděpodobností pro Texas Hold'em s Monte Carlo simulací",
     category: "Gaming",
+    status: "done",
+    password: null,
+    progress: 100
+  },
+  {
+    path: "./project11/index.html",
+    name: "Projekt 11 - Krypto Data Manager",
+    description: "Pokročilý nástroj pro správu a aktualizaci dat kryptoměn s možností nahrávání souborů a vytváření nových timeframe.",
+    category: "Tools",
     status: "done",
     password: null,
     progress: 100

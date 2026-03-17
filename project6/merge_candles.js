@@ -8,13 +8,17 @@ const path = require('path');
  */
 
 const args = process.argv.slice(2);
-if (args.length < 3) {
-    console.log('Použití: node merge_candles.js <vystupni_soubor> <vstup1> <vstup2> [...]');
+const fillGaps = args.includes('--fill-gaps');
+const filteredArgs = args.filter(arg => arg !== '--fill-gaps');
+
+if (filteredArgs.length < 3) {
+    console.log('Použití: node merge_candles.js <vystupni_soubor> <vstup1> <vstup2> [...] [--fill-gaps]');
+    console.log('  --fill-gaps    Automaticky doplní chybějící svíčky pomocí lineární interpolace.');
     process.exit(1);
 }
 
-const outputFile = args[0];
-const inputFiles = args.slice(1);
+const outputFile = filteredArgs[0];
+const inputFiles = filteredArgs.slice(1);
 
 let allCandles = new Map();
 
@@ -84,17 +88,68 @@ if (sortedTimestamps.length > 1) {
     console.log(`📈 Detekovaný interval: ${interval} ms (${intervalNames[interval] || 'neznámý'})`);
 }
 
-// Gap check
+// Gap check and filling
 let gapCount = 0;
+let filledCount = 0;
+
 if (interval > 0) {
-    for (let i = 1; i < sortedTimestamps.length; i++) {
-        const diff = Number(sortedTimestamps[i]) - Number(sortedTimestamps[i-1]);
+    // We need to work with a copy of the list because we might insert new values
+    const originalTimestamps = [...sortedTimestamps];
+    
+    for (let i = 1; i < originalTimestamps.length; i++) {
+        const prevTs = Number(originalTimestamps[i-1]);
+        const nextTs = Number(originalTimestamps[i]);
+        const diff = nextTs - prevTs;
+        
         if (diff > interval) {
-            const missing = Math.round(diff / interval) - 1;
-            console.warn(`❌ MEZERA detekována mezi ${sortedTimestamps[i-1]} a ${sortedTimestamps[i]} (chybí cca ${missing} svíček)`);
+            const missingCount = Math.round(diff / interval) - 1;
+            console.warn(`❌ MEZERA detekována mezi ${prevTs} a ${nextTs} (chybí cca ${missingCount} svíček)`);
             gapCount++;
+            
+            if (fillGaps && missingCount > 0) {
+                console.log(`🔧 Doplňuji ${missingCount} svíček pomocí interpolace...`);
+                
+                const prevData = allCandles.get(prevTs.toString()).split(',');
+                const nextData = allCandles.get(nextTs.toString()).split(',');
+                
+                // Fields: timestamp, open, high, low, close, volume
+                const pOpen = Number(prevData[1]);
+                const pHigh = Number(prevData[2]);
+                const pLow = Number(prevData[3]);
+                const pClose = Number(prevData[4]);
+                const pVol = Number(prevData[5]);
+                
+                const nOpen = Number(nextData[1]);
+                const nHigh = Number(nextData[2]);
+                const nLow = Number(nextData[3]);
+                const nClose = Number(nextData[4]);
+                const nVol = Number(nextData[5]);
+                
+                for (let k = 1; k <= missingCount; k++) {
+                    const currentTs = prevTs + (k * interval);
+                    const ratio = k / (missingCount + 1);
+                    
+                    // Simple linear interpolation
+                    const iOpen = (pOpen + (nOpen - pOpen) * ratio).toFixed(8);
+                    const iHigh = (pHigh + (nHigh - pHigh) * ratio).toFixed(8);
+                    const iLow = (pLow + (nLow - pLow) * ratio).toFixed(8);
+                    const iClose = (pClose + (nClose - pClose) * ratio).toFixed(8);
+                    const iVol = (pVol + (nVol - pVol) * ratio).toFixed(2);
+                    
+                    const interpolatedLine = `${currentTs},${iOpen},${iHigh},${iLow},${iClose},${iVol}`;
+                    allCandles.set(currentTs.toString(), interpolatedLine);
+                    filledCount++;
+                }
+            }
         }
     }
+}
+
+// Re-sort if we filled gaps
+let finalTimestamps = sortedTimestamps;
+if (filledCount > 0) {
+    finalTimestamps = Array.from(allCandles.keys()).sort((a, b) => Number(a) - Number(b));
+    console.log(`✨ Doplněno ${filledCount} svíček. Celkový počet: ${finalTimestamps.length}`);
 }
 
 if (gapCount === 0 && interval > 0) {
@@ -106,8 +161,8 @@ if (gapCount === 0 && interval > 0) {
 console.log(`✍️ Zapisuji do: ${outputFile}`);
 const outputStream = fs.createWriteStream(outputFile);
 
-sortedTimestamps.forEach((ts, index) => {
-    outputStream.write(allCandles.get(ts) + (index === sortedTimestamps.length - 1 ? '' : '\n'));
+finalTimestamps.forEach((ts, index) => {
+    outputStream.write(allCandles.get(ts) + (index === finalTimestamps.length - 1 ? '' : '\n'));
 });
 
 outputStream.end();

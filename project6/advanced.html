@@ -154,6 +154,32 @@
                 </button>
             </div>
 
+            <!-- Advanced tools and concepts -->
+            <div class="settings-card advanced-tools" style="border: 2px solid var(--info-color); background: rgba(66, 153, 225, 0.05);">
+                <h2 style="color: var(--info-color);"><i class="fas fa-magic"></i> Pokročilé Nástroje</h2>
+                <p>Doplňkové nástroje pro práci s velkými daty a cloudem.</p>
+                
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <span><i class="fas fa-fill-drip"></i> Gap Filler (CLI)</span>
+                        </label>
+                        <small>Nástroj <code>merge_candles.js --fill-gaps</code> automaticky doplňuje chybějící data pomocí lineární interpolace.</small>
+                    </div>
+                    <div class="setting-item">
+                        <label class="switch-label">
+                            <span><i class="fas fa-cloud-upload-alt"></i> Cloud Sync (CLI)</span>
+                        </label>
+                        <small>Skript <code>sync_to_cloud.js</code> simuluje bezpečné zálohování vašich datasetů do cloudu.</small>
+                    </div>
+                </div>
+                
+                <a href="concepts.md" target="_blank" class="download-btn" style="text-decoration: none; margin-top: 1.5rem; background: var(--info-color); color: white;">
+                    <i class="fas fa-lightbulb"></i>
+                    Zobrazit vše (concepts.md)
+                </a>
+            </div>
+
             <!-- Status Section -->
             <div class="status-card">
                 <h3><i class="fas fa-info-circle"></i> Status</h3>
