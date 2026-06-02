@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obchod - Merchandise Jména Kapely</title>
-    <meta name="description" content="Oficiální merchandise Jména Kapely - trička, mikiny, CD a další">
+    <title>Obchodní podmínky - MegaSite</title>
+    <meta name="description" content="Obchodní podmínky e-shopu">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
                     <a href="concerts.html" class="nav-link">Koncerty</a>
                 </li>
                 <li class="nav-item">
-                    <a href="shop.html" class="nav-link active">Obchod</a>
+                    <a href="shop.html" class="nav-link">Obchod</a>
                 </li>
             </ul>
             <div class="hamburger">
@@ -39,60 +39,37 @@
     <!-- Hlavička stránky -->
     <header class="page-header-simple">
         <div class="container">
-            <h1 class="page-title">Oficiální merchandise</h1>
-            <p class="page-subtitle">Podpoř kapelu nákupem exkluzivních věcí</p>
+            <h1 class="page-title">Obchodní podmínky</h1>
+            <p class="page-subtitle">Pravidla nákupu merche a vstupenek</p>
         </div>
     </header>
 
     <!-- Hlavní obsah -->
     <main class="main-content">
-        <!-- Košík -->
-        <div class="cart-indicator">
+        <section class="story-section">
             <div class="container">
-                <div class="cart-info">
-                    <span class="cart-icon">🛒</span>
-                    <span class="cart-count" id="cartCount">0</span>
-                    <span class="cart-text">položek v košíku</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Kategorie produktů -->
-        <section class="categories-section">
-            <div class="container">
-                <div class="category-filters">
-                    <button class="category-btn active" data-category="all">Všechny produkty</button>
-                    <button class="category-btn" data-category="clothing">Oblečení</button>
-                    <button class="category-btn" data-category="music">Hudba</button>
-                    <button class="category-btn" data-category="accessories">Doplňky</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Produkty -->
-        <section class="products-section">
-            <div class="container">
-                <div class="products-grid" id="productsGrid">
-                    <!-- Ukázkové produkty (překlad názvů, popisků a tlačítek) budou pokračovat stejně jako výše -->
-                    <!-- ... -->
+                <div class="story-content" style="text-align: left; max-width: 900px;">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 3rem; border-radius: 10px; border-top: 4px solid #fdc913; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                        <h2 style="color: #fdc913; margin-bottom: 1rem; font-size: 1.8rem;">1. Základní ustanovení</h2>
+                        <p style="color: #ffffff; opacity: 0.9; margin-bottom: 2rem;">Tyto obchodní podmínky upravují práva a povinnosti provozovatele webu a kupujícího v rámci prodeje zboží (merchandise) a vstupenek prostřednictvím těchto webových stránek. Odesláním objednávky souhlasíte s těmito podmínkami.</p>
+                        
+                        <h2 style="color: #fdc913; margin-bottom: 1rem; font-size: 1.8rem;">2. Objednávka a uzavření kupní smlouvy</h2>
+                        <p style="color: #ffffff; opacity: 0.9; margin-bottom: 2rem;">Veškeré objednávky podané prostřednictvím e-shopu jsou závazné. Kupní smlouva vzniká v okamžiku potvrzení přijetí objednávky ze strany prodávajícího na e-mailovou adresu kupujícího.</p>
+                        
+                        <h2 style="color: #fdc913; margin-bottom: 1rem; font-size: 1.8rem;">3. Ceny a platební podmínky</h2>
+                        <p style="color: #ffffff; opacity: 0.9; margin-bottom: 2rem;">Ceny zboží jsou uvedeny včetně všech daní a poplatků. Cenu lze uhradit bankovním převodem, platební kartou online nebo na dobírku dle dostupných možností v nákupním košíku.</p>
+                        
+                        <h2 style="color: #fdc913; margin-bottom: 1rem; font-size: 1.8rem;">4. Dodací podmínky</h2>
+                        <p style="color: #ffffff; opacity: 0.9; margin-bottom: 2rem;">Zboží je odesíláno do 3-5 pracovních dnů od přijetí platby, pokud není u konkrétního produktu uvedeno jinak. Vstupenky jsou zasílány elektronicky bezprostředně po obdržení platby.</p>
+                        
+                        <h2 style="color: #fdc913; margin-bottom: 1rem; font-size: 1.8rem;">5. Odstoupení od smlouvy a reklamace</h2>
+                        <p style="color: #ffffff; opacity: 0.9; margin-bottom: 3rem;">Spotřebitel má právo odstoupit od smlouvy bez udání důvodu do 14 dnů od převzetí zboží. Výjimku tvoří vstupenky na koncerty, na které se dle zákona právo na odstoupení od smlouvy ve lhůtě 14 dnů nevztahuje. Reklamace vyřizujeme v souladu s platnými právními předpisy.</p>
+                        
+                        <p style="color: #d5224c; font-weight: bold; font-size: 0.9rem; text-align: right;">Poslední aktualizace: červen 2026</p>
+                    </div>
                 </div>
             </div>
         </section>
-
-        <!-- Souhrn košíku -->
-        <div class="cart-summary" id="cartSummary" style="display: none;">
-            <div class="container">
-                <h3>Souhrn košíku</h3>
-                <div class="cart-items" id="cartItems"></div>
-                <div class="cart-total">
-                    <strong>Celkem: $<span id="cartTotal">0.00</span></strong>
-                </div>
-                <div class="cart-actions">
-                    <button class="btn btn-secondary" onclick="clearCart()">Vymazat košík</button>
-                    <button class="btn btn-primary">Přejít k objednávce</button>
-                </div>
-            </div>
-        </div>
     </main>
 
     <!-- Paticka -->
@@ -131,7 +108,6 @@
             </div>
         </div>
     </footer>
-
     <script src="script.js"></script>
 </body>
 </html>

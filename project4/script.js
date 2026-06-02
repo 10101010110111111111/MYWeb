@@ -158,6 +158,7 @@ class PokerSimulator {
       if (this.intervalId) {
         clearTimeout(this.intervalId)
       }
+      this.forceRender()
     }
   }
 
@@ -175,13 +176,14 @@ class PokerSimulator {
     document.getElementById("playerCount").disabled = false
     document.getElementById("gameStatus").textContent = "Stopped"
     document.getElementById("exportSection").style.display = "block"
+    
+    this.forceRender()
   }
 
   runGame() {
     if (!this.isRunning || this.isPaused) return
 
     this.gameNumber++
-    document.getElementById("gameNumber").textContent = this.gameNumber
 
     // Create and shuffle deck
     this.createDeck()
@@ -197,18 +199,32 @@ class PokerSimulator {
     // Evaluate hands
     this.evaluateHands()
 
-    // Update display
-    this.updateDisplay()
-
     // Log game
     this.logGame()
 
-    // Update statistics
+    // Update statistics (in memory only)
     this.updateStatistics()
+
+    // Update DOM display conditionally to prevent freezing at high speeds
+    const now = Date.now()
+    if (this.speed <= 10 || now - (this.lastRenderTime || 0) > 200) {
+      document.getElementById("gameNumber").textContent = this.gameNumber
+      this.updateDisplay()
+      this.updateStatsTables()
+      this.lastRenderTime = now
+    }
 
     // Schedule next game
     const delay = Math.max(1, 5000 / this.speed)
     this.intervalId = setTimeout(() => this.runGame(), delay)
+  }
+
+  forceRender() {
+    if (this.gameNumber > 0) {
+      document.getElementById("gameNumber").textContent = this.gameNumber
+      this.updateDisplay()
+      this.updateStatsTables()
+    }
   }
 
   evaluateHands() {
@@ -418,39 +434,21 @@ class PokerSimulator {
   }
 
   findWinners() {
-    let bestRank = 0
-    let bestComparison = Number.NEGATIVE_INFINITY
-
-    // Find the best hand rank and comparison value
-    this.players.forEach((player) => {
-      if (
-        player.bestHand.rank > bestRank ||
-        (player.bestHand.rank === bestRank &&
-          this.compareHands(player.bestHand, { rank: bestRank, tiebreakers: [] }) > bestComparison)
-      ) {
-        bestRank = player.bestHand.rank
-        bestComparison = this.compareHands(player.bestHand, { rank: bestRank, tiebreakers: [] })
-      }
-    })
-
-    // Find all players with the best hand
-    const winners = []
     let bestHand = null
+    const winners = []
 
     this.players.forEach((player) => {
-      if (player.bestHand.rank === bestRank) {
-        if (!bestHand) {
-          bestHand = player.bestHand
+      if (!bestHand) {
+        bestHand = player.bestHand
+        winners.push(player.id)
+      } else {
+        const comparison = this.compareHands(player.bestHand, bestHand)
+        if (comparison > 0) {
+          winners.length = 0
           winners.push(player.id)
-        } else {
-          const comparison = this.compareHands(player.bestHand, bestHand)
-          if (comparison > 0) {
-            winners.length = 0
-            winners.push(player.id)
-            bestHand = player.bestHand
-          } else if (comparison === 0) {
-            winners.push(player.id)
-          }
+          bestHand = player.bestHand
+        } else if (comparison === 0) {
+          winners.push(player.id)
         }
       }
     })
@@ -480,7 +478,11 @@ class PokerSimulator {
 
     // Track appearances for all players
     this.players.forEach((player) => {
-      const holeCards = player.cards.sort((a, b) => this.rankValues[b.rank] - this.rankValues[a.rank])
+      const holeCards = player.cards.sort((a, b) => {
+        const rankDiff = this.rankValues[b.rank] - this.rankValues[a.rank]
+        if (rankDiff !== 0) return rankDiff
+        return a.suit.localeCompare(b.suit)
+      })
 
       // Generate different hand representations
       const fullHand = `${holeCards[0].rank}${holeCards[0].suit} ${holeCards[1].rank}${holeCards[1].suit}`
@@ -496,7 +498,11 @@ class PokerSimulator {
     // Update win/tie stats only for winners
     winners.forEach((winnerId) => {
       const player = this.players.find((p) => p.id === winnerId)
-      const holeCards = player.cards.sort((a, b) => this.rankValues[b.rank] - this.rankValues[a.rank])
+      const holeCards = player.cards.sort((a, b) => {
+        const rankDiff = this.rankValues[b.rank] - this.rankValues[a.rank]
+        if (rankDiff !== 0) return rankDiff
+        return a.suit.localeCompare(b.suit)
+      })
 
       // Generate different hand representations
       const fullHand = `${holeCards[0].rank}${holeCards[0].suit} ${holeCards[1].rank}${holeCards[1].suit}`
@@ -515,8 +521,6 @@ class PokerSimulator {
         this.tieStats[mergedHand] = (this.tieStats[mergedHand] || 0) + 1
       }
     })
-
-    this.updateStatsTables()
   }
 
   getSuitedRepresentation(cards) {
@@ -719,7 +723,14 @@ function exportData(type, format) {
       "Hand,Score,Count,Appearances,Ratio\n" +
       data.map((item) => `"${item.hand}",${item.score},${item.count},${item.appearances},"${item.ratio}"`).join("\n")
   } else if (format === "csv" && type === "log") {
-    content = "Game,Board,Player1Cards,Player1Hand,Player1Result,Player2Cards,Player2Hand,Player2Result,Winners\n"
+    let playerCount = simulator.players.length || 0;
+    let headers = ["Game", "Board"]
+    for(let i=1; i<=playerCount; i++) {
+      headers.push(`Player${i}Cards`, `Player${i}Hand`, `Player${i}Result`)
+    }
+    headers.push("Winners")
+    
+    content = headers.join(";") + "\n"
     content += data
       .map((game) => {
         const board = game.communityCards.map((c) => `${c.rank}${c.suit}`).join(" ")
@@ -749,6 +760,51 @@ function exportData(type, format) {
   }
 
   downloadFile(content, filename)
+}
+
+function exportFilteredLog(filterType) {
+  const simulator = window.pokerSimulator
+  const data = simulator.gameLog
+  
+  const filterMap = {
+    'flush': 'Flush',
+    'straight': 'Straight',
+    'fullhouse': 'Full House',
+    'fourofakind': 'Four of a Kind',
+    'royalflush': 'Royal Flush'
+  }
+  
+  const targetType = filterMap[filterType]
+  let filteredData = []
+
+  if (targetType) {
+    filteredData = data.filter(game => 
+      game.players.some(player => player.bestHand === targetType)
+    )
+  }
+
+  if (filteredData.length === 0) {
+    alert(`Nebyla nalezena žádná hra obsahující kombinaci: ${targetType}.`)
+    return
+  }
+
+  let playerCount = simulator.players.length || 0;
+  let headers = ["Game", "Board"]
+  for(let i=1; i<=playerCount; i++) {
+    headers.push(`Player${i}Cards`, `Player${i}Hand`, `Player${i}Result`)
+  }
+  headers.push("Winners")
+  
+  let content = headers.join(";") + "\n"
+  
+  content += filteredData.map(game => {
+    const board = game.communityCards.map((c) => `${c.rank}${c.suit}`).join(" ")
+    const playerData = game.players.map(p => `"${p.cards.map((c) => `${c.rank}${c.suit}`).join(" ")}";"${p.bestHand}";"${p.isWinner ? "WIN" : "LOSE"}"`).join(";")
+    const winners = game.winners.join(" ")
+    return `${game.gameNumber};"${board}";${playerData};"${winners}"`
+  }).join("\n")
+
+  downloadFile(content, `poker_filtered_${filterType}.csv`)
 }
 
 function calculateScoreData(stats, appearanceStats, scoreType) {

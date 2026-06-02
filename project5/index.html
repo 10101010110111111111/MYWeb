@@ -415,15 +415,18 @@
     <script src="script.js"></script>
     
     <script>
-        // Global percentage simulation instance
+        // Global variable for percentage simulation
         let percentageSim = null;
         
         // Global functions for buttons
         function startPercentageSimulation() {
-            console.log('Starting percentage simulation...');
-            
             if (percentageSim && percentageSim.isRunning) {
-                console.log('Simulation already running');
+                return;
+            }
+            
+            // Check if PercentageSimulationManager is available
+            if (typeof PercentageSimulationManager === 'undefined') {
+                alert('Simulation not ready yet. Please wait a moment and try again.');
                 return;
             }
             
@@ -433,8 +436,6 @@
         }
         
         function stopPercentageSimulation() {
-            console.log('Stopping percentage simulation...');
-            
             if (percentageSim) {
                 percentageSim.stopSimulation();
             }
@@ -442,15 +443,12 @@
         
         // Fallback initialization if main simulation doesn't create percentage manager
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, checking for percentage simulation manager')
-            
             // Wait a bit for scripts to load
             setTimeout(function() {
                 if (typeof window.mainSimulation !== 'undefined' && 
                     (!window.mainSimulation.percentageSimManager || 
                      typeof window.mainSimulation.percentageSimManager === 'undefined')) {
                     
-                    console.log('Creating fallback percentage simulation manager')
                     if (typeof PercentageSimulationManager !== 'undefined') {
                         window.mainSimulation.percentageSimManager = new PercentageSimulationManager(window.mainSimulation)
                     }
