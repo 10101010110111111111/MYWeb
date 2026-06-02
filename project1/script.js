@@ -479,6 +479,16 @@ const handleResize = debounce(() => {
 
 function updateLayout() {
   // Update any layout-dependent calculations
+  const videos = document.querySelectorAll(".video-container iframe")
+  videos.forEach((video) => {
+    // Ensure proper aspect ratio on resize
+    const container = video.parentElement
+    if (container) {
+      const width = container.offsetWidth
+      const height = (width * 9) / 16 // 16:9 aspect ratio
+      video.style.height = height + "px"
+    }
+  })
 }
 
 window.addEventListener("resize", handleResize)
